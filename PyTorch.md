@@ -11,7 +11,7 @@ Abstraction (model, block, layer, ...):
 3. layer (input, output, meta info)
 
 Demo:
-1. Mnist Hard-writing Task (change to block behavior) - basic functions, block behavior, hardware assignment, save and reload
+1. Mnist Hard-writing Task (change to block behavior) - basic functions, block behavior, save and reload
 2. Style Transfer Task (layer extraction for present models) - complex task, lower layer abstraction (extract the meta data from current models)
 
 A Python-based scientific computing package
@@ -81,3 +81,5 @@ The first dimension of input will be the batch size. Loss as a scala function ba
 1. Add interface to support more present mainstream model
 2. Support more self-defined code blocks for treatments
 3. Add possible exception handling mechanism and more warning
+4. Hardware assignment (multiple GPU & CPU GPU)
+5. Extension for Tensorflow
