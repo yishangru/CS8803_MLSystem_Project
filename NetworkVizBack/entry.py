@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from test.model import Model
+from model import Model
 
 
 class ModelWithLoss(nn.Module):
