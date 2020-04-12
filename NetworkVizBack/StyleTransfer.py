@@ -95,6 +95,10 @@ class Normalization(nn.Module):
         # normalize img
         return (img - self.mean) / self.std
 
+# rewrite the style transfer following our abstraction
+
+
+
 def get_style_model_and_losses(cnn, normalization_mean, normalization_std,
                                style_img, content_img,
                                content_layers=None,
@@ -103,7 +107,7 @@ def get_style_model_and_losses(cnn, normalization_mean, normalization_std,
         content_layers = content_layers_default
     if style_layers is None:
         style_layers = style_layers_default
-    cnn = copy.deepcopy(cnn)
+    #cnn = copy.deepcopy(cnn)
 
     # normalization module
     normalization = Normalization(normalization_mean, normalization_std).to(device)
@@ -249,6 +253,9 @@ def image_style_transfer_main(style_input_path, content_input_path):
     except Exception as runTimeError:
         print("Error when running style transfer\n", runTimeError)
         return 3, "running time error"
+
+def get_memory(check_tensor: torch.Tensor):
+    print(check_tensor.element_size() * check_tensor.nelement() / 1024)
 
 """
 import matplotlib.pyplot as plt
