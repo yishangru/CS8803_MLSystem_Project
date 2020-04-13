@@ -63,23 +63,22 @@ The first dimension of input will be the batch size. Loss as a scala function ba
 ## Support Tensor Meta Information
 1. torch.Size(torch)
 
-## Support Data Type in Torch
-1. torch.uint8 (for image)
-2. torch.int8
-3. torch.int16 (torch.short)
-4. torch.int32 (torch.int)
-5. torch.int64 (torch.long)
-6. torch.float16 (torch.half)
-7. torch.float32 (torch.float)
-8. torch.float64 (torch.double)
+## Support Data Type
+1. uint8 (for image)
+2. int8
+3. int16 (short)
+4. int32 (int)
+5. int64 (long)
+6. float16 (half)
+7. float32 (float)
+8. float64 (double)
 9. torch.bool
 
 ## Tensor Place to GPU (Unified Call)
 1. x.to(device=device, dtype=dtype)
 
 # Future Project Extension
-1. Add interface to support more present mainstream model
-2. Support more self-defined code blocks for treatments
-3. Add possible exception handling mechanism and more warning
-4. Hardware assignment (multiple GPU & CPU GPU)
-5. Extension for Tensorflow
+1. Add abstraction for more api in PyTorch
+2. Add interface to support tensorflow
+3. Support more self-defined code blocks for special treatments (input output abstraction)
+4. Add possible exception handling mechanism and more warning

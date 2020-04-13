@@ -1,2 +1,0 @@
-class layerWrapper(object):
-    pass

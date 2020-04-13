@@ -1,6 +1,5 @@
 import torch
 from enum import Enum
-from platform.tensorWrapper import tensorWrapper
 
 """
 data will the class wrapper for the tensor,
@@ -8,6 +7,7 @@ with meta data such as size for reference.
 tensor is abstraction of data in platform.
 E.g. it is tensor in PyTorch.
 """
+class dataType_Torch(object)
 
 class dataType(Enum):
     INT8 = torch.int8
@@ -19,7 +19,7 @@ class dataType(Enum):
     BOOLEAN = torch.bool
 
 # data, device, dtype, whether tracking
-class tensorWrapperTorch(tensorWrapper):
+class tensor_Torch(tensorWrapper):
     def __init__(self):
         super(tensorWrapperTorch, self).__init__()
 

@@ -1,4 +1,9 @@
 # Project Design
+## System Architecture
+1. Backend once starts, generate the protocol file for front end to get the parameter and generation type
+2. Front end read the proptocol and generate node with input parameter
+3. After the network structure is finished, select Platform and generate code
+4. Iteration running with meta information profiling (start profiling) 
 
 ## Abstraction
 ### block level
@@ -14,4 +19,4 @@ A model is viewed as a combination of multiple blocks. The input and output rela
 This directory is for the block and model level abstraction.
 
 ### platform
-This directory is the middleware for transform the platform api (PyTorch) to our code.
+This directory is the middleware for transform the platform api (PyTorch) to our code. Wrapper is the interface for the method abstraction.
