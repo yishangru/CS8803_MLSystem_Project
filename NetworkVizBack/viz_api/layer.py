@@ -16,6 +16,9 @@ class LayerWrapper(object):
         super(LayerWrapper, self).__init__()
         self.name = name
 
+    def get_layer(self):
+        return NotImplementedError
+
     def forward(self, input_tensor: TensorWrapper):
         raise NotImplementedError
 
@@ -38,6 +41,11 @@ class LayerWrapper(object):
 class ReLU(LayerWrapper):
     def __init__(self, name: str):
         super(ReLU, self).__init__(name)
+
+
+class Linear(LayerWrapper):
+    def __init__(self, name: str):
+        super(Linear, self).__init__(name)
 
 
 class Conv2d(LayerWrapper):

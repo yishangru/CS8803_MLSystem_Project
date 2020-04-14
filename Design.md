@@ -3,7 +3,9 @@
 1. Backend once starts, generate the protocol file for front end to get the parameter and generation type
 2. Front end read the proptocol and generate node with input parameter
 3. After the network structure is finished, select Platform and generate code
-4. Iteration running with meta information profiling (start profiling) 
+4. Iteration running with meta information profiling (start profiling)
+
+## Training and Evaluation
 
 ## Abstraction
 ### block level
