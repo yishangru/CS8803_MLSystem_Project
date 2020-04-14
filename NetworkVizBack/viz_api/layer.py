@@ -17,25 +17,30 @@ class LayerWrapper(object):
         self.name = name
 
     def get_layer(self):
-        return NotImplementedError
+        raise NotImplementedError
 
     def forward(self, input_tensor: TensorWrapper):
         raise NotImplementedError
 
-    def get_memory_size(self):
-        return NotImplementedError
+    # return KB in memory usage for feature (weight, bias)
+    def get_feature_memory_size(self):
+        raise NotImplementedError
+
+    # return KB in memory usage for gradients
+    def get_grad_memory_size(self):
+        raise NotImplementedError
 
     def set_as_eval(self):
-        return NotImplementedError
+        raise NotImplementedError
 
     def set_as_training(self):
-        return NotImplementedError
+        raise NotImplementedError
 
     def change_data_type(self, new_type: DataType):
-        return NotImplementedError
+        raise NotImplementedError
 
     def set_device(self, device: torch.device):
-        return NotImplementedError
+        raise NotImplementedError
 
 
 class ReLU(LayerWrapper):

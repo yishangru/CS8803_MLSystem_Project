@@ -31,9 +31,14 @@ class ReLU_Torch(layer.ReLU):
     def forward(self, input_tensor: Tensor_Torch):
         return Tensor_Torch(self.relu(input_tensor.get_linked_tensor()), name=self.name + "_output")
 
-    # return KB in memory usage, relu is 0 in pytorch
-    def get_memory_size(self):
+    # return KB in memory usage for feature (weight, bias), relu is 0
+    def get_feature_memory_size(self):
         return sum([parameter.element_size() * parameter.nelement() for parameter in self.relu.parameters()]) / 1024
+
+    # return KB in memory usage for gradients
+    def get_grad_memory_size(self):
+        return sum([0 if parameter.grad is None else parameter.grad.element_size() * parameter.grad.nelement()
+                    for parameter in self.relu.parameters()]) / 1024
 
     def set_as_eval(self):
         self.relu.eval()
@@ -60,9 +65,14 @@ class Linear_Torch(layer.Linear):
     def forward(self, input_tensor: Tensor_Torch):
         return Tensor_Torch(self.linear(input_tensor.get_linked_tensor()), name=self.name + "_output")
 
-    # return KB in memory usage
-    def get_memory_size(self):
+    # return KB in memory usage for feature (weight, bias)
+    def get_feature_memory_size(self):
         return sum([parameter.element_size() * parameter.nelement() for parameter in self.linear.parameters()]) / 1024
+
+    # return KB in memory usage for gradients
+    def get_grad_memory_size(self):
+        return sum([0 if parameter.grad is None else parameter.grad.element_size() * parameter.grad.nelement()
+                    for parameter in self.linear.parameters()]) / 1024
 
     def set_as_eval(self):
         self.linear.eval()
@@ -89,9 +99,14 @@ class Conv2d_Torch(layer.Conv2d):
     def forward(self, input_tensor: Tensor_Torch):
         return Tensor_Torch(self.conv2d(input_tensor.get_linked_tensor()), name=self.name + "_output")
 
-    # return KB in memory usage
-    def get_memory_size(self):
+    # return KB in memory usage for feature (weight, bias)
+    def get_feature_memory_size(self):
         return sum([parameter.element_size() * parameter.nelement() for parameter in self.conv2d.parameters()]) / 1024
+
+    # return KB in memory usage for gradients
+    def get_grad_memory_size(self):
+        return sum([0 if parameter.grad is None else parameter.grad.element_size() * parameter.grad.nelement()
+                    for parameter in self.conv2d.parameters()]) / 1024
 
     def set_as_eval(self):
         self.conv2d.eval()
@@ -120,9 +135,14 @@ class MaxPool2d_Torch(layer.MaxPool2d):
     def forward(self, input_tensor: Tensor_Torch):
         return Tensor_Torch(self.maxpool2d(input_tensor.get_linked_tensor()), name=self.name + "_output")
 
-    # return KB in memory usage
-    def get_memory_size(self):
+    # return KB in memory usage for feature (weight, bias)
+    def get_feature_memory_size(self):
         return sum([parameter.element_size() * parameter.nelement() for parameter in self.maxpool2d.parameters()]) / 1024
+
+    # return KB in memory usage for gradients
+    def get_grad_memory_size(self):
+        return sum([0 if parameter.grad is None else parameter.grad.element_size() * parameter.grad.nelement()
+                    for parameter in self.maxpool2d.parameters()]) / 1024
 
     def set_as_eval(self):
         self.maxpool2d.eval()
@@ -150,9 +170,14 @@ class BatchNorm2d_Torch(layer.BatchNorm2d):
     def forward(self, input_tensor: Tensor_Torch):
         return Tensor_Torch(self.batchnorm2d(input_tensor.get_linked_tensor()), name=self.name + "_output")
 
-    # return KB in memory usage
-    def get_memory_size(self):
+    # return KB in memory usage for feature (weight, bias)
+    def get_feature_memory_size(self):
         return sum([parameter.element_size() * parameter.nelement() for parameter in self.batchnorm2d.parameters()]) / 1024
+
+    # return KB in memory usage for gradients
+    def get_grad_memory_size(self):
+        return sum([0 if parameter.grad is None else parameter.grad.element_size() * parameter.grad.nelement()
+                    for parameter in self.batchnorm2d.parameters()]) / 1024
 
     def set_as_eval(self):
         self.batchnorm2d.eval()
@@ -179,9 +204,14 @@ class MSELoss_Torch(layer.MSELoss):
     def forward(self, input_tensor: Tensor_Torch):
         return Tensor_Torch(self.mseloss(input_tensor.get_linked_tensor()), name=self.name + "_output")
 
-    # return KB in memory usage
-    def get_memory_size(self):
+    # return KB in memory usage for feature (weight, bias)
+    def get_feature_memory_size(self):
         return sum([parameter.element_size() * parameter.nelement() for parameter in self.mseloss.parameters()]) / 1024
+
+    # return KB in memory usage for gradients
+    def get_grad_memory_size(self):
+        return sum([0 if parameter.grad is None else parameter.grad.element_size() * parameter.grad.nelement()
+                    for parameter in self.mseloss.parameters()]) / 1024
 
     def set_as_eval(self):
         self.mseloss.eval()
@@ -197,7 +227,6 @@ class MSELoss_Torch(layer.MSELoss):
 
 
 
-"""
 device = torch.device("cuda:0")
 
 input = Tensor_Torch(torch.randn(128, 20))
@@ -209,9 +238,10 @@ if torch.cuda.is_available():
     n.set_device(device)
 output = n.forward(input)
 print(input.name, "---", input.get_memory_size())
-print(n.name, "---", n.get_memory_size())
+print(n.name, "---", n.get_feature_memory_size())
 print(output.name, "---", output.get_memory_size())
 
+"""
 import inspect
 signature = inspect.signature(ReLU_Torch.__init__)
 for param in signature.parameters.values():

@@ -48,9 +48,14 @@ class Tensor_Torch(tensor.TensorWrapper):
     def get_data_type(self):
         return self.data_type
 
-    # return KB in memory usage
-    def get_memory_size(self):
+    # return KB in memory usage for tensor
+    def get_self_memory_size(self):
         return self.linked_tensor.element_size() * self.linked_tensor.nelement() / 1024
+
+    # return KB in memory usage for gradients
+    def get_grad_memory_size(self):
+        related_grad = self.linked_tensor.grad
+        return 0 if related_grad is None else related_grad.element_size() * related_grad.nelement() / 1024
 
     def remove_from_tracking_gradient(self):
         self.linked_tensor.detach()
