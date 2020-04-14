@@ -55,7 +55,7 @@ class Tensor_Torch(tensor.TensorWrapper):
     # return KB in memory usage for gradients
     def get_grad_memory_size(self):
         related_grad = self.linked_tensor.grad
-        return 0 if related_grad is None else related_grad.element_size() * related_grad.nelement() / 1024
+        return float(0) if related_grad is None else related_grad.element_size() * related_grad.nelement() / 1024
 
     def remove_from_tracking_gradient(self):
         self.linked_tensor.detach()

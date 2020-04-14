@@ -225,8 +225,7 @@ class MSELoss_Torch(layer.MSELoss):
     def set_device(self, device: torch.device):
         self.mseloss.to(device=device)
 
-
-
+"""
 device = torch.device("cuda:0")
 
 input = Tensor_Torch(torch.randn(128, 20))
@@ -237,11 +236,10 @@ if torch.cuda.is_available():
     input.set_device(device=device)
     n.set_device(device)
 output = n.forward(input)
-print(input.name, "---", input.get_memory_size())
-print(n.name, "---", n.get_feature_memory_size())
-print(output.name, "---", output.get_memory_size())
+print(input.name, "---", input.get_self_memory_size(), "---", input.get_grad_memory_size())
+print(n.name, "---", n.get_feature_memory_size(), "---", n.get_grad_memory_size())
+print(output.name, "---", output.get_self_memory_size(), "---", output.get_grad_memory_size())
 
-"""
 import inspect
 signature = inspect.signature(ReLU_Torch.__init__)
 for param in signature.parameters.values():
