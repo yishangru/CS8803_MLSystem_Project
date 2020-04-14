@@ -1,5 +1,7 @@
+import torch
 from enum import Enum, auto
 from viz_api.tensor import TensorWrapper
+from viz_api.tensor import DataType
 
 class LayerType(Enum):
     ReLU = auto()
@@ -18,6 +20,18 @@ class LayerWrapper(object):
         raise NotImplementedError
 
     def get_memory_size(self):
+        return NotImplementedError
+
+    def set_as_eval(self):
+        return NotImplementedError
+
+    def set_as_training(self):
+        return NotImplementedError
+
+    def change_data_type(self, new_type: DataType):
+        return NotImplementedError
+
+    def set_device(self, device: torch.device):
         return NotImplementedError
 
 

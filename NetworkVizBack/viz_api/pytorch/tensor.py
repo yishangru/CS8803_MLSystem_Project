@@ -1,10 +1,5 @@
-from typing import Dict
-
 import torch
 import os, sys
-
-from torch import dtype
-
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from viz_api.tensor import DataType
@@ -53,12 +48,21 @@ class Tensor_Torch(tensor.TensorWrapper):
     def get_data_type(self):
         return self.data_type
 
-    def change_data_type(self, new_type: DataType):
-        self.linked_tensor.to(DataType_Torch_Mapping[new_type])
-        self.data_type = new_type
-
+    # return KB in memory usage
     def get_memory_size(self):
         return self.linked_tensor.element_size() * self.linked_tensor.nelement() / 1024
 
     def remove_from_tracking_gradient(self):
         self.linked_tensor.detach()
+
+    def change_data_type(self, new_type: DataType):
+        self.linked_tensor.to(DataType_Torch_Mapping[new_type])
+        self.data_type = new_type
+
+    def set_device(self, device: torch.device):
+        if device.type == "cuda":
+            # self.linked_tensor.cude() will return a copy of tensor
+            self.linked_tensor = self.linked_tensor.cuda(device=device)
+
+    def get_device(self):
+        return self.linked_tensor.device

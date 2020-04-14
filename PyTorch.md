@@ -79,6 +79,7 @@ The first dimension of input will be the batch size. Loss as a scala function ba
 
 # Future Project Extension
 1. Add abstraction for more api in PyTorch
-2. Add interface to support tensorflow
-3. Support more self-defined code blocks for special treatments (input output abstraction)
+2. Support more self-defined code blocks for special treatments (input output abstraction)
+3. Support for distributed learning
 4. Add possible exception handling mechanism and more warning
+5. Add interface to support tensorflow

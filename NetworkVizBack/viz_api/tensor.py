@@ -1,7 +1,5 @@
+import torch
 from enum import Enum, auto
-import os, sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 
 class DataType(Enum):
     INT8 = auto()
@@ -24,9 +22,6 @@ class TensorWrapper(object):
     def get_view(self):
         return NotImplementedError
 
-    def change_data_type(self, new_type: DataType):
-        return NotImplementedError
-
     def get_data_type(self):
         return NotImplementedError
 
@@ -34,4 +29,13 @@ class TensorWrapper(object):
         return NotImplementedError
 
     def remove_from_tracking_gradient(self):
+        return NotImplementedError
+
+    def change_data_type(self, new_type: DataType):
+        return NotImplementedError
+
+    def set_device(self, device: torch.device):
+        return NotImplementedError
+
+    def get_device(self):
         return NotImplementedError
