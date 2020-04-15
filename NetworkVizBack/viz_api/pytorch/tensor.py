@@ -16,6 +16,7 @@ DataType_Torch_Mapping = {
     DataType.INT8: torch.int8,
     DataType.INT16: torch.int16,
     DataType.INT32: torch.int32,
+    DataType.INT64: torch.int64,
     DataType.UINT8: torch.uint8,
     DataType.FLOAT: torch.float32,
     DataType.DOUBLE: torch.double,
@@ -26,6 +27,7 @@ DataType_Torch_Reverse_Mapping = {
     torch.int8: DataType.INT8,
     torch.int16: DataType.INT16,
     torch.int32: DataType.INT32,
+    torch.int64: DataType.INT64,
     torch.uint8: DataType.UINT8,
     torch.float32: DataType.FLOAT,
     torch.double: DataType.DOUBLE,
@@ -36,6 +38,10 @@ DataType_Torch_Reverse_Mapping = {
 class Tensor_Torch(tensor.TensorWrapper):
     def __init__(self, linked_tensor: torch.Tensor, name: str="tensor_Torch"):
         super(Tensor_Torch, self).__init__(name)
+        self.set_linked_tensor(linked_tensor=linked_tensor)
+
+    # for tensor update
+    def set_linked_tensor(self, linked_tensor: torch.Tensor):
         self.linked_tensor = linked_tensor
         self.data_type = DataType_Torch_Reverse_Mapping[self.linked_tensor.dtype]
 
@@ -61,14 +67,17 @@ class Tensor_Torch(tensor.TensorWrapper):
         return float(0) if related_grad is None else related_grad.element_size() * related_grad.nelement() / 1024
 
     def remove_from_tracking_gradient(self):
-        self.linked_tensor.detach()
+        self.linked_tensor.detach_()
+
+    def start_tracking_gradient(self):
+        self.linked_tensor.requires_grad_(requires_grad=True)
 
     def change_data_type(self, new_type: DataType):
         self.linked_tensor.to(DataType_Torch_Mapping[new_type])
         self.data_type = new_type
 
     def set_device(self, device: torch.device):
-        if device.type == "cuda":
+        if self.get_device().type != device.type:
             # self.linked_tensor.cude() will return a copy of tensor
             self.linked_tensor = self.linked_tensor.cuda(device=device)
 

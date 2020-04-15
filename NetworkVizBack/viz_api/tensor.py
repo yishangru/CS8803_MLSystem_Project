@@ -5,6 +5,7 @@ class DataType(Enum):
     INT8 = auto()
     INT16 = auto()
     INT32 = auto()
+    INT64 = auto()
     UINT8 = auto()
     FLOAT = auto()
     DOUBLE = auto()
@@ -15,6 +16,10 @@ class TensorWrapper(object):
     def __init__(self, name: str):
         super(TensorWrapper, self).__init__()
         self.name = name
+
+    # for tensor update
+    def set_linked_tensor(self, linked_tensor):
+        raise NotImplementedError
 
     def get_linked_tensor(self):
         raise NotImplementedError
@@ -37,6 +42,9 @@ class TensorWrapper(object):
         return NotImplementedError
 
     def remove_from_tracking_gradient(self):
+        raise NotImplementedError
+
+    def start_tracking_gradient(self):
         raise NotImplementedError
 
     def change_data_type(self, new_type: DataType):

@@ -1,7 +1,4 @@
-import torch
 from enum import Enum, auto
-from viz_api.tensor import TensorWrapper
-from viz_api.tensor import DataType
 
 """
 torchvision datasets
@@ -16,8 +13,8 @@ DataLoader(dataset, batch_size=1, shuffle=False, sampler=None,
 class InputType(Enum):
     ImageLoader = auto()    # load single image
     RandomLoader = auto()   # generate random tensor with shape
-    DateSetLoader = auto()  # load training set or validation set
     ConstantLoader = auto() # generate constant tensor with shape (zero or one)
+
 
 # data loader, it will contain a tensor which holder the data
 class InputWrapper(object):
@@ -26,7 +23,7 @@ class InputWrapper(object):
         self.name = name
 
     def get_loaded_tensor(self):
-        pass
+        raise NotImplementedError
 
     def set_device(self, device):
         raise NotImplementedError
@@ -40,7 +37,13 @@ class InputWrapper(object):
 
     # return KB in memory usage for gradients of the loaded tensor
     def get_tensor_grad_memory_size(self):
-        return NotImplementedError
+        raise NotImplementedError
+
+    def remove_from_tracking_gradient(self):
+        raise NotImplementedError
+
+    def start_tracking_gradient(self):
+        raise NotImplementedError
 
     def get_despcription(self):
         raise NotImplementedError
@@ -55,12 +58,12 @@ class RandomLoader(InputWrapper):
     def __init__(self, name: str):
         super(RandomLoader, self).__init__(name)
 
-# load training set or validation set
-class ImageDateSetLoader(InputWrapper):
-    def __init__(self, name: str):
-        super(ImageDateSetLoader, self).__init__(name)
-
 # generate constant tensor with shape (zero or one)
 class ConstantLoader(InputWrapper):
     def __init__(self, name: str):
         super(ConstantLoader, self).__init__(name)
+
+# load training set or validation set for image data set
+class ImageDataSetLoader(InputWrapper):
+    def __init__(self, name: str):
+        super(ImageDataSetLoader, self).__init__(name)

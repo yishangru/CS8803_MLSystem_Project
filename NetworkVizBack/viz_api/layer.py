@@ -10,6 +10,8 @@ class LayerType(Enum):
     MaxPool2d = auto()
     BatchNorm2d = auto()
     MSELoss = auto()
+    LogSoftMax = auto()
+
 
 class LayerWrapper(object):
     def __init__(self, name: str):
@@ -77,3 +79,8 @@ class BatchNorm2d(LayerWrapper):
 class MSELoss(LayerWrapper):
     def __init__(self, name: str):
         super(MSELoss, self).__init__(name)
+
+
+class LogSoftMax(LayerWrapper):
+    def __init__(self, name: str):
+        super(LogSoftMax, self).__init__(name)
