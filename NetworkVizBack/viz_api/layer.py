@@ -1,6 +1,5 @@
 import torch
 from enum import Enum, auto
-from viz_api.tensor import TensorWrapper
 from viz_api.tensor import DataType
 
 class LayerType(Enum):

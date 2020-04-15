@@ -1,4 +1,3 @@
-import torch
 from enum import Enum, auto
 
 class DataType(Enum):

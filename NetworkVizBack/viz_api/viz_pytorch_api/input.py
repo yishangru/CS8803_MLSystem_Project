@@ -7,7 +7,7 @@ import torchvision.transforms as transforms
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from viz_api import input
-from viz_api.pytorch.tensor import Tensor_Torch
+from viz_api.viz_pytorch_api.tensor import Tensor_Torch
 
 """
 input is the abstraction for the data source abstraction.

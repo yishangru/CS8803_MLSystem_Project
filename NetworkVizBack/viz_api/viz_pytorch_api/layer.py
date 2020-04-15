@@ -5,8 +5,8 @@ import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from viz_api import layer
 from viz_api.tensor import DataType
-from viz_api.pytorch.tensor import Tensor_Torch
-from viz_api.pytorch.tensor import DataType_Torch_Mapping
+from viz_api.viz_pytorch_api.tensor import Tensor_Torch
+from viz_api.viz_pytorch_api.tensor import DataType_Torch_Mapping
 
 """
 layer is the abstraction for the underlying platform API.
