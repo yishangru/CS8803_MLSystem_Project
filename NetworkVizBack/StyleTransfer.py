@@ -88,16 +88,12 @@ class Normalization(nn.Module):
         # .view the mean and std to make them [C x 1 x 1] so that they can
         # directly work with image Tensor of shape [B x C x H x W].
         # B is batch size. C is number of channels. H is height and W is width.
-        self.mean = mean.clone().detach().requires_grad_(True).view(-1, 1, 1)
-        self.std = std.clone().detach().requires_grad_(True).view(-1, 1, 1)
+        self.mean = mean.clone().view(-1, 1, 1).detach()
+        self.std = std.clone().view(-1, 1, 1).detach()
 
     def forward(self, img):
         # normalize img
         return (img - self.mean) / self.std
-
-# rewrite the style transfer following our abstraction
-
-
 
 def get_style_model_and_losses(cnn, normalization_mean, normalization_std,
                                style_img, content_img,
@@ -107,7 +103,7 @@ def get_style_model_and_losses(cnn, normalization_mean, normalization_std,
         content_layers = content_layers_default
     if style_layers is None:
         style_layers = style_layers_default
-    #cnn = copy.deepcopy(cnn)
+    # cnn = copy.deepcopy(cnn) - no need to perform deepcopy
 
     # normalization module
     normalization = Normalization(normalization_mean, normalization_std).to(device)
@@ -253,29 +249,3 @@ def image_style_transfer_main(style_input_path, content_input_path):
     except Exception as runTimeError:
         print("Error when running style transfer\n", runTimeError)
         return 3, "running time error"
-
-def get_memory(check_tensor: torch.Tensor):
-    print(check_tensor.element_size() * check_tensor.nelement() / 1024)
-
-"""
-import matplotlib.pyplot as plt
-
-# show the images
-unloader = transforms.ToPILImage()  # reconvert into PIL image
-plt.ion()
-
-def imshow(tensor, title=None):
-    image = tensor.cpu().clone()  # we clone the tensor to not do changes on it
-    image = image.squeeze(0)      # remove the fake batch dimension
-    image = unloader(image)
-    plt.imshow(image)
-    if title is not None:
-        plt.title(title)
-    plt.pause(0.001)  # pause a bit so that plots are updated
-
-plt.figure()
-imshow(style_img, title='Style Image')
-
-plt.figure()
-imshow(content_img, title='Content Image')
-"""

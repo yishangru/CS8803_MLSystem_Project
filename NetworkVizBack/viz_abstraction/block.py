@@ -14,9 +14,7 @@ from .information import blockInformation
         5. Loss function
 """
 
+
 class Block(object):
     def __init__(self, blockInfo: blockInformation):  # block information
         super(Block, self).__init__()
-
-    def forward(self):
-        pass
