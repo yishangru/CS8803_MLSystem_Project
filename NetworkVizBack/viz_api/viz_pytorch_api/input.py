@@ -15,35 +15,37 @@ input is the abstraction for the data source abstraction.
 As for input, it can be constant tensor, img loader, or the present dataset.
 After load, the processed tensor is in the input.
 """
+# -------------------------------- Input Node -------------------------------- #
 
 # generate random tensor with shape
 class RandomLoader_Torch(input.RandomLoader):
     def __init__(self, view: list, name: str="RandomeLoader_Torch", device=torch.device("cpu")):
         super(RandomLoader_Torch, self).__init__(name)
-        self.linked_tensor_torch = Tensor_Torch(torch.randn(*view, device=device), name=self.name + "_random_tensor_1")
+        self.linked_tensor_group = list()
+        self.linked_tensor_group.append(Tensor_Torch(torch.randn(*view, device=device), name=self.name + "_random_tensor_1"))
 
     def get_loaded_tensor(self):
-        return self.linked_tensor_torch
+        return self.linked_tensor_group[0]
 
     def set_device(self, device: torch.device):
-        self.linked_tensor_torch.set_device(device=device)
+        self.linked_tensor_group[0].set_device(device=device)
 
     def get_device(self):
-        return self.linked_tensor_torch.get_device()
+        return self.linked_tensor_group[0].get_device()
 
     # return KB in memory usage for the loaded tensor
     def get_tensor_memory_size(self):
-        return self.linked_tensor_torch.get_self_memory_size()
+        return self.linked_tensor_group[0].get_self_memory_size()
 
     # return KB in memory usage for gradients of the loaded tensor
     def get_tensor_grad_memory_size(self):
-        return self.linked_tensor_torch.get_grad_memory_size()
+        return self.linked_tensor_group[0].get_grad_memory_size()
 
     def remove_from_tracking_gradient(self):
-        return self.linked_tensor_torch.remove_from_tracking_gradient()
+        return self.linked_tensor_group[0].remove_from_tracking_gradient()
 
     def start_tracking_gradient(self):
-        return self.linked_tensor_torch.start_tracking_gradient()
+        return self.linked_tensor_group[0].start_tracking_gradient()
 
     def get_despcription(self):
         return "Loader for random tensor"
@@ -52,33 +54,75 @@ class RandomLoader_Torch(input.RandomLoader):
 class ConstantLoader_Torch(input.ConstantLoader):
     def __init__(self, view: list, value: int, name: str="ConstantLoader_Torch", device=torch.device("cpu")):
         super(ConstantLoader_Torch, self).__init__(name)
-        self.linked_tensor_torch = Tensor_Torch(torch.add(torch.zeros(*view, device=device), value), name=self.name + "const_tensor")
+        self.linked_tensor_group = list()
+        self.linked_tensor_group.append(Tensor_Torch(torch.add(torch.zeros(*view, device=device), value), name=self.name + "_const_tensor_1"))
 
     def get_loaded_tensor(self):
-        return self.linked_tensor_torch
+        return self.linked_tensor_group[0]
 
     def set_device(self, device: torch.device):
-        self.linked_tensor_torch.set_device(device=device)
+        self.linked_tensor_group[0].set_device(device=device)
 
     def get_device(self):
-        return self.linked_tensor_torch.get_device()
+        return self.linked_tensor_group[0].get_device()
 
     # return KB in memory usage for the loaded tensor
     def get_tensor_memory_size(self):
-        return self.linked_tensor_torch.get_self_memory_size()
+        return self.linked_tensor_group[0].get_self_memory_size()
 
     # return KB in memory usage for gradients of the loaded tensor
     def get_tensor_grad_memory_size(self):
-        return self.linked_tensor_torch.get_grad_memory_size()
+        return self.linked_tensor_group[0].get_grad_memory_size()
 
     def remove_from_tracking_gradient(self):
-        return self.linked_tensor_torch.remove_from_tracking_gradient()
+        return self.linked_tensor_group[0].remove_from_tracking_gradient()
 
     def start_tracking_gradient(self):
-        return self.linked_tensor_torch.start_tracking_gradient()
+        return self.linked_tensor_group[0].start_tracking_gradient()
+
+    # dummy return
+    def get_number_batch(self):
+        return 1
 
     def get_despcription(self):
         return "Loader for constant tensor (1, 0)"
+
+# load tensor
+class TensorLoader_Torch(input.TensorLoader):
+    def __init__(self, tensor_path: str, name: str="TensorLoader_Torch", device=torch.device("cpu")):
+        super(TensorLoader_Torch, self).__init__(name)
+        self.linked_tensor_group = list()
+        self.linked_tensor_group.append(Tensor_Torch(torch.load(tensor_path).to(device), name=self.name + "_saved_tensor_1"))
+
+    def get_loaded_tensor(self):
+        return self.linked_tensor_group[0]
+
+    def set_device(self, device: torch.device):
+        self.linked_tensor_group[0].set_device(device=device)
+
+    def get_device(self):
+        return self.linked_tensor_group[0].get_device()
+
+    # return KB in memory usage for the loaded tensor
+    def get_tensor_memory_size(self):
+        return self.linked_tensor_group[0].get_self_memory_size()
+
+    # return KB in memory usage for gradients of the loaded tensor
+    def get_tensor_grad_memory_size(self):
+        return self.linked_tensor_group[0].get_grad_memory_size()
+
+    def remove_from_tracking_gradient(self):
+        return self.linked_tensor_group[0].remove_from_tracking_gradient()
+
+    def start_tracking_gradient(self):
+        return self.linked_tensor_group[0].start_tracking_gradient()
+
+    # dummy return 1 as batch size
+    def get_number_batch(self):
+        return 1
+
+    def get_despcription(self):
+        return "Loader for tensor"
 
 # load one image
 class ImageLoader_Torch(input.ImageLoader):
@@ -86,30 +130,35 @@ class ImageLoader_Torch(input.ImageLoader):
         super(ImageLoader_Torch, self).__init__(name)
         loader = transforms.Compose([transforms.Resize(imsize), transforms.ToTensor()])
         image = loader(Image.open(image_path, mode="r")).unsqueeze(0)
-        self.linked_tensor_torch = Tensor_Torch(image.to(device, torch.float), name=self.name + "_image_tensor_1")
+        self.linked_tensor_group = list()
+        self.linked_tensor_group.append(Tensor_Torch(image.to(device, torch.float), name=self.name + "_image_tensor_1"))
 
     def get_loaded_tensor(self):
-        return self.linked_tensor_torch
+        return self.linked_tensor_group[0]
 
     def set_device(self, device: torch.device):
-        self.linked_tensor_torch.set_device(device=device)
+        self.linked_tensor_group[0].set_device(device=device)
 
     def get_device(self):
-        return self.linked_tensor_torch.get_device()
+        return self.linked_tensor_group[0].get_device()
 
     # return KB in memory usage for the loaded tensor
     def get_tensor_memory_size(self):
-        return self.linked_tensor_torch.get_self_memory_size()
+        return self.linked_tensor_group[0].get_self_memory_size()
 
     # return KB in memory usage for gradients of the loaded tensor
     def get_tensor_grad_memory_size(self):
-        return self.linked_tensor_torch.get_grad_memory_size()
+        return self.linked_tensor_group[0].get_grad_memory_size()
 
     def remove_from_tracking_gradient(self):
-        return self.linked_tensor_torch.remove_from_tracking_gradient()
+        return self.linked_tensor_group[0].remove_from_tracking_gradient()
 
     def start_tracking_gradient(self):
-        return self.linked_tensor_torch.start_tracking_gradient()
+        return self.linked_tensor_group[0].start_tracking_gradient()
+
+    # dummy return 1 as batch size
+    def get_number_batch(self):
+        return 1
 
     def get_despcription(self):
         return "Loader for single image"
@@ -132,14 +181,10 @@ class MnistDataSetLoader_Torch(input.ImageDataSetLoader):
             self.linked_tensor_group_img.append(Tensor_Torch(images.to(device), name=self.name + "_img_tensor_" + str(i+1)))
             self.linked_tensor_group_label.append(Tensor_Torch(labels.to(device), name=self.name + "_label_tensor_" + str(i+1)))
 
-    # dummy return
-    def get_loaded_tensor(self):
-        return self.linked_tensor_group_img[0]
-
-    def get_loaded_tensor_img(self, index: int=0):
+    def get_loaded_tensor_img_single(self, index: int=0):
         return self.linked_tensor_group_img[index]
 
-    def get_loaded_tensor_label(self, index: int=0):
+    def get_loaded_tensor_label_single(self, index: int=0):
         return self.linked_tensor_group_label[index]
 
     def set_device(self, device: torch.device):
@@ -175,7 +220,141 @@ class MnistDataSetLoader_Torch(input.ImageDataSetLoader):
     def get_despcription(self):
         return "Loader for MNIST dataset"
 
-# --------------------- test --------------------- #
+
+# -------------------------------- Constant Node -------------------------------- #
+
+# generate random tensor with shape
+class RandomConstant_Torch(input.RandomConstant):
+    def __init__(self, view: list, name: str="RandomeConstant_Torch", device=torch.device("cpu")):
+        super(RandomConstant_Torch, self).__init__(name)
+        self.linked_tensor_torch = Tensor_Torch(torch.randn(*view, device=device), name=self.name + "_random_tensor")
+
+    def get_saved_tensor(self):
+        return self.linked_tensor_torch
+
+    def set_device(self, device: torch.device):
+        self.linked_tensor_torch.set_device(device=device)
+
+    def get_device(self):
+        return self.linked_tensor_torch.get_device()
+
+    # return KB in memory usage for the loaded tensor
+    def get_tensor_memory_size(self):
+        return self.linked_tensor_torch.get_self_memory_size()
+
+    # return KB in memory usage for gradients of the loaded tensor
+    def get_tensor_grad_memory_size(self):
+        return self.linked_tensor_torch.get_grad_memory_size()
+
+    def remove_from_tracking_gradient(self):
+        return self.linked_tensor_torch.remove_from_tracking_gradient()
+
+    def start_tracking_gradient(self):
+        return self.linked_tensor_torch.start_tracking_gradient()
+
+    def get_despcription(self):
+        return "Random tensor constant"
+
+# generate constant tensor with shape (zero or one)
+class ConstantConstant_Torch(input.ConstantConstant):
+    def __init__(self, view: list, value: int, name: str = "ConstantConstant_Torch", device=torch.device("cpu")):
+        super(ConstantConstant_Torch, self).__init__(name)
+        self.linked_tensor_torch = Tensor_Torch(torch.add(torch.zeros(*view, device=device), value),
+                                                name=self.name + "const_tensor")
+
+    def get_saved_tensor(self):
+        return self.linked_tensor_torch
+
+    def set_device(self, device: torch.device):
+        self.linked_tensor_torch.set_device(device=device)
+
+    def get_device(self):
+        return self.linked_tensor_torch.get_device()
+
+    # return KB in memory usage for the loaded tensor
+    def get_tensor_memory_size(self):
+        return self.linked_tensor_torch.get_self_memory_size()
+
+    # return KB in memory usage for gradients of the loaded tensor
+    def get_tensor_grad_memory_size(self):
+        return self.linked_tensor_torch.get_grad_memory_size()
+
+    def remove_from_tracking_gradient(self):
+        return self.linked_tensor_torch.remove_from_tracking_gradient()
+
+    def start_tracking_gradient(self):
+        return self.linked_tensor_torch.start_tracking_gradient()
+
+    def get_despcription(self):
+        return "Constant tensor constant (1, 0)"
+
+# load tensor
+class TensorConstant_Torch(input.TensorConstant):
+    def __init__(self, tensor_path: str, name: str="TensorConstant_Torch", device=torch.device("cpu")):
+        super(TensorConstant_Torch, self).__init__(name)
+        self.linked_tensor_torch = Tensor_Torch(torch.load(tensor_path).to(device), name=self.name + "_saved_tensor")
+
+    def get_saved_tensor(self):
+        return self.linked_tensor_torch
+
+    def set_device(self, device: torch.device):
+        self.linked_tensor_torch.set_device(device=device)
+
+    def get_device(self):
+        return self.linked_tensor_torch.get_device()
+
+    # return KB in memory usage for the loaded tensor
+    def get_tensor_memory_size(self):
+        return self.linked_tensor_torch.get_self_memory_size()
+
+    # return KB in memory usage for gradients of the loaded tensor
+    def get_tensor_grad_memory_size(self):
+        return self.linked_tensor_torch.get_grad_memory_size()
+
+    def remove_from_tracking_gradient(self):
+        return self.linked_tensor_torch.remove_from_tracking_gradient()
+
+    def start_tracking_gradient(self):
+        return self.linked_tensor_torch.start_tracking_gradient()
+
+    def get_despcription(self):
+        return "Constant Tensor constant"
+
+# load one image
+class ImageConstant_Torch(input.ImageConstant):
+    def __init__(self, image_path: str, imsize: int = 512, name: str = "ImageConstant_Torch", device=torch.device("cpu")):
+        super(ImageConstant_Torch, self).__init__(name)
+        loader = transforms.Compose([transforms.Resize(imsize), transforms.ToTensor()])
+        image = loader(Image.open(image_path, mode="r")).unsqueeze(0)
+        self.linked_tensor_torch = Tensor_Torch(image.to(device, torch.float), name=self.name + "_image_tensor")
+
+    def get_saved_tensor(self):
+        return self.linked_tensor_torch
+
+    def set_device(self, device: torch.device):
+        self.linked_tensor_torch.set_device(device=device)
+
+    def get_device(self):
+        return self.linked_tensor_torch.get_device()
+
+    # return KB in memory usage for the loaded tensor
+    def get_tensor_memory_size(self):
+        return self.linked_tensor_torch.get_self_memory_size()
+
+    # return KB in memory usage for gradients of the loaded tensor
+    def get_tensor_grad_memory_size(self):
+        return self.linked_tensor_torch.get_grad_memory_size()
+
+    def remove_from_tracking_gradient(self):
+        return self.linked_tensor_torch.remove_from_tracking_gradient()
+
+    def start_tracking_gradient(self):
+        return self.linked_tensor_torch.start_tracking_gradient()
+
+    def get_despcription(self):
+        return "Loader for single image"
+
+# --------------------- test input --------------------- #
 def test_img_loader():
     import matplotlib.pyplot as plt
     unloader = transforms.ToPILImage()  # reconvert into PIL image
@@ -189,7 +368,7 @@ def test_img_loader():
             plt.title(title)
         plt.pause(0.001)  # pause a bit so that plots are updated
 
-    imageHolder = ImageLoader_Torch(image_path="../../img/boat.jpg", imsize=600, device=torch.device("cuda:0"))
+    imageHolder = ImageLoader_Torch(image_path="../../static/img/boat.jpg", imsize=600, device=torch.device("cuda:0"))
     imshow(imageHolder.get_loaded_tensor().get_linked_tensor(), title='Style Image')
     plt.figure()
     print(imageHolder.get_tensor_memory_size(), imageHolder.get_tensor_grad_memory_size())
@@ -208,17 +387,73 @@ def test_const_loader():
     print(constHolder.get_tensor_memory_size(), constHolder.get_tensor_grad_memory_size())
     print(constHolder.get_device(), constHolder.get_loaded_tensor().get_device())
 
+def test_tensor_loader():
+    tensorHolder = TensorLoader_Torch(tensor_path="./test.pt", device=torch.device("cuda:0"))
+    print(tensorHolder.get_loaded_tensor().get_view())
+    print(tensorHolder.get_loaded_tensor().get_linked_tensor())
+    print(tensorHolder.get_tensor_memory_size(), tensorHolder.get_tensor_grad_memory_size())
+    print(tensorHolder.get_device(), tensorHolder.get_loaded_tensor().get_device())
+
 def test_img_dataset_loader():
-    root = "../../dataset"
+    root = "../../static/dataset"
     train = True
     download = True
     imageDataSetHolder = MnistDataSetLoader_Torch(root=root, batch_size=64, shuffle=True, train=train, download=download, device=torch.device("cuda:0"))
     print(imageDataSetHolder.get_number_batch())
     print(imageDataSetHolder.get_tensor_memory_size(), imageDataSetHolder.get_tensor_grad_memory_size())
-    print(imageDataSetHolder.get_loaded_tensor().get_self_memory_size(),
-          imageDataSetHolder.get_loaded_tensor_img(5).get_self_memory_size(),
-          imageDataSetHolder.get_loaded_tensor_label(5).get_self_memory_size())
+    print(imageDataSetHolder.get_loaded_tensor_img_single(5).get_self_memory_size(),
+          imageDataSetHolder.get_loaded_tensor_label_single(5).get_self_memory_size())
     print(imageDataSetHolder.get_device())
-    print(imageDataSetHolder.get_loaded_tensor().get_device(),
-          imageDataSetHolder.get_loaded_tensor_img(5).get_device(),
-          imageDataSetHolder.get_loaded_tensor_label(5).get_device())
+    print(imageDataSetHolder.get_loaded_tensor_img_single(5).get_device(),
+          imageDataSetHolder.get_loaded_tensor_label_single(5).get_device())
+
+# --------------------- test constant --------------------- #
+def test_img_constant():
+    import matplotlib.pyplot as plt
+    unloader = transforms.ToPILImage()  # reconvert into PIL image
+    plt.ion()
+    def imshow(tensor, title=None):
+        image = tensor.cpu().clone()  # we clone the tensor to not do changes on it
+        image = image.squeeze(0)      # remove the fake batch dimension
+        image = unloader(image)
+        plt.imshow(image)
+        if title is not None:
+            plt.title(title)
+        plt.pause(0.001)  # pause a bit so that plots are updated
+
+    imageHolder = ImageConstant_Torch(image_path="../../static/img/boat.jpg", imsize=600, device=torch.device("cuda:0"))
+    imshow(imageHolder.get_saved_tensor().get_linked_tensor(), title='Style Image')
+    plt.figure()
+    print(imageHolder.get_tensor_memory_size(), imageHolder.get_tensor_grad_memory_size())
+    print(imageHolder.get_device(), imageHolder.get_saved_tensor().get_device())
+
+def test_random_constant():
+    randomHolder = RandomConstant_Torch([10, 20, 30, 40], device=torch.device("cuda:0"))
+    print(randomHolder.get_saved_tensor().get_view())
+    print(randomHolder.get_tensor_memory_size(), randomHolder.get_tensor_grad_memory_size())
+    print(randomHolder.get_device(), randomHolder.get_saved_tensor().get_device())
+
+def test_const_constant():
+    constHolder = ConstantConstant_Torch([5, 5, 5, 5], value=5, device=torch.device("cuda:0"))
+    print(constHolder.get_saved_tensor().get_view())
+    print(constHolder.get_saved_tensor().get_linked_tensor())
+    print(constHolder.get_tensor_memory_size(), constHolder.get_tensor_grad_memory_size())
+    print(constHolder.get_device(), constHolder.get_saved_tensor().get_device())
+
+def test_tensor_constant():
+    tensorHolder = TensorConstant_Torch(tensor_path="./test.pt", device=torch.device("cuda:0"))
+    print(tensorHolder.get_saved_tensor().get_view())
+    print(tensorHolder.get_saved_tensor().get_linked_tensor())
+    print(tensorHolder.get_tensor_memory_size(), tensorHolder.get_tensor_grad_memory_size())
+    print(tensorHolder.get_device(), tensorHolder.get_saved_tensor().get_device())
+
+
+#test_random_loader()
+#test_random_constant()
+#test_tensor_loader()
+#test_tensor_constant()
+#test_const_loader()
+#test_const_constant()
+#test_img_loader()
+#test_img_constant()
+#test_img_dataset_loader()
