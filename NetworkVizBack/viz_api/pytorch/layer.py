@@ -243,50 +243,6 @@ class BatchNorm2d_Torch(layer.BatchNorm2d):
         return "Batch2dNorm Layer"
 
 
-class MSELoss_Torch(layer.MSELoss):
-    # we can pad the linked block name to the name of layer,  reduction = 'mean' | 'none' | 'sum', need exception handling
-    def __init__(self, import_mseloss: nn.MSELoss = None, name: str = "MSELoss_Torch", reduction: str="mean", device=torch.device("cpu")):
-        super(MSELoss_Torch, self).__init__(name)
-        self.mseloss = nn.MSELoss(reduction=reduction) if import_mseloss is None else import_mseloss
-        if device.type == "cuda":
-            self.mseloss.to(device)
-        self.device = device
-
-    def get_layer(self):
-        return self.mseloss
-
-    def forward(self, input_tensor: Tensor_Torch):
-        return Tensor_Torch(self.mseloss(input_tensor.get_linked_tensor()), name=self.name + "_output")
-
-    # return KB in memory usage for feature (weight, bias)
-    def get_feature_memory_size(self):
-        return sum([parameter.element_size() * parameter.nelement() for parameter in self.mseloss.parameters()]) / 1024
-
-    # return KB in memory usage for gradients
-    def get_grad_memory_size(self):
-        return sum([0 if parameter.grad is None else parameter.grad.element_size() * parameter.grad.nelement()
-                    for parameter in self.mseloss.parameters()]) / 1024
-
-    def set_as_eval(self):
-        self.mseloss.eval()
-
-    def set_as_training(self):
-        self.mseloss.train()
-
-    def change_data_type(self, new_type: DataType):
-        self.mseloss.to(DataType_Torch_Mapping[new_type])
-
-    def set_device(self, device: torch.device):
-        self.mseloss.to(device=device)
-        self.device = device
-
-    def get_device(self):
-        return self.device
-
-    def get_despcription(self):
-        return "MSELoss Layer"
-
-
 class LogSoftmax_Torch(layer.LogSoftMax):
     # we can pad the linked block name to the name of layer
     def __init__(self, dim: int, import_logsoftmax: nn.LogSoftmax = None, name: str = "LogSoftMax_Torch",
@@ -330,6 +286,94 @@ class LogSoftmax_Torch(layer.LogSoftMax):
 
     def get_despcription(self):
         return "LogSoftMax Layer"
+
+
+class MSELoss_Torch(layer.MSELoss):
+    # we can pad the linked block name to the name of layer,  reduction = 'mean' | 'none' | 'sum', need exception handling
+    def __init__(self, import_mseloss: nn.MSELoss = None, name: str = "MSELoss_Torch", reduction: str="mean", device=torch.device("cpu")):
+        super(MSELoss_Torch, self).__init__(name)
+        self.mseloss = nn.MSELoss(reduction=reduction) if import_mseloss is None else import_mseloss
+        if device.type == "cuda":
+            self.mseloss.to(device)
+        self.device = device
+
+    def get_layer(self):
+        return self.mseloss
+
+    def forward(self, input_tensor: Tensor_Torch, target_tensor: Tensor_Torch):
+        return Tensor_Torch(self.mseloss(input_tensor.get_linked_tensor(), target_tensor.get_linked_tensor()), name=self.name + "_output")
+
+    # return KB in memory usage for feature (weight, bias)
+    def get_feature_memory_size(self):
+        return sum([parameter.element_size() * parameter.nelement() for parameter in self.mseloss.parameters()]) / 1024
+
+    # return KB in memory usage for gradients
+    def get_grad_memory_size(self):
+        return sum([0 if parameter.grad is None else parameter.grad.element_size() * parameter.grad.nelement()
+                    for parameter in self.mseloss.parameters()]) / 1024
+
+    def set_as_eval(self):
+        self.mseloss.eval()
+
+    def set_as_training(self):
+        self.mseloss.train()
+
+    def change_data_type(self, new_type: DataType):
+        self.mseloss.to(DataType_Torch_Mapping[new_type])
+
+    def set_device(self, device: torch.device):
+        self.mseloss.to(device=device)
+        self.device = device
+
+    def get_device(self):
+        return self.device
+
+    def get_despcription(self):
+        return "MSELoss Layer"
+
+
+class NLLLoss_Torch(layer.NLLLoss):
+    # we can pad the linked block name to the name of layer,  reduction = 'mean' | 'none' | 'sum', need exception handling
+    def __init__(self, import_nllloss: nn.MSELoss = None, name: str = "NLLLoss_Torch", reduction: str="mean", device=torch.device("cpu")):
+        super(NLLLoss_Torch, self).__init__(name)
+        self.nllloss = nn.NLLLoss(reduction=reduction) if import_nllloss is None else import_nllloss
+        if device.type == "cuda":
+            self.nllloss.to(device)
+        self.device = device
+
+    def get_layer(self):
+        return self.nllloss
+
+    def forward(self, input_tensor: Tensor_Torch, target_tensor: Tensor_Torch):
+        return Tensor_Torch(self.nllloss(input_tensor.get_linked_tensor(), target_tensor.get_linked_tensor()), name=self.name + "_output")
+
+    # return KB in memory usage for feature (weight, bias)
+    def get_feature_memory_size(self):
+        return sum([parameter.element_size() * parameter.nelement() for parameter in self.nllloss.parameters()]) / 1024
+
+    # return KB in memory usage for gradients
+    def get_grad_memory_size(self):
+        return sum([0 if parameter.grad is None else parameter.grad.element_size() * parameter.grad.nelement()
+                    for parameter in self.nllloss.parameters()]) / 1024
+
+    def set_as_eval(self):
+        self.nllloss.eval()
+
+    def set_as_training(self):
+        self.nllloss.train()
+
+    def change_data_type(self, new_type: DataType):
+        self.nllloss.to(DataType_Torch_Mapping[new_type])
+
+    def set_device(self, device: torch.device):
+        self.nllloss.to(device=device)
+        self.device = device
+
+    def get_device(self):
+        return self.device
+
+    def get_despcription(self):
+        return "NLLLoss Layer"
 
 
 def test_logsoftmax():

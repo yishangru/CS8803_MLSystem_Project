@@ -9,8 +9,9 @@ class LayerType(Enum):
     Conv2d = auto()
     MaxPool2d = auto()
     BatchNorm2d = auto()
-    MSELoss = auto()
     LogSoftMax = auto()
+    MSELoss = auto()
+    NLLLoss = auto()
 
 
 class LayerWrapper(object):
@@ -21,7 +22,7 @@ class LayerWrapper(object):
     def get_layer(self):
         raise NotImplementedError
 
-    def forward(self, input_tensor: TensorWrapper):
+    def forward(self, *input_tensor):
         raise NotImplementedError
 
     # return KB in memory usage for feature (weight, bias)
@@ -76,11 +77,16 @@ class BatchNorm2d(LayerWrapper):
         super(BatchNorm2d, self).__init__(name)
 
 
+class LogSoftMax(LayerWrapper):
+    def __init__(self, name: str):
+        super(LogSoftMax, self).__init__(name)
+
+
 class MSELoss(LayerWrapper):
     def __init__(self, name: str):
         super(MSELoss, self).__init__(name)
 
 
-class LogSoftMax(LayerWrapper):
+class NLLLoss(LayerWrapper):
     def __init__(self, name: str):
-        super(LogSoftMax, self).__init__(name)
+        super(NLLLoss, self).__init__(name)
