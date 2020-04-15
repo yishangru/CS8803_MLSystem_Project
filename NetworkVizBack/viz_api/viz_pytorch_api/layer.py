@@ -1,8 +1,9 @@
 import torch
 import torch.nn as nn
 
-import os, sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+#import os, sys
+#sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from viz_api import layer
 from viz_api.tensor import DataType
 from viz_api.viz_pytorch_api.tensor import Tensor_Torch
@@ -387,6 +388,7 @@ def test_logsoftmax():
     print(m.name, "---", m.get_feature_memory_size(), "---", m.get_grad_memory_size())
     print(output.name, "---", output.get_self_memory_size(), "---", output.get_grad_memory_size())
 
+test_logsoftmax()
 """
 device = torch.device("cpu")
 if torch.cuda.is_available():

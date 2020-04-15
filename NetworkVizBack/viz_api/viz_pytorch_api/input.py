@@ -4,8 +4,9 @@ from torchvision.datasets import MNIST
 from torch.utils.data.dataloader import DataLoader
 import torchvision.transforms as transforms
 
-import os, sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+#import os, sys
+#sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from viz_api import input
 from viz_api.viz_pytorch_api.tensor import Tensor_Torch
 
