@@ -48,6 +48,9 @@ class Tensor_Torch(tensor.TensorWrapper):
     def get_data_type(self):
         return self.data_type
 
+    def get_deep_copy(self):
+        return self.linked_tensor.clone()
+
     # return KB in memory usage for tensor
     def get_self_memory_size(self):
         return self.linked_tensor.element_size() * self.linked_tensor.nelement() / 1024

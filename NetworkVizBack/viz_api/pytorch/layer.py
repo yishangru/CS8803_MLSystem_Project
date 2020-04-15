@@ -21,9 +21,12 @@ The input tensor is the corresponding tensor wrapper in this directory.
 
 class ReLU_Torch(layer.ReLU):
     # we can pad the linked block name to the name of layer
-    def __init__(self, name: str="ReLU_Torch", inplace: bool =False):
+    def __init__(self, name: str="ReLU_Torch", inplace: bool =False, device=torch.device("cpu")):
         super(ReLU_Torch, self).__init__(name)
         self.relu = nn.ReLU(inplace=inplace)
+        if device.type == "cuda":
+            self.relu.to(device)
+        self.device = device
 
     def get_layer(self):
         return self.relu
@@ -51,13 +54,23 @@ class ReLU_Torch(layer.ReLU):
 
     def set_device(self, device: torch.device):
         self.relu.to(device=device)
+        self.device = device
+
+    def get_device(self):
+        return self.device
+
+    def get_despcription(self):
+        return "ReLu Layer"
 
 
 class Linear_Torch(layer.Linear):
     # we can pad the linked block name to the name of layer
-    def __init__(self, in_features: int, out_features: int, name: str = "Linear_Torch", bias: bool = True):
+    def __init__(self, in_features: int, out_features: int, name: str = "Linear_Torch", bias: bool = True, device=torch.device("cpu")):
         super(Linear_Torch, self).__init__(name)
         self.linear = nn.Linear(in_features=in_features, out_features=out_features, bias=bias)
+        if device.type == "cuda":
+            self.linear.to(device)
+        self.device = device
 
     def get_layer(self):
         return self.linear
@@ -85,13 +98,24 @@ class Linear_Torch(layer.Linear):
 
     def set_device(self, device: torch.device):
         self.linear.to(device=device)
+        self.device = device
+
+    def get_device(self):
+        return self.device
+
+    def get_despcription(self):
+        return "Linear Layer"
 
 
 class Conv2d_Torch(layer.Conv2d):
     # we can pad the linked block name to the name of layer
-    def __init__(self, in_channels: int, out_channels: int, kernel_size: tuple, name: str="Conv2d_Torch", stride: tuple=(1, 1), padding: tuple=(0, 0), dilation: tuple=(1, 1), groups: int=1, bias: bool=True, padding_mode: str='zeros'):
+    def __init__(self, in_channels: int, out_channels: int, kernel_size: tuple, name: str="Conv2d_Torch",
+                 stride: tuple=(1, 1), padding: tuple=(0, 0), dilation: tuple=(1, 1), groups: int=1, bias: bool=True, padding_mode: str='zeros', device=torch.device("cpu")):
         super(Conv2d_Torch, self).__init__(name)
         self.conv2d = nn.Conv2d(in_channels, out_channels, kernel_size, stride=stride, padding=padding, dilation=dilation, groups=groups, bias=bias, padding_mode=padding_mode)
+        if device.type == "cuda":
+            self.conv2d.to(device)
+        self.device = device
 
     def get_layer(self):
         return self.conv2d
@@ -119,15 +143,25 @@ class Conv2d_Torch(layer.Conv2d):
 
     def set_device(self, device: torch.device):
         self.conv2d.to(device=device)
+        self.device = device
+
+    def get_device(self):
+        return self.device
+
+    def get_despcription(self):
+        return "Conv2d Layer"
 
 
 class MaxPool2d_Torch(layer.MaxPool2d):
     # we can pad the linked block name to the name of layer
     def __init__(self, kernel_size: tuple, name: str = "MaxPool2d_Torch", stride: tuple=None, padding: tuple=(0, 0),
-                 dilation: tuple=(1, 1), return_indices=False, ceil_mode=False):
+                 dilation: tuple=(1, 1), return_indices=False, ceil_mode=False, device=torch.device("cpu")):
         super(MaxPool2d_Torch, self).__init__(name)
         self.maxpool2d = nn.MaxPool2d(kernel_size, stride=kernel_size if None else stride, padding=padding,
                                       dilation=dilation, return_indices=return_indices, ceil_mode=ceil_mode)
+        if device.type == "cuda":
+            self.maxpool2d.to(device)
+        self.device = device
 
     def get_layer(self):
         return self.maxpool2d
@@ -155,14 +189,24 @@ class MaxPool2d_Torch(layer.MaxPool2d):
 
     def set_device(self, device: torch.device):
         self.maxpool2d.to(device=device)
+        self.device = device
+
+    def get_device(self):
+        return self.device
+
+    def get_despcription(self):
+        return "MaxPool2d Layer"
 
 
 class BatchNorm2d_Torch(layer.BatchNorm2d):
     # we can pad the linked block name to the name of layer,  C from an expected input of size (N, C, H, W)
     def __init__(self, num_features: int, name: str = "BatchNorm2d_Torch", eps: float=1e-05, momentum: float=0.1,
-                 affine: bool=True, track_running_stats: bool=True):
+                 affine: bool=True, track_running_stats: bool=True, device=torch.device("cpu")):
         super(BatchNorm2d_Torch, self).__init__(name)
         self.batchnorm2d = nn.BatchNorm2d(num_features, eps=eps, momentum=momentum, affine=affine, track_running_stats=track_running_stats)
+        if device.type == "cuda":
+            self.batchnorm2d.to(device)
+        self.device = device
 
     def get_layer(self):
         return self.batchnorm2d
@@ -190,13 +234,23 @@ class BatchNorm2d_Torch(layer.BatchNorm2d):
 
     def set_device(self, device: torch.device):
         self.batchnorm2d.to(device=device)
+        self.device = device
+
+    def get_device(self):
+        return self.device
+
+    def get_despcription(self):
+        return "Batch2dNorm Layer"
 
 
 class MSELoss_Torch(layer.MSELoss):
     # we can pad the linked block name to the name of layer,  reduction = 'mean' | 'none' | 'sum', need exception handling
-    def __init__(self, name: str = "MSELoss_Torch", reduction: str="mean"):
+    def __init__(self, name: str = "MSELoss_Torch", reduction: str="mean", device=torch.device("cpu")):
         super(MSELoss_Torch, self).__init__(name)
         self.mseloss = nn.MSELoss(reduction=reduction)
+        if device.type == "cuda":
+            self.mseloss.to(device)
+        self.device = device
 
     def get_layer(self):
         return self.mseloss
@@ -224,18 +278,25 @@ class MSELoss_Torch(layer.MSELoss):
 
     def set_device(self, device: torch.device):
         self.mseloss.to(device=device)
+        self.device = device
+
+    def get_device(self):
+        return self.device
+
+    def get_despcription(self):
+        return "MSELoss Layer"
+
 
 """
-device = torch.device("cuda:0")
-
-input = Tensor_Torch(torch.randn(128, 20))
-n = Linear_Torch(20, 30)
 device = torch.device("cpu")
 if torch.cuda.is_available():
     device = torch.device("cuda:0")
-    input.set_device(device=device)
-    n.set_device(device)
+input = Tensor_Torch(torch.randn(128, 20))
+input.set_device(device=device)
+n = Linear_Torch(20, 30, device=device)
 output = n.forward(input)
+
+print(input.get_device(), n.get_device(), output.get_device())
 print(input.name, "---", input.get_self_memory_size(), "---", input.get_grad_memory_size())
 print(n.name, "---", n.get_feature_memory_size(), "---", n.get_grad_memory_size())
 print(output.name, "---", output.get_self_memory_size(), "---", output.get_grad_memory_size())

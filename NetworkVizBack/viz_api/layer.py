@@ -42,6 +42,12 @@ class LayerWrapper(object):
     def set_device(self, device: torch.device):
         raise NotImplementedError
 
+    def get_device(self):
+        raise NotImplementedError
+
+    def get_despcription(self):
+        raise NotImplementedError
+
 
 class ReLU(LayerWrapper):
     def __init__(self, name: str):
