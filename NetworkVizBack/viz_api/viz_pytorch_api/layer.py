@@ -20,50 +20,6 @@ the input defined in the layer level. There is only one input and output source.
 The input tensor is the corresponding tensor wrapper in this directory.
 """
 
-class ReLU_Torch(layer.ReLU):
-    # we can pad the linked block name to the name of layer
-    def __init__(self, name: str="ReLU_Torch", import_relu: nn.ReLU=None, inplace: bool =False, device=torch.device("cpu")):
-        super(ReLU_Torch, self).__init__(name)
-        self.relu = nn.ReLU(inplace=inplace) # always new a ReLU
-        if device.type == "cuda":
-            self.relu.to(device)
-        self.device = device
-
-    def get_layer(self):
-        return self.relu
-
-    def forward(self, input_tensor: Tensor_Torch):
-        return Tensor_Torch(self.relu(input_tensor.get_linked_tensor()), name=self.name + "_output")
-
-    # return KB in memory usage for feature (weight, bias), relu is 0
-    def get_feature_memory_size(self):
-        return sum([parameter.element_size() * parameter.nelement() for parameter in self.relu.parameters()]) / 1024
-
-    # return KB in memory usage for gradients
-    def get_grad_memory_size(self):
-        return sum([0 if parameter.grad is None else parameter.grad.element_size() * parameter.grad.nelement()
-                    for parameter in self.relu.parameters()]) / 1024
-
-    def set_as_eval(self):
-        self.relu.eval()
-
-    def set_as_training(self):
-        self.relu.train()
-
-    def change_data_type(self, new_type: DataType):
-        self.relu.to(DataType_Torch_Mapping[new_type])
-
-    def set_device(self, device: torch.device):
-        self.relu.to(device=device)
-        self.device = device
-
-    def get_device(self):
-        return self.device
-
-    def get_despcription(self):
-        return "ReLu Layer"
-
-
 class Linear_Torch(layer.Linear):
     # we can pad the linked block name to the name of layer
     def __init__(self, in_features: int, out_features: int, import_linear: nn.Linear = None, name: str = "Linear_Torch", bias: bool = True, device=torch.device("cpu")):
@@ -76,8 +32,11 @@ class Linear_Torch(layer.Linear):
     def get_layer(self):
         return self.linear
 
-    def forward(self, input_tensor: Tensor_Torch):
-        return Tensor_Torch(self.linear(input_tensor.get_linked_tensor()), name=self.name + "_output")
+    def forward(self, input_tensor: Tensor_Torch, inplace: bool = False):
+        linked_tensor = self.linear(input_tensor.get_linked_tensor())
+        if inplace:
+            input_tensor.set_linked_tensor(linked_tensor)
+        return Tensor_Torch(linked_tensor, name=self.name + "_output")
 
     # return KB in memory usage for feature (weight, bias)
     def get_feature_memory_size(self):
@@ -121,8 +80,11 @@ class Conv2d_Torch(layer.Conv2d):
     def get_layer(self):
         return self.conv2d
 
-    def forward(self, input_tensor: Tensor_Torch):
-        return Tensor_Torch(self.conv2d(input_tensor.get_linked_tensor()), name=self.name + "_output")
+    def forward(self, input_tensor: Tensor_Torch, inplace: bool = False):
+        linked_tensor = self.conv2d(input_tensor.get_linked_tensor())
+        if inplace:
+            input_tensor.set_linked_tensor(linked_tensor)
+        return Tensor_Torch(linked_tensor, name=self.name + "_output")
 
     # return KB in memory usage for feature (weight, bias)
     def get_feature_memory_size(self):
@@ -167,8 +129,11 @@ class MaxPool2d_Torch(layer.MaxPool2d):
     def get_layer(self):
         return self.maxpool2d
 
-    def forward(self, input_tensor: Tensor_Torch):
-        return Tensor_Torch(self.maxpool2d(input_tensor.get_linked_tensor()), name=self.name + "_output")
+    def forward(self, input_tensor: Tensor_Torch, inplace: bool=False):
+        linked_tensor = self.maxpool2d(input_tensor.get_linked_tensor())
+        if inplace:
+            input_tensor.set_linked_tensor(linked_tensor)
+        return Tensor_Torch(linked_tensor, name=self.name + "_output")
 
     # return KB in memory usage for feature (weight, bias)
     def get_feature_memory_size(self):
@@ -212,8 +177,11 @@ class BatchNorm2d_Torch(layer.BatchNorm2d):
     def get_layer(self):
         return self.batchnorm2d
 
-    def forward(self, input_tensor: Tensor_Torch):
-        return Tensor_Torch(self.batchnorm2d(input_tensor.get_linked_tensor()), name=self.name + "_output")
+    def forward(self, input_tensor: Tensor_Torch, inplace: bool=False):
+        linked_tensor = self.batchnorm2d(input_tensor.get_linked_tensor())
+        if inplace:
+            input_tensor.set_linked_tensor(linked_tensor)
+        return Tensor_Torch(linked_tensor, name=self.name + "_output")
 
     # return KB in memory usage for feature (weight, bias)
     def get_feature_memory_size(self):
@@ -257,8 +225,11 @@ class LogSoftmax_Torch(layer.LogSoftMax):
     def get_layer(self):
         return self.logsoftmax
 
-    def forward(self, input_tensor: Tensor_Torch):
-        return Tensor_Torch(self.logsoftmax(input_tensor.get_linked_tensor()), name=self.name + "_output")
+    def forward(self, input_tensor: Tensor_Torch, inplace: bool=False):
+        linked_tensor = self.logsoftmax(input_tensor.get_linked_tensor())
+        if inplace:
+            input_tensor.set_linked_tensor(linked_tensor)
+        return Tensor_Torch(linked_tensor, name=self.name + "_output")
 
     # return KB in memory usage for feature (weight, bias)
     def get_feature_memory_size(self):
@@ -289,6 +260,53 @@ class LogSoftmax_Torch(layer.LogSoftMax):
         return "LogSoftMax Layer"
 
 
+# relu will not have the inplace update for forward
+class ReLU_Torch(layer.ReLU):
+    # we can pad the linked block name to the name of layer
+    def __init__(self, name: str="ReLU_Torch", import_relu: nn.ReLU=None, inplace: bool =False, device=torch.device("cpu")):
+        super(ReLU_Torch, self).__init__(name)
+        self.relu = nn.ReLU(inplace=inplace) # always new a ReLU
+        if device.type == "cuda":
+            self.relu.to(device)
+        self.device = device
+
+    def get_layer(self):
+        return self.relu
+
+    def forward(self, input_tensor: Tensor_Torch, inplace: bool = False):
+        # make relu always not inplace update
+        return Tensor_Torch(self.relu(input_tensor.get_linked_tensor()), name=self.name + "_output")
+
+    # return KB in memory usage for feature (weight, bias), relu is 0
+    def get_feature_memory_size(self):
+        return sum([parameter.element_size() * parameter.nelement() for parameter in self.relu.parameters()]) / 1024
+
+    # return KB in memory usage for gradients
+    def get_grad_memory_size(self):
+        return sum([0 if parameter.grad is None else parameter.grad.element_size() * parameter.grad.nelement()
+                    for parameter in self.relu.parameters()]) / 1024
+
+    def set_as_eval(self):
+        self.relu.eval()
+
+    def set_as_training(self):
+        self.relu.train()
+
+    def change_data_type(self, new_type: DataType):
+        self.relu.to(DataType_Torch_Mapping[new_type])
+
+    def set_device(self, device: torch.device):
+        self.relu.to(device=device)
+        self.device = device
+
+    def get_device(self):
+        return self.device
+
+    def get_despcription(self):
+        return "ReLu Layer"
+
+
+# mseloss will not have the inplace update for forward
 class MSELoss_Torch(layer.MSELoss):
     # we can pad the linked block name to the name of layer,  reduction = 'mean' | 'none' | 'sum', need exception handling
     def __init__(self, import_mseloss: nn.MSELoss = None, name: str = "MSELoss_Torch", reduction: str="mean", device=torch.device("cpu")):
@@ -333,6 +351,7 @@ class MSELoss_Torch(layer.MSELoss):
         return "MSELoss Layer"
 
 
+# nllloss will not have the inplace update for forward
 class NLLLoss_Torch(layer.NLLLoss):
     # we can pad the linked block name to the name of layer,  reduction = 'mean' | 'none' | 'sum', need exception handling
     def __init__(self, import_nllloss: nn.MSELoss = None, name: str = "NLLLoss_Torch", reduction: str="mean", device=torch.device("cpu")):
@@ -381,14 +400,15 @@ def test_logsoftmax():
     device = torch.device("cuda:0")
     m = LogSoftmax_Torch(dim=1, device=device)
     input = Tensor_Torch(torch.randn(2, 3, device=device))
-    output = m.forward(input)
+    output = m.forward(input, inplace=True)
 
     print(input.get_device(), m.get_device(), output.get_device())
     print(input.name, "---", input.get_self_memory_size(), "---", input.get_grad_memory_size())
     print(m.name, "---", m.get_feature_memory_size(), "---", m.get_grad_memory_size())
     print(output.name, "---", output.get_self_memory_size(), "---", output.get_grad_memory_size())
+    print(torch.eq(input.get_linked_tensor(), output.get_linked_tensor()))
 
-test_logsoftmax()
+#test_logsoftmax()
 """
 device = torch.device("cpu")
 if torch.cuda.is_available():

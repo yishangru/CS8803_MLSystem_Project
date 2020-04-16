@@ -7,11 +7,7 @@ from .information import blockInformation
 
 """
     For block level abstraction:
-        1. Registered tensor
         2. Linked hardware
-        3. Input meta
-        4. Output meta
-        5. Loss function
 """
 
 

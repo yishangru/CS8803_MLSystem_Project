@@ -21,7 +21,7 @@ class LayerWrapper(object):
     def get_layer(self):
         raise NotImplementedError
 
-    def forward(self, *input_tensor):
+    def forward(self, *input):
         raise NotImplementedError
 
     # return KB in memory usage for feature (weight, bias)
@@ -41,7 +41,7 @@ class LayerWrapper(object):
     def change_data_type(self, new_type: DataType):
         raise NotImplementedError
 
-    def set_device(self, device: torch.device):
+    def set_device(self, device):
         raise NotImplementedError
 
     def get_device(self):

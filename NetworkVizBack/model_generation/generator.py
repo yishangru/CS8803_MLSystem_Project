@@ -14,3 +14,9 @@ class GlobalManager(object):
         node_id_return = self.node_id
         self.node_id += 1
         return node_id_return
+
+"""
+1. forward (model structure, epoch + mode)
+2. load dataset (load data) - input
+3. load model (address)
+"""
