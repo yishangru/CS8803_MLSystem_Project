@@ -9,6 +9,7 @@ For time limit, implement following for simplicity
     5. add
 """
 
+
 class Transform(Enum):
     FlatTransform = auto()
     DataClampTransform = auto()
@@ -16,10 +17,17 @@ class Transform(Enum):
     AddTransform = auto()
     GetGramMatrix = auto()
 
+
 class TransformWrapper(object):
     def __init__(self, name: str):
         super(TransformWrapper, self).__init__()
         self.name = name
+
+    def forward(self, *input_tensor):
+        raise NotImplementedError
+
+    def get_description(self):
+        raise NotImplementedError
 
 
 class FlatTransform(TransformWrapper):

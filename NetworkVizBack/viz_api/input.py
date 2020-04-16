@@ -41,7 +41,7 @@ class InputWrapper(object):
     def get_number_batch(self):
         raise NotImplementedError
 
-    def get_despcription(self):
+    def get_description(self):
         raise NotImplementedError
 
 # load one image
@@ -106,7 +106,7 @@ class ConstantWrapper(object):
     def start_tracking_gradient(self):
         raise NotImplementedError
 
-    def get_despcription(self):
+    def get_description(self):
         raise NotImplementedError
 
 # load one image

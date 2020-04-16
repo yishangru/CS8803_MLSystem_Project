@@ -64,7 +64,7 @@ class Linear_Torch(layer.Linear):
     def get_device(self):
         return self.device
 
-    def get_despcription(self):
+    def get_description(self):
         return "Linear Layer"
 
 
@@ -113,7 +113,7 @@ class Conv2d_Torch(layer.Conv2d):
     def get_device(self):
         return self.device
 
-    def get_despcription(self):
+    def get_description(self):
         return "Conv2d Layer"
 
 
@@ -163,7 +163,7 @@ class MaxPool2d_Torch(layer.MaxPool2d):
     def get_device(self):
         return self.device
 
-    def get_despcription(self):
+    def get_description(self):
         return "MaxPool2d Layer"
 
 
@@ -212,7 +212,7 @@ class BatchNorm2d_Torch(layer.BatchNorm2d):
     def get_device(self):
         return self.device
 
-    def get_despcription(self):
+    def get_description(self):
         return "Batch2dNorm Layer"
 
 
@@ -261,7 +261,7 @@ class LogSoftmax_Torch(layer.LogSoftMax):
     def get_device(self):
         return self.device
 
-    def get_despcription(self):
+    def get_description(self):
         return "LogSoftMax Layer"
 
 
@@ -307,7 +307,7 @@ class ReLU_Torch(layer.ReLU):
     def get_device(self):
         return self.device
 
-    def get_despcription(self):
+    def get_description(self):
         return "ReLu Layer"
 
 
@@ -352,7 +352,7 @@ class MSELoss_Torch(layer.MSELoss):
     def get_device(self):
         return self.device
 
-    def get_despcription(self):
+    def get_description(self):
         return "MSELoss Layer"
 
 
@@ -397,7 +397,7 @@ class NLLLoss_Torch(layer.NLLLoss):
     def get_device(self):
         return self.device
 
-    def get_despcription(self):
+    def get_description(self):
         return "NLLLoss Layer"
 
 

@@ -1,7 +1,7 @@
+import torch.optim as optim
+from viz_api import optimizer
 from viz_api.viz_pytorch_api.tensor import Tensor_Torch
 from viz_api.layer import LayerWrapper
-from viz_api import optimizer
-import torch.optim as optim
 
 """
 Optimizer will take the layer and tensor as input. For layer, optimizer will extract the parameters for optimizing.
@@ -48,7 +48,7 @@ class SGD_Torch(optimizer.SGD):
     def clear_gradient(self):
         self.optimizer.zero_grad()
 
-    def get_despcription(self):
+    def get_description(self):
         return "SGD Optimizer"
 
 
@@ -94,5 +94,5 @@ class LBFGS_Torch(optimizer.LBFGS):
     def clear_gradient(self):
         self.optimizer.zero_grad()
 
-    def get_despcription(self):
+    def get_description(self):
         return "LBFGS Optimizer"
