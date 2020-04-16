@@ -5,9 +5,18 @@ import platform.pytorch.layer as torchLayer
 
 """
 Layer nodes can have multiple outputs. (stateless)
+Constant nodes can have multiple outputs (stateless)
 Transform nodes can have multiple outputs. (stateless)
 Input nodes can only have one outputs (can be stateful)
 """
+
+# for a node
+class Node(object):
+    def __init__(self, ):
+        super(Node, self).__init__()
+
+
+# layer
 layerTorchMapping = {
     layerType.ReLU: torchLayer.ReLU_Torch,
     layerType.Linear: torchLayer.Linear_Torch,
@@ -17,4 +26,6 @@ layerTorchMapping = {
     layerType.MSELoss: torchLayer.MSELoss
 }
 
+# input
 
+# transform

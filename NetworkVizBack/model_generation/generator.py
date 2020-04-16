@@ -1,3 +1,5 @@
+
+
 class GlobalManager(object):
     def __init__(self, name: str = "GlobalManager"):
         super(GlobalManager, self).__init__()
@@ -19,4 +21,6 @@ class GlobalManager(object):
 1. forward (model structure, epoch + mode)
 2. load dataset (load data) - input
 3. load model (address)
+constraint checker
+naming_convention: type + id
 """

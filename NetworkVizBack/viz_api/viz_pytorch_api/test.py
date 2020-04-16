@@ -11,12 +11,12 @@ hidden_sizes = [128, 64]
 device = torch.device("cuda:0")
 
 # model layer structure
-linear1 = layer.Linear_Torch(in_features=input_size, out_features=hidden_sizes[0], device=device)
+linear1 = layer.Linear_Torch(in_features=input_size, out_features=hidden_sizes[0], inplace_forward=False, device=device)
 relu1 = layer.ReLU_Torch(device=device)
-linear2 = layer.Linear_Torch(in_features=hidden_sizes[0], out_features=hidden_sizes[1], device=device)
+linear2 = layer.Linear_Torch(in_features=hidden_sizes[0], out_features=hidden_sizes[1], inplace_forward=True, device=device)
 relu2 = layer.ReLU_Torch(device=device)
-linear3 = layer.Linear_Torch(in_features=hidden_sizes[1], out_features=output_size, device=device)
-logsoftmax1 = layer.LogSoftmax_Torch(dim=1, device=device)
+linear3 = layer.Linear_Torch(in_features=hidden_sizes[1], out_features=output_size, inplace_forward=True, device=device)
+logsoftmax1 = layer.LogSoftmax_Torch(dim=1, inplace_forward=True, device=device)
 nllloss1 = layer.NLLLoss_Torch(device=device)
 
 # model input
@@ -38,16 +38,16 @@ for epoch in range(epochs):
     for iteration in range(model_input.get_number_batch()):
         model_optimizer_1.clear_gradient()
 
-        # --------- training --------- dfs generation 1 #
+        # --------- training --------- topology generation 1 #
         image = model_input.get_loaded_tensor_img_single(iteration)
         image.set_linked_tensor(image.get_linked_tensor().view(image.get_linked_tensor().shape[0], -1))
-        linear1_output = linear1.forward(image, inplace=False)
-        relu1_output = relu1.forward(linear1_output, inplace=False)
-        linear2_output = linear2.forward(relu1_output, inplace=True)
-        relu2_output = relu2.forward(linear2_output, inplace=False)
-        linear3_output = linear3.forward(relu2_output, inplace=True)
-        logsoftmax1_output = logsoftmax1.forward(linear3_output, inplace=True)
-        # --------- training --------- dfs generation 1 #
+        linear1_output = linear1.forward(image)
+        relu1_output = relu1.forward(linear1_output)
+        linear2_output = linear2.forward(relu1_output)
+        relu2_output = relu2.forward(linear2_output)
+        linear3_output = linear3.forward(relu2_output)
+        logsoftmax1_output = logsoftmax1.forward(linear3_output)
+        # --------- training --------- topology generation 1 #
 
         # --------- optimizer back generation --------- 1 #
         label = model_input.get_loaded_tensor_label_single(iteration)

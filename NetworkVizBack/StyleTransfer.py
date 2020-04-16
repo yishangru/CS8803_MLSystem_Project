@@ -160,12 +160,13 @@ def get_style_model_and_losses(cnn, normalization_mean, normalization_std,
 
     return model, style_losses, content_losses
 
+
 def get_input_optimizer(input_img):
     # this line to show that input is a parameter that requires a gradient
     optimizer = optim.LBFGS([input_img.requires_grad_()])
     return optimizer
 
-# change to rpc call
+
 def image_style_transfer(style_img_path, content_img_path):
 
     style_img = image_loader(style_img_path)
@@ -198,8 +199,8 @@ def image_style_transfer(style_img_path, content_img_path):
 
             optimizer.zero_grad()
             model(input_img)
-            style_score = 0
-            content_score = 0
+            style_score = torch.zeros(1, 1).to(device)
+            content_score = torch.zeros(1, 1).to(device)
 
             for sl in style_losses:
                 style_score += sl.loss
