@@ -4,7 +4,7 @@ import viz_api.viz_pytorch_api.layer as layer
 import viz_api.viz_pytorch_api.tensor as tensor
 import viz_api.viz_pytorch_api.optimizer as optimizer
 
-epochs = 2
+epochs = 15
 input_size = 784
 output_size = 10
 hidden_sizes = [128, 64]
@@ -21,7 +21,6 @@ nllloss1 = layer.NLLLoss_Torch(device=device)
 
 # model input
 root="../../static/dataset/"
-batch_size=64
 shuffle=True
 train=True
 download=True
@@ -48,7 +47,7 @@ for epoch in range(epochs):
 
         # --------- training --------- #
         image = model_input.get_loaded_tensor_img_single(iteration)
-        image.set_linked_tensor(image.get_linked_tensor().view(batch_size, -1))
+        image.set_linked_tensor(image.get_linked_tensor().view(image.get_linked_tensor().shape[0], -1))
 
         linear1_output = linear1.forward(image, inplace=False)
         relu1_output = relu1.forward(linear1_output, inplace=False)
