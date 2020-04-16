@@ -31,13 +31,6 @@ model_input = input.MnistDataSetLoader_Torch(root="../../static/dataset/", max_b
 model_optimizer_1_track_list = [{"object": linear1}, {"object": relu1}, {"object": linear2}, {"object": relu2}, {"object": linear3}, {"object": logsoftmax1}]
 model_optimizer_1 = optimizer.SGD_Torch(object_to_track_list=model_optimizer_1_track_list, learning_rate=0.003, momentum=0.9)
 
-"""
-for iteration in range(model_input.get_number_batch()):
-    image = model_input.get_loaded_tensor_img_single(iteration)
-    image.set_linked_tensor(image.get_linked_tensor().view(batch_size, -1))
-    print(image.get_linked_tensor().size())
-"""
-
 # model iteration
 for epoch in range(epochs):
     print(epoch)
@@ -45,24 +38,24 @@ for epoch in range(epochs):
     for iteration in range(model_input.get_number_batch()):
         model_optimizer_1.clear_gradient()
 
-        # --------- training --------- #
+        # --------- training --------- dfs generation 1 #
         image = model_input.get_loaded_tensor_img_single(iteration)
         image.set_linked_tensor(image.get_linked_tensor().view(image.get_linked_tensor().shape[0], -1))
-
         linear1_output = linear1.forward(image, inplace=False)
         relu1_output = relu1.forward(linear1_output, inplace=False)
         linear2_output = linear2.forward(relu1_output, inplace=True)
         relu2_output = relu2.forward(linear2_output, inplace=False)
         linear3_output = linear3.forward(relu2_output, inplace=True)
         logsoftmax1_output = logsoftmax1.forward(linear3_output, inplace=True)
+        # --------- training --------- dfs generation 1 #
 
+        # --------- optimizer back generation --------- 1 #
         label = model_input.get_loaded_tensor_label_single(iteration)
         nllloss1_output = nllloss1.forward(logsoftmax1_output, label)
-        # --------- training --------- #
-
         model_optimizer_1.link_loss_tensor(nllloss1_output)
         model_optimizer_1.backward()
         model_optimizer_1.step()
+        # --------- optimizer back generation --------- 1 #
 
         running_loss += nllloss1_output.get_linked_tensor().item()
     print(running_loss)

@@ -7,7 +7,8 @@ from .information import blockInformation
 
 """
     For block level abstraction:
-        2. Linked hardware
+        1. Node
+        2. Hardware
 """
 
 

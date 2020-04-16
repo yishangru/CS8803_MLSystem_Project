@@ -7,8 +7,8 @@ Range:
 
 Abstraction (model, block, layer, ...):
 1. model (block)
-2. block (layer)
-3. layer (input, output, meta info)
+2. block (node)
+3. node (layer)
 
 Demo:
 1. Mnist Hard-writing Task (change to block behavior) - basic functions, block behavior, save and reload
@@ -57,7 +57,7 @@ The first dimension of input will be the batch size. Loss as a scala function ba
 
 ## Support Tensor Operation
 1. Arithmetic operations (not inplace) - torch.add(x, y)
-2. Arithmetic operations (inplace) - x.add_(y), xcopy_(y), x.t_(), x.add_(1)
+2. Arithmetic operations (inplace/ not inplace) - x.add_(y), xcopy_(y), x.t_(), x.add_(1)
 3. trochvision.transforms
 
 ## Support Tensor Meta Information
@@ -79,7 +79,6 @@ The first dimension of input will be the batch size. Loss as a scala function ba
 
 # Future Project Extension
 1. Add abstraction for more api in PyTorch
-2. Support more self-defined code blocks for special treatments (input output abstraction)
-3. Support for distributed learning
-4. Add possible exception handling mechanism and more warning
-5. Add interface to support tensorflow
+2. Support for distributed learning (hardware assignment)
+3. Add possible exception handling mechanism and more warning
+4. Add interface to support tensorflow
