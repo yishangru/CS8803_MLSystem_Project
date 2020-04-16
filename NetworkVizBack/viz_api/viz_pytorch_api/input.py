@@ -165,7 +165,7 @@ class ImageLoader_Torch(input.ImageLoader):
 
 # load training set or validation set - this is for mnist dataset, can easy extend (MAKE SURE THE OUTPUT IS torch_tensor)
 class MnistDataSetLoader_Torch(input.ImageDataSetLoader):
-    def __init__(self, root: str, batch_size: int=1, shuffle: bool=False, train: bool=True, download: bool=False, name: str="MnistDataSetLoader_Torch", device=torch.device("cpu")):
+    def __init__(self, root: str, max_batch_size: int=1, shuffle: bool=False, train: bool=True, download: bool=False, name: str="MnistDataSetLoader_Torch", device=torch.device("cpu")):
         super(MnistDataSetLoader_Torch, self).__init__(name)
         # standard load procedure for MNIST dataset
         mnist_data = MNIST(root, train=train, download=download, transform=transforms.Compose([
@@ -173,7 +173,15 @@ class MnistDataSetLoader_Torch(input.ImageDataSetLoader):
                                transforms.Normalize(
                                  (0.1307,), (0.3081,))
                              ]))
-        mnist_data_loader = DataLoader(mnist_data, batch_size=batch_size, shuffle=shuffle)  # this is a iterable list
+        # mnist have 60000 training, 10000 validation, the batch size should divisible by that number
+        batch_size = max_batch_size
+        image_number = 60000 if train else 10000
+        for i in range(max_batch_size, 0, -1):
+            if image_number%i == 0:
+                batch_size = i
+                break
+        # load data in batch, which is a iterable list
+        mnist_data_loader = DataLoader(mnist_data, batch_size=batch_size, shuffle=shuffle)
         # transfer the data to expected device, pack into Tensor_Torch
         self.linked_tensor_group_img = list()
         self.linked_tensor_group_label = list()
