@@ -1,26 +1,25 @@
+from enum import Enum, auto
 """
 The output node id for the model saver and the prediction result of the input data.
 User can choose what to save in the model generation, by linking the corresponding
 node to the output node.
 
-Saving Condition checker:
-    1. certain number of epoch reaching
-    2. end of training
-    3. higher accuracy (check accuracy for each epoch)
-
-1. Model Saver
-2. Data Saver (certain tensor in model)
-- image: use torchvision.utils (provide tensor) - https://pytorch.org/docs/stable/torchvision/utils.html;
-- prediction:
+load trained model, load input, choose mode (eval or train), save model, path
 """
 
-class ConditionCheckerWrapper(object):
-    def __init__(self, name: str):
-        super(ConditionCheckerWrapper, self).__init__()
+class Monitor(Enum):
+    MonitorFinal = auto()
+
+
+class MonitorWrapper(object):
+    def __init__(self, name):
+        super(MonitorWrapper, self).__init__()
         self.name = name
 
-    def add_condition(self):
-        pass
+    def get_description(self):
+        raise NotImplementedError
 
-    def check_condition(self):
-        pass
+
+class MonitorFinal(MonitorWrapper):
+    def __init__(self, name):
+        super(MonitorFinal, self).__init__(name)
