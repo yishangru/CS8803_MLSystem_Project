@@ -1,5 +1,4 @@
 import os
-import torch
 import viz_api.viz_pytorch_api.input as input
 import viz_api.viz_pytorch_api.layer as layer
 import viz_api.viz_pytorch_api.tensor as tensor

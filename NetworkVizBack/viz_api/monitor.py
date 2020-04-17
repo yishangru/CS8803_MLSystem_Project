@@ -9,6 +9,7 @@ load trained model, load input, choose mode (eval or train), save model, path
 
 class Monitor(Enum):
     MonitorFinal = auto()
+    MonitorSaver = auto()
 
 
 class MonitorWrapper(object):
@@ -23,3 +24,11 @@ class MonitorWrapper(object):
 class MonitorFinal(MonitorWrapper):
     def __init__(self, name):
         super(MonitorFinal, self).__init__(name)
+
+
+class MonitorSaver(MonitorWrapper):
+    def __init__(self, name):
+        super(MonitorSaver, self).__init__(name)
+
+    def save_output(self, input_to_save, *following_processing):
+        raise NotImplementedError
