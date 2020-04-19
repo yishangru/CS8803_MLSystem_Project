@@ -1,4 +1,5 @@
 import torch
+import torchvision
 from viz_api import transform
 from viz_api.viz_pytorch_api.tensor import Tensor_Torch
 
@@ -23,8 +24,30 @@ class FlatTransform_Torch(transform.FlatTransform):
         return "Flat tensor to One"
 
 
+class NormalizeTransform_Torch(transform.NormalizeTransform):
+    def __init__(self, mean: tuple=(0.485, 0.456, 0.406), std: tuple=(0.229, 0.224, 0.225), inplace_forward: bool=False, name: str="NormalizeTransform_Torch"):
+        super(NormalizeTransform_Torch, self).__init__(name=name)
+        self.inplace_forward = inplace_forward
+        self.mean = torch.tensor(list(mean)).view(-1, 1, 1)
+        self.std = torch.tensor(list(std)).view(-1, 1, 1)
+
+    def forward(self, input_tensor: Tensor_Torch):
+        self.mean = self.mean.to(input_tensor.get_device())
+        self.std = self.std.to(input_tensor.get_device())
+        input_linked_tensor = input_tensor.get_linked_tensor()
+        if self.inplace_forward:
+            input_linked_tensor.sub_(self.mean).div_(self.std)
+            return input_linked_tensor
+        else:
+            output_linked_tensor = input_linked_tensor.sub(self.mean).div_(self.std)
+            return output_linked_tensor
+
+    def get_description(self):
+        return "Normalize img tensor to certain range"
+
+
 class DataClampTransform_Torch(transform.DataClampTransform):
-    def __init__(self, clamp_range: tuple, inplace_forward: bool=False, name: str="DataClampTransform_Torch"):
+    def __init__(self, clamp_range: tuple=(0, 1), inplace_forward: bool=False, name: str="DataClampTransform_Torch"):
         super(DataClampTransform_Torch, self).__init__(name=name)
         self.inplace_forward = inplace_forward
         self.clamp_range = clamp_range
@@ -117,6 +140,14 @@ def test_flat_transform():
     print(image_tensor_input.get_linked_tensor().size(), image_tensor_output.get_linked_tensor().size())
     print(image_tensor_input.get_device(), image_tensor_output.get_device())
 
+def test_normal_transform():
+    from viz_api.viz_pytorch_api.input import ImageConstant_Torch
+    image_tensor_input = ImageConstant_Torch(image_path="../../static/img/boat.jpg", imsize=512, device=torch.device("cuda:0")).get_saved_tensor()
+    normal_transform = NormalizeTransform_Torch(inplace_forward=True)
+    image_tensor_output = Tensor_Torch(normal_transform.forward(image_tensor_input))
+    print(image_tensor_input.get_linked_tensor().size(), image_tensor_output.get_linked_tensor().size())
+    print(image_tensor_input.get_device(), image_tensor_output.get_device())
+
 def test_data_clamp_transform():
     rand_tensor_input = Tensor_Torch(torch.randn(3, 2).add(5))
     clamp_transform = DataClampTransform_Torch((0, 1), inplace_forward=True)
@@ -176,6 +207,7 @@ def test_gram_matrix_transform():
     print(image_tensor_input.get_device(), gram_tensor_output.get_device())
 
 #test_flat_transform()
+test_normal_transform()
 #test_data_clamp_transform()
 #test_detach_transform()
 #test_add_transform()

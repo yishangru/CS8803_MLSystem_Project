@@ -12,6 +12,7 @@ For time limit, implement following for simplicity
 
 class Transform(Enum):
     FlatTransform = auto()
+    NormalizeTransform = auto()
     DataClampTransform = auto()
     DetachTransform = auto()
     AddTransform = auto()
@@ -34,6 +35,9 @@ class FlatTransform(TransformWrapper):
     def __init__(self, name: str):
         super(FlatTransform, self).__init__(name)
 
+class NormalizeTransform(TransformWrapper):
+    def __init__(self, name: str):
+        super(NormalizeTransform, self).__init__(name)
 
 class DataClampTransform(TransformWrapper):
     def __init__(self, name: str):

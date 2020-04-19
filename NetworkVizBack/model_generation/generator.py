@@ -25,17 +25,38 @@ constraint checker
 
 [
     {
-        Name: --,
-        Type: --,
-        Description: --,
-        Parameters: [
+        name: --,
+        type: --,
+        description: --,
+        parameters: [
             {
                 ParaName: --,
                 ParaClass: --,
                 ParaValue: --,
                 ParaRequired: --
             }
-        ]      
+        ]
+    }
+]
+#
+[
+    {
+        id: number,
+        type: 
+        parameters: [
+            {
+                ParaName:
+                ParaClass:
+                ParaValue:
+                ParaRequired:
+            }
+        ]
+        links: [
+            {
+                
+                
+            }
+        ]     
     }
 ]
 """
