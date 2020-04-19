@@ -65,7 +65,7 @@ class Linear_Torch(layer.Linear):
         return self.device
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "Linear Layer"
 
 
@@ -116,7 +116,7 @@ class Conv2d_Torch(layer.Conv2d):
         return self.device
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "Conv2d Layer"
 
 
@@ -167,7 +167,7 @@ class MaxPool2d_Torch(layer.MaxPool2d):
         return self.device
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "MaxPool2d Layer"
 
 
@@ -219,7 +219,7 @@ class BatchNorm2d_Torch(layer.BatchNorm2d):
         return self.device
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "Batch2dNorm Layer"
 
 
@@ -269,7 +269,7 @@ class LogSoftmax_Torch(layer.LogSoftMax):
         return self.device
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "LogSoftMax Layer"
 
 
@@ -316,7 +316,7 @@ class ReLU_Torch(layer.ReLU):
         return self.device
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "ReLu Layer"
 
 
@@ -362,7 +362,7 @@ class MSELoss_Torch(layer.MSELoss):
         return self.device
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "MSELoss Layer"
 
 
@@ -408,7 +408,7 @@ class NLLLoss_Torch(layer.NLLLoss):
         return self.device
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "NLLLoss Layer"
 
 
@@ -422,6 +422,5 @@ def test_logsoftmax():
     print(input.name, "---", input.get_self_memory_size(), "---", input.get_grad_memory_size())
     print(m.name, "---", m.get_feature_memory_size(), "---", m.get_grad_memory_size())
     print(torch.eq(input.get_linked_tensor(), output.get_linked_tensor()))
-
 
 #test_logsoftmax()

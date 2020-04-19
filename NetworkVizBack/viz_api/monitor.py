@@ -18,7 +18,7 @@ class MonitorWrapper(object):
         self.name = name
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         raise NotImplementedError
 
 

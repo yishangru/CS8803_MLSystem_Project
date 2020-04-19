@@ -48,7 +48,7 @@ class RandomLoader_Torch(input.RandomLoader):
         return self.linked_tensor_group[0].start_tracking_gradient()
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "Loader for random tensor"
 
 # generate constant tensor with shape (zero or one)
@@ -86,7 +86,7 @@ class ConstantLoader_Torch(input.ConstantLoader):
         return 1
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "Loader for constant tensor (1, 0)"
 
 # load tensor
@@ -124,7 +124,7 @@ class TensorLoader_Torch(input.TensorLoader):
         return 1
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "Loader for tensor"
 
 # load one image
@@ -164,7 +164,7 @@ class ImageLoader_Torch(input.ImageLoader):
         return 1
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "Loader for single image"
 
 # load training set or validation set - this is for mnist dataset, can easy extend (MAKE SURE THE OUTPUT IS torch_tensor)
@@ -230,7 +230,7 @@ class MnistDataSetLoader_Torch(input.ImageDataSetLoader):
         return len(self.linked_tensor_group_img)
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "Loader for MNIST dataset"
 
 
@@ -266,7 +266,7 @@ class RandomConstant_Torch(input.RandomConstant):
         return self.linked_tensor_torch.start_tracking_gradient()
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "Random tensor constant"
 
 # generate constant tensor with shape (zero or one)
@@ -300,7 +300,7 @@ class ConstantConstant_Torch(input.ConstantConstant):
         return self.linked_tensor_torch.start_tracking_gradient()
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "Constant tensor constant (1, 0)"
 
 # load tensor
@@ -333,7 +333,7 @@ class TensorConstant_Torch(input.TensorConstant):
         return self.linked_tensor_torch.start_tracking_gradient()
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "Constant Tensor constant"
 
 # load one image
@@ -368,7 +368,7 @@ class ImageConstant_Torch(input.ImageConstant):
         return self.linked_tensor_torch.start_tracking_gradient()
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "Loader for single image"
 
 # --------------------- test input --------------------- #

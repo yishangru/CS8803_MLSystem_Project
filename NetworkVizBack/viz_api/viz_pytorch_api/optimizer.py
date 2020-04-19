@@ -49,12 +49,12 @@ class SGD_Torch(optimizer.SGD):
         self.optimizer.zero_grad()
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "SGD Optimizer"
 
 
 class LBFGS_Torch(optimizer.LBFGS):
-    def __init__(self, learning_rate: float=1, name:str = "LBFGS_Torch"):
+    def __init__(self, object_to_track_list: list, learning_rate: float=1, name:str = "LBFGS_Torch"):
         super(LBFGS_Torch, self).__init__(name)
         self.parameter_list = ["learning_rate"]
         self.track_list = self.register_optimizer(object_to_track_list=object_to_track_list)
@@ -96,5 +96,5 @@ class LBFGS_Torch(optimizer.LBFGS):
         self.optimizer.zero_grad()
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "LBFGS Optimizer"

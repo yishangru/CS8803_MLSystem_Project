@@ -196,17 +196,7 @@ monitorPortTorch = {
 }
 
 
-
 # API Mapping
-generalMapping = {
-    "input": inputTypeMapping,
-    "constant": constantTypeMapping,
-    "layer": layerTypeMapping,
-    "transform": transformTypeMapping,
-    "optimizer": optimizerTypeMapping,
-    "monitor": monitorTypeMapping
-}
-
 inputAPI = {
     "PyTorch": inputAPITorch
 }
@@ -214,7 +204,7 @@ inputPort = {
     "PyTorch": inputPortTorch
 }
 inputExcludeParameter = {
-    "Pytorch": {"self", "name", "device"}
+    "PyTorch": {"self", "name", "device"}
 }
 
 constantAPI = {
@@ -224,7 +214,7 @@ constantPort = {
     "PyTorch": constantPortTorch
 }
 constantExcludeParameter = {
-    "Pytorch": {"self", "name", "device"}
+    "PyTorch": {"self", "name", "device"}
 }
 
 layerAPI = {
@@ -234,7 +224,7 @@ layerPort = {
     "PyTorch": layerPortTorch
 }
 layerExcludeParameter = {
-    "Pytorch": {"self", "name", "device"}
+    "PyTorch": {"self", "name", "device", "import_layer"}
 }
 
 transformAPI = {
@@ -244,7 +234,7 @@ transformPort = {
     "PyTorch": transformPortTorch
 }
 transformExcludeParameter = {
-    "Pytorch": {"self", "name", "device"}
+    "PyTorch": {"self", "name", "device"}
 }
 
 optimizerAPI = {
@@ -254,7 +244,7 @@ optimizerPort = {
     "PyTorch": optimizerPortTorch
 }
 optimizerExcludeParameter = {
-    "Pytorch": {"self", "name", "device"}
+    "PyTorch": {"self", "name", "object_to_track_list"}
 }
 
 monitorAPI = {
@@ -264,36 +254,100 @@ monitorPort = {
     "PyTorch": monitorPortTorch
 }
 monitorExcludeParameter = {
-    "Pytorch": {"self", "name", "device"}
+    "PyTorch": {"self", "name"}
 }
 
+# general mapping for type
+generalTypeMapping = {
+    "input": inputTypeMapping,
+    "constant": constantTypeMapping,
+    "layer": layerTypeMapping,
+    "transform": transformTypeMapping,
+    "optimizer": optimizerTypeMapping,
+    "monitor": monitorTypeMapping
+}
+generalTypeReverseMapping = {
+    "input": inputTypeReverseMapping,
+    "constant": constantTypeReverseMapping,
+    "layer": layerTypeReverseMapping,
+    "transform": transformTypeReverseMapping,
+    "optimizer": optimizerTypeReverseMapping,
+    "monitor": monitorTypeReverseMapping
+}
+generalAPIMapping = {
+    "input": inputAPI,
+    "constant": constantAPI,
+    "layer": layerAPI,
+    "transform": transformAPI,
+    "optimizer": optimizerAPI,
+    "monitor": monitorAPI
+}
+generalExcludeMapping = {
+    "input": inputExcludeParameter,
+    "constant": constantExcludeParameter,
+    "layer": layerExcludeParameter,
+    "transform": transformExcludeParameter,
+    "optimizer": optimizerExcludeParameter,
+    "monitor": monitorExcludeParameter
+}
+generalPortMapping = {
+    "input": inputPort,
+    "constant": constantPort,
+    "layer": layerPort,
+    "transform": transformPort,
+    "optimizer": optimizerPort,
+    "monitor": monitorPort
+}
+
+# default value for json
 defaultParameterMapping = {
     "int": -1,
     "list": "[]",
     "tuple": "()",
     "str": "",
-    "bool": -1
+    "bool": -1,
+    "float": -1
 }
 
-def generateAPIFormat(API):
+def generateAPI(API):
     import inspect
-    passDict = list()
-    for node in inputAPI[API].keys():
-        node = {"name": "LogSoftmax", "type": "Layer", "api": "torch", "description": ,
-                "parameters": list()}
-        signature = inspect.signature(inputAPI[API][node].__init__)
-        for param in signature.parameters.values():
-            if param.name not in inputExcludeParameter:
-                paraDict = {"ParaName": param.name, "ParaClass": param.annotation.__name__}
-                if param.default is param.empty:
-                    paraDict["ParaValue"] = defaultParameterMapping[param.annotation.__name__]
-                    paraDict["Required"] = 1
-                else:
-                    paraDict["ParaValue"] = param.default
-                    paraDict["Required"] = 0
-                node["Parameters"].append(paraDict)
+    passNodeList = list()
+    for MetaNodeType in generalTypeMapping.keys():
+        # node to request
+        NodeRequest = generalTypeMapping[MetaNodeType]
+        # api to request
+        APIRequest = generalAPIMapping[MetaNodeType][API]
+        # para to exclude
+        ParaExclude = generalExcludeMapping[MetaNodeType][API]
+        # port to request
+        PORTRequest = generalPortMapping[MetaNodeType][API]
+        # generate for all node type in the meta node type
+        for NodeType in NodeRequest.keys():
+            RequestNode = NodeRequest[NodeType]
+            node = {"name": NodeType,
+                    "type": MetaNodeType,
+                    "api": API,
+                    "ports": PORTRequest[RequestNode],
+                    "description": APIRequest[RequestNode].get_description(),
+                    "parameters": list()}
+            signature = inspect.signature(APIRequest[RequestNode].__init__)
+            for param in signature.parameters.values():
+                if param.name not in ParaExclude:
+                    paraDict = {"ParaName": param.name, "ParaClass": param.annotation.__name__}
+                    if param.default is param.empty:
+                        paraDict["ParaValue"] = defaultParameterMapping[param.annotation.__name__]
+                        paraDict["Required"] = 1
+                    else:
+                        paraDict["ParaValue"] = param.default
+                        paraDict["Required"] = 0
+                    node["parameters"].append(paraDict)
+            passNodeList.append(node)
+    import json
+    writeFile = open("./VizAPI.json", mode="w", encoding="utf-8")
+    json.dump(passNodeList, fp=writeFile, indent=2)
+    writeFile.close()
 
-
+#generateAPI("PyTorch")
 
 def generateSystemModel(API, nodeList, linkList):
     recordDict = dict()

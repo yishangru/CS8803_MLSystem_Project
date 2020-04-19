@@ -1,0 +1,746 @@
+[
+  {
+    "name": "ImageTensor",
+    "type": "input",
+    "api": "PyTorch",
+    "ports": [
+      3,
+      4
+    ],
+    "description": "Loader for single image",
+    "parameters": [
+      {
+        "ParaName": "image_path",
+        "ParaClass": "str",
+        "ParaValue": "",
+        "Required": 1
+      },
+      {
+        "ParaName": "imsize",
+        "ParaClass": "int",
+        "ParaValue": 512,
+        "Required": 0
+      }
+    ]
+  },
+  {
+    "name": "RandomTensor",
+    "type": "input",
+    "api": "PyTorch",
+    "ports": [
+      3,
+      4
+    ],
+    "description": "Loader for random tensor",
+    "parameters": [
+      {
+        "ParaName": "view",
+        "ParaClass": "list",
+        "ParaValue": "[]",
+        "Required": 1
+      }
+    ]
+  },
+  {
+    "name": "ConstantTensor",
+    "type": "input",
+    "api": "PyTorch",
+    "ports": [
+      3,
+      4
+    ],
+    "description": "Loader for constant tensor (1, 0)",
+    "parameters": [
+      {
+        "ParaName": "view",
+        "ParaClass": "list",
+        "ParaValue": "[]",
+        "Required": 1
+      },
+      {
+        "ParaName": "value",
+        "ParaClass": "int",
+        "ParaValue": -1,
+        "Required": 1
+      }
+    ]
+  },
+  {
+    "name": "SavedTensor",
+    "type": "input",
+    "api": "PyTorch",
+    "ports": [
+      3,
+      4
+    ],
+    "description": "Loader for tensor",
+    "parameters": [
+      {
+        "ParaName": "tensor_path",
+        "ParaClass": "str",
+        "ParaValue": "",
+        "Required": 1
+      }
+    ]
+  },
+  {
+    "name": "MNIST",
+    "type": "input",
+    "api": "PyTorch",
+    "ports": [
+      3,
+      4,
+      5
+    ],
+    "description": "Loader for MNIST dataset",
+    "parameters": [
+      {
+        "ParaName": "root",
+        "ParaClass": "str",
+        "ParaValue": "",
+        "Required": 1
+      },
+      {
+        "ParaName": "max_batch_size",
+        "ParaClass": "int",
+        "ParaValue": 1,
+        "Required": 0
+      },
+      {
+        "ParaName": "shuffle",
+        "ParaClass": "bool",
+        "ParaValue": false,
+        "Required": 0
+      },
+      {
+        "ParaName": "train",
+        "ParaClass": "bool",
+        "ParaValue": true,
+        "Required": 0
+      },
+      {
+        "ParaName": "download",
+        "ParaClass": "bool",
+        "ParaValue": false,
+        "Required": 0
+      }
+    ]
+  },
+  {
+    "name": "ImageTensor",
+    "type": "constant",
+    "api": "PyTorch",
+    "ports": [
+      3,
+      4
+    ],
+    "description": "Loader for single image",
+    "parameters": [
+      {
+        "ParaName": "image_path",
+        "ParaClass": "str",
+        "ParaValue": "",
+        "Required": 1
+      },
+      {
+        "ParaName": "imsize",
+        "ParaClass": "int",
+        "ParaValue": 512,
+        "Required": 0
+      }
+    ]
+  },
+  {
+    "name": "RandomTensor",
+    "type": "constant",
+    "api": "PyTorch",
+    "ports": [
+      3,
+      4
+    ],
+    "description": "Random tensor constant",
+    "parameters": [
+      {
+        "ParaName": "view",
+        "ParaClass": "list",
+        "ParaValue": "[]",
+        "Required": 1
+      }
+    ]
+  },
+  {
+    "name": "ConstantTensor",
+    "type": "constant",
+    "api": "PyTorch",
+    "ports": [
+      3,
+      4
+    ],
+    "description": "Constant tensor constant (1, 0)",
+    "parameters": [
+      {
+        "ParaName": "view",
+        "ParaClass": "list",
+        "ParaValue": "[]",
+        "Required": 1
+      },
+      {
+        "ParaName": "value",
+        "ParaClass": "int",
+        "ParaValue": -1,
+        "Required": 1
+      }
+    ]
+  },
+  {
+    "name": "SavedTensor",
+    "type": "constant",
+    "api": "PyTorch",
+    "ports": [
+      3,
+      4
+    ],
+    "description": "Constant Tensor constant",
+    "parameters": [
+      {
+        "ParaName": "tensor_path",
+        "ParaClass": "str",
+        "ParaValue": "",
+        "Required": 1
+      }
+    ]
+  },
+  {
+    "name": "ReLU",
+    "type": "layer",
+    "api": "PyTorch",
+    "ports": [
+      1,
+      3,
+      4
+    ],
+    "description": "ReLu Layer",
+    "parameters": []
+  },
+  {
+    "name": "Linear",
+    "type": "layer",
+    "api": "PyTorch",
+    "ports": [
+      1,
+      3,
+      4
+    ],
+    "description": "Linear Layer",
+    "parameters": [
+      {
+        "ParaName": "in_features",
+        "ParaClass": "int",
+        "ParaValue": -1,
+        "Required": 1
+      },
+      {
+        "ParaName": "out_features",
+        "ParaClass": "int",
+        "ParaValue": -1,
+        "Required": 1
+      },
+      {
+        "ParaName": "inplace_forward",
+        "ParaClass": "bool",
+        "ParaValue": false,
+        "Required": 0
+      },
+      {
+        "ParaName": "bias",
+        "ParaClass": "bool",
+        "ParaValue": true,
+        "Required": 0
+      }
+    ]
+  },
+  {
+    "name": "Conv2D",
+    "type": "layer",
+    "api": "PyTorch",
+    "ports": [
+      1,
+      3,
+      4
+    ],
+    "description": "Conv2d Layer",
+    "parameters": [
+      {
+        "ParaName": "in_channels",
+        "ParaClass": "int",
+        "ParaValue": -1,
+        "Required": 1
+      },
+      {
+        "ParaName": "out_channels",
+        "ParaClass": "int",
+        "ParaValue": -1,
+        "Required": 1
+      },
+      {
+        "ParaName": "kernel_size",
+        "ParaClass": "tuple",
+        "ParaValue": "()",
+        "Required": 1
+      },
+      {
+        "ParaName": "inplace_forward",
+        "ParaClass": "bool",
+        "ParaValue": false,
+        "Required": 0
+      },
+      {
+        "ParaName": "stride",
+        "ParaClass": "tuple",
+        "ParaValue": [
+          1,
+          1
+        ],
+        "Required": 0
+      },
+      {
+        "ParaName": "padding",
+        "ParaClass": "tuple",
+        "ParaValue": [
+          0,
+          0
+        ],
+        "Required": 0
+      },
+      {
+        "ParaName": "dilation",
+        "ParaClass": "tuple",
+        "ParaValue": [
+          1,
+          1
+        ],
+        "Required": 0
+      },
+      {
+        "ParaName": "groups",
+        "ParaClass": "int",
+        "ParaValue": 1,
+        "Required": 0
+      },
+      {
+        "ParaName": "bias",
+        "ParaClass": "bool",
+        "ParaValue": true,
+        "Required": 0
+      },
+      {
+        "ParaName": "padding_mode",
+        "ParaClass": "str",
+        "ParaValue": "zeros",
+        "Required": 0
+      }
+    ]
+  },
+  {
+    "name": "MaxPool2D",
+    "type": "layer",
+    "api": "PyTorch",
+    "ports": [
+      1,
+      3,
+      4
+    ],
+    "description": "MaxPool2d Layer",
+    "parameters": [
+      {
+        "ParaName": "kernel_size",
+        "ParaClass": "tuple",
+        "ParaValue": "()",
+        "Required": 1
+      },
+      {
+        "ParaName": "inplace_forward",
+        "ParaClass": "bool",
+        "ParaValue": false,
+        "Required": 0
+      },
+      {
+        "ParaName": "stride",
+        "ParaClass": "tuple",
+        "ParaValue": null,
+        "Required": 0
+      },
+      {
+        "ParaName": "padding",
+        "ParaClass": "tuple",
+        "ParaValue": [
+          0,
+          0
+        ],
+        "Required": 0
+      },
+      {
+        "ParaName": "dilation",
+        "ParaClass": "tuple",
+        "ParaValue": [
+          1,
+          1
+        ],
+        "Required": 0
+      },
+      {
+        "ParaName": "return_indices",
+        "ParaClass": "_empty",
+        "ParaValue": false,
+        "Required": 0
+      },
+      {
+        "ParaName": "ceil_mode",
+        "ParaClass": "_empty",
+        "ParaValue": false,
+        "Required": 0
+      }
+    ]
+  },
+  {
+    "name": "BatchNorm2D",
+    "type": "layer",
+    "api": "PyTorch",
+    "ports": [
+      1,
+      3,
+      4
+    ],
+    "description": "Batch2dNorm Layer",
+    "parameters": [
+      {
+        "ParaName": "num_features",
+        "ParaClass": "int",
+        "ParaValue": -1,
+        "Required": 1
+      },
+      {
+        "ParaName": "inplace_forward",
+        "ParaClass": "bool",
+        "ParaValue": false,
+        "Required": 0
+      },
+      {
+        "ParaName": "eps",
+        "ParaClass": "float",
+        "ParaValue": 1e-05,
+        "Required": 0
+      },
+      {
+        "ParaName": "momentum",
+        "ParaClass": "float",
+        "ParaValue": 0.1,
+        "Required": 0
+      },
+      {
+        "ParaName": "affine",
+        "ParaClass": "bool",
+        "ParaValue": true,
+        "Required": 0
+      },
+      {
+        "ParaName": "track_running_stats",
+        "ParaClass": "bool",
+        "ParaValue": true,
+        "Required": 0
+      }
+    ]
+  },
+  {
+    "name": "LogSoftMax",
+    "type": "layer",
+    "api": "PyTorch",
+    "ports": [
+      1,
+      3,
+      4
+    ],
+    "description": "LogSoftMax Layer",
+    "parameters": [
+      {
+        "ParaName": "dim",
+        "ParaClass": "int",
+        "ParaValue": -1,
+        "Required": 1
+      },
+      {
+        "ParaName": "inplace_forward",
+        "ParaClass": "bool",
+        "ParaValue": false,
+        "Required": 0
+      }
+    ]
+  },
+  {
+    "name": "MSELoss",
+    "type": "layer",
+    "api": "PyTorch",
+    "ports": [
+      1,
+      3,
+      4
+    ],
+    "description": "MSELoss Layer",
+    "parameters": [
+      {
+        "ParaName": "reduction",
+        "ParaClass": "str",
+        "ParaValue": "mean",
+        "Required": 0
+      }
+    ]
+  },
+  {
+    "name": "NLLLoss",
+    "type": "layer",
+    "api": "PyTorch",
+    "ports": [
+      1,
+      3,
+      4
+    ],
+    "description": "NLLLoss Layer",
+    "parameters": [
+      {
+        "ParaName": "reduction",
+        "ParaClass": "str",
+        "ParaValue": "mean",
+        "Required": 0
+      }
+    ]
+  },
+  {
+    "name": "Flatten",
+    "type": "transform",
+    "api": "PyTorch",
+    "ports": [
+      1,
+      3,
+      4
+    ],
+    "description": "Flat tensor to One",
+    "parameters": [
+      {
+        "ParaName": "inplace_forward",
+        "ParaClass": "bool",
+        "ParaValue": false,
+        "Required": 0
+      }
+    ]
+  },
+  {
+    "name": "Normalize",
+    "type": "transform",
+    "api": "PyTorch",
+    "ports": [
+      1,
+      3,
+      4
+    ],
+    "description": "Normalize img tensor to certain range",
+    "parameters": [
+      {
+        "ParaName": "mean",
+        "ParaClass": "tuple",
+        "ParaValue": [
+          0.485,
+          0.456,
+          0.406
+        ],
+        "Required": 0
+      },
+      {
+        "ParaName": "std",
+        "ParaClass": "tuple",
+        "ParaValue": [
+          0.229,
+          0.224,
+          0.225
+        ],
+        "Required": 0
+      },
+      {
+        "ParaName": "inplace_forward",
+        "ParaClass": "bool",
+        "ParaValue": false,
+        "Required": 0
+      }
+    ]
+  },
+  {
+    "name": "ClampData",
+    "type": "transform",
+    "api": "PyTorch",
+    "ports": [
+      1,
+      3,
+      4
+    ],
+    "description": "Clamp tensor to certain range",
+    "parameters": [
+      {
+        "ParaName": "clamp_range",
+        "ParaClass": "tuple",
+        "ParaValue": [
+          0,
+          1
+        ],
+        "Required": 0
+      },
+      {
+        "ParaName": "inplace_forward",
+        "ParaClass": "bool",
+        "ParaValue": false,
+        "Required": 0
+      }
+    ]
+  },
+  {
+    "name": "Detach",
+    "type": "transform",
+    "api": "PyTorch",
+    "ports": [
+      1,
+      3,
+      4
+    ],
+    "description": "Detach tensor from computation graph. When use detach operation, it is safer to first clone the tensor and then use the inplace detach version",
+    "parameters": [
+      {
+        "ParaName": "inplace_forward",
+        "ParaClass": "bool",
+        "ParaValue": false,
+        "Required": 0
+      }
+    ]
+  },
+  {
+    "name": "Adder",
+    "type": "transform",
+    "api": "PyTorch",
+    "ports": [
+      1,
+      3,
+      4
+    ],
+    "description": "Add multiple tensors",
+    "parameters": [
+      {
+        "ParaName": "inplace_forward",
+        "ParaClass": "bool",
+        "ParaValue": false,
+        "Required": 0
+      }
+    ]
+  },
+  {
+    "name": "GetGramMatrix",
+    "type": "transform",
+    "api": "PyTorch",
+    "ports": [
+      1,
+      3,
+      4
+    ],
+    "description": "Get Gram Features (for image)",
+    "parameters": [
+      {
+        "ParaName": "inplace_forward",
+        "ParaClass": "bool",
+        "ParaValue": false,
+        "Required": 0
+      }
+    ]
+  },
+  {
+    "name": "SGD",
+    "type": "optimizer",
+    "api": "PyTorch",
+    "ports": [
+      1,
+      2
+    ],
+    "description": "SGD Optimizer",
+    "parameters": [
+      {
+        "ParaName": "learning_rate",
+        "ParaClass": "float",
+        "ParaValue": -1,
+        "Required": 1
+      },
+      {
+        "ParaName": "momentum",
+        "ParaClass": "float",
+        "ParaValue": 0,
+        "Required": 0
+      }
+    ]
+  },
+  {
+    "name": "LBFGS",
+    "type": "optimizer",
+    "api": "PyTorch",
+    "ports": [
+      1,
+      2
+    ],
+    "description": "LBFGS Optimizer",
+    "parameters": [
+      {
+        "ParaName": "learning_rate",
+        "ParaClass": "float",
+        "ParaValue": 1,
+        "Required": 0
+      }
+    ]
+  },
+  {
+    "name": "Saver",
+    "type": "monitor",
+    "api": "PyTorch",
+    "ports": [
+      1
+    ],
+    "description": "Monitor for variable saver",
+    "parameters": [
+      {
+        "ParaName": "model_save_path",
+        "ParaClass": "str",
+        "ParaValue": "",
+        "Required": 1
+      }
+    ]
+  },
+  {
+    "name": "Manager",
+    "type": "monitor",
+    "api": "PyTorch",
+    "ports": [],
+    "description": "Monitor for model",
+    "parameters": [
+      {
+        "ParaName": "epochs",
+        "ParaClass": "int",
+        "ParaValue": -1,
+        "Required": 1
+      },
+      {
+        "ParaName": "model_save_path",
+        "ParaClass": "str",
+        "ParaValue": "",
+        "Required": 1
+      },
+      {
+        "ParaName": "device_name",
+        "ParaClass": "str",
+        "ParaValue": "",
+        "Required": 1
+      }
+    ]
+  }
+]

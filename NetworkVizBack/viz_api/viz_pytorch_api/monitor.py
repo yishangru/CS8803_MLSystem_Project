@@ -3,7 +3,6 @@ import torch
 from torchvision.utils import save_image
 from viz_api import monitor
 from viz_api import input
-from viz_api import node
 from viz_api.viz_pytorch_api import input as input_torch
 from viz_api import tensor
 
@@ -19,7 +18,7 @@ class MonitorFinal_Torch(monitor.MonitorFinal):
             pass
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "Monitor for model"
 
 
@@ -75,7 +74,7 @@ class MonitorSaver_Torch(monitor.MonitorSaver):
             save_tensor(input_to_save)
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "Monitor for variable saver"
 
 

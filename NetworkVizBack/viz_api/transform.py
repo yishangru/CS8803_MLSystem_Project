@@ -28,7 +28,7 @@ class TransformWrapper(object):
         raise NotImplementedError
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         raise NotImplementedError
 
 

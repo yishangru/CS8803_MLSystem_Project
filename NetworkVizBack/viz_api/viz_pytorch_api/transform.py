@@ -20,7 +20,7 @@ class FlatTransform_Torch(transform.FlatTransform):
         return output_linked_tensor
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "Flat tensor to One"
 
 
@@ -43,7 +43,7 @@ class NormalizeTransform_Torch(transform.NormalizeTransform):
             return output_linked_tensor
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "Normalize img tensor to certain range"
 
 
@@ -63,7 +63,7 @@ class DataClampTransform_Torch(transform.DataClampTransform):
             return output_linked_tensor
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "Clamp tensor to certain range"
 
 
@@ -87,7 +87,7 @@ class DetachTransform_Torch(transform.DetachTransform):
             return output_linked_tensor
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "Detach tensor from computation graph. When use detach operation, " \
                "it is safer to first clone the tensor and then use the inplace detach version"
 
@@ -108,7 +108,7 @@ class AddTransform_Torch(transform.AddTransform):
         return output_linked_tensor
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "Add multiple tensors"
 
 
@@ -133,7 +133,7 @@ class GetGramMatrix_Torch(transform.GetGramMatrix):
         return output_linked_tensor
 
     @staticmethod
-    def get_description(self):
+    def get_description():
         return "Get Gram Features (for image)"
 
 # --------------------- test input --------------------- #
@@ -212,7 +212,7 @@ def test_gram_matrix_transform():
     print(image_tensor_input.get_device(), gram_tensor_output.get_device())
 
 #test_flat_transform()
-test_normal_transform()
+#test_normal_transform()
 #test_data_clamp_transform()
 #test_detach_transform()
 #test_add_transform()
