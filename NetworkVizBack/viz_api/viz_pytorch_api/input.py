@@ -47,6 +47,7 @@ class RandomLoader_Torch(input.RandomLoader):
     def start_tracking_gradient(self):
         return self.linked_tensor_group[0].start_tracking_gradient()
 
+    @staticmethod
     def get_description(self):
         return "Loader for random tensor"
 
@@ -84,6 +85,7 @@ class ConstantLoader_Torch(input.ConstantLoader):
     def get_number_batch(self):
         return 1
 
+    @staticmethod
     def get_description(self):
         return "Loader for constant tensor (1, 0)"
 
@@ -121,6 +123,7 @@ class TensorLoader_Torch(input.TensorLoader):
     def get_number_batch(self):
         return 1
 
+    @staticmethod
     def get_description(self):
         return "Loader for tensor"
 
@@ -160,6 +163,7 @@ class ImageLoader_Torch(input.ImageLoader):
     def get_number_batch(self):
         return 1
 
+    @staticmethod
     def get_description(self):
         return "Loader for single image"
 
@@ -225,6 +229,7 @@ class MnistDataSetLoader_Torch(input.ImageDataSetLoader):
     def get_number_batch(self):
         return len(self.linked_tensor_group_img)
 
+    @staticmethod
     def get_description(self):
         return "Loader for MNIST dataset"
 
@@ -260,6 +265,7 @@ class RandomConstant_Torch(input.RandomConstant):
     def start_tracking_gradient(self):
         return self.linked_tensor_torch.start_tracking_gradient()
 
+    @staticmethod
     def get_description(self):
         return "Random tensor constant"
 
@@ -293,6 +299,7 @@ class ConstantConstant_Torch(input.ConstantConstant):
     def start_tracking_gradient(self):
         return self.linked_tensor_torch.start_tracking_gradient()
 
+    @staticmethod
     def get_description(self):
         return "Constant tensor constant (1, 0)"
 
@@ -325,6 +332,7 @@ class TensorConstant_Torch(input.TensorConstant):
     def start_tracking_gradient(self):
         return self.linked_tensor_torch.start_tracking_gradient()
 
+    @staticmethod
     def get_description(self):
         return "Constant Tensor constant"
 
@@ -359,6 +367,7 @@ class ImageConstant_Torch(input.ImageConstant):
     def start_tracking_gradient(self):
         return self.linked_tensor_torch.start_tracking_gradient()
 
+    @staticmethod
     def get_description(self):
         return "Loader for single image"
 

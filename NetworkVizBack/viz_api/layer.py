@@ -46,6 +46,7 @@ class LayerWrapper(object):
     def get_device(self):
         raise NotImplementedError
 
+    @staticmethod
     def get_description(self):
         raise NotImplementedError
 

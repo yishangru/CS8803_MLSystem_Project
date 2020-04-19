@@ -106,6 +106,7 @@ class ConstantWrapper(object):
     def start_tracking_gradient(self):
         raise NotImplementedError
 
+    @staticmethod
     def get_description(self):
         raise NotImplementedError
 

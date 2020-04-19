@@ -18,6 +18,7 @@ class MonitorFinal_Torch(monitor.MonitorFinal):
         for layerNode in list(layer):
             pass
 
+    @staticmethod
     def get_description(self):
         return "Monitor for model"
 
@@ -73,6 +74,7 @@ class MonitorSaver_Torch(monitor.MonitorSaver):
         elif isinstance(input_to_save, tensor.TensorWrapper):
             save_tensor(input_to_save)
 
+    @staticmethod
     def get_description(self):
         return "Monitor for variable saver"
 

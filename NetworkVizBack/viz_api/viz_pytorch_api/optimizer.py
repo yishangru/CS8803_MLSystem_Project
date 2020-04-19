@@ -48,6 +48,7 @@ class SGD_Torch(optimizer.SGD):
     def clear_gradient(self):
         self.optimizer.zero_grad()
 
+    @staticmethod
     def get_description(self):
         return "SGD Optimizer"
 
@@ -94,5 +95,6 @@ class LBFGS_Torch(optimizer.LBFGS):
     def clear_gradient(self):
         self.optimizer.zero_grad()
 
+    @staticmethod
     def get_description(self):
         return "LBFGS Optimizer"

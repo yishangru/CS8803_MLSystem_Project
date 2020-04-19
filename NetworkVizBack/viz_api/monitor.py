@@ -17,6 +17,7 @@ class MonitorWrapper(object):
         super(MonitorWrapper, self).__init__()
         self.name = name
 
+    @staticmethod
     def get_description(self):
         raise NotImplementedError
 

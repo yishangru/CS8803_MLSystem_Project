@@ -27,6 +27,7 @@ class TransformWrapper(object):
     def forward(self, *input_tensor):
         raise NotImplementedError
 
+    @staticmethod
     def get_description(self):
         raise NotImplementedError
 

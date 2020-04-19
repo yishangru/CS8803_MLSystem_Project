@@ -31,6 +31,7 @@ class OptimizerWrapper(object):
     def clear_gradient(self):
         raise NotImplementedError
 
+    @staticmethod
     def get_description(self):
         raise NotImplementedError
 
