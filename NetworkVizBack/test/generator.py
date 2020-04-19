@@ -1,23 +1,3 @@
-import collections
-
-class GlobalManager(object):
-    def __init__(self, name: str = "GlobalManager"):
-        super(GlobalManager, self).__init__()
-        self.name = name
-        self.block_id = 0
-        self.recorder = collections.defaultdict(int)
-
-    def get_block_id(self):
-        block_id_return = self.block_id
-        self.block_id += 1
-        return block_id_return
-
-    def get_node_id(self, name):
-        node_id_return = self.recorder[name]
-        self.recorder[name] += 1
-        return node_id_return
-
-import viz_api.node as VizNode
 from viz_api.tensor import DataType
 from viz_api.input import InputType, ImageDataSetType, ConstantType
 from viz_api.layer import LayerType
@@ -310,6 +290,7 @@ defaultParameterMapping = {
 }
 
 def generateAPI(API):
+    import json
     import inspect
     passNodeList = list()
     for MetaNodeType in generalTypeMapping.keys():
@@ -324,10 +305,11 @@ def generateAPI(API):
         # generate for all node type in the meta node type
         for NodeType in NodeRequest.keys():
             RequestNode = NodeRequest[NodeType]
-            node = {"name": NodeType,
+            node = {"node": NodeType,
                     "type": MetaNodeType,
                     "api": API,
                     "ports": PORTRequest[RequestNode],
+                    "source": "",
                     "description": APIRequest[RequestNode].get_description(),
                     "parameters": list()}
             signature = inspect.signature(APIRequest[RequestNode].__init__)
@@ -342,29 +324,65 @@ def generateAPI(API):
                         paraDict["Required"] = 0
                     node["parameters"].append(paraDict)
             passNodeList.append(node)
-    import json
     writeFile = open("./VizAPI.json", mode="w", encoding="utf-8")
     json.dump(passNodeList, fp=writeFile, indent=2)
     writeFile.close()
 
 #generateAPI("PyTorch")
 
-def generateSystemModel(API, nodeList, linkList):
-    recordDict = dict()
+# ------------------- json parse for model generation ------------------- #
+import collections
+class GlobalManager(object):
+    def __init__(self, name: str = "GlobalManager"):
+        super(GlobalManager, self).__init__()
+        self.name = name
+        self.block_id = 0
+        self.recorder = collections.defaultdict(int)
+
+    def get_block_id(self):
+        block_id_return = self.block_id
+        self.block_id += 1
+        return block_id_return
+
+    def get_node_id(self, name):
+        node_id_return = self.recorder[name]
+        self.recorder[name] += 1
+        return node_id_return
+
+
+"""
+format -
+    nodeList:
+        {
+            id:
+            node:
+            type:
+            api:
+            source:
+            parameters: [
+                {
+                    paraName:
+                    paraValue:
+                }
+            ]
+        }
+    linkList:
+        {
+            start: id
+            portStart: int
+            end: id
+            portEnd: int
+        }
+    blockList:
+        {   
+            name:
+            id: []
+        }
+"""
+
+def generateSystemModel(API, nodeList, linkList, blockList):
+    import viz_api.node as VizNode
+    recordDict = dict() # id mapping for
     nodeManager = GlobalManager()
     for node in nodeList:
-        """
-        format -
-            {
-                id:
-                NodeType:
-                type:
-                source:
-                params: [
-                    {
-                        paraName:
-                        paraValue:
-                    }
-                ]
-            }
-        """
+
