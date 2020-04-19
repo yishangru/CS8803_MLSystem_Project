@@ -10,7 +10,7 @@ For time limit, implement following for simplicity
 """
 
 
-class Transform(Enum):
+class TransformType(Enum):
     FlatTransform = auto()
     NormalizeTransform = auto()
     DataClampTransform = auto()

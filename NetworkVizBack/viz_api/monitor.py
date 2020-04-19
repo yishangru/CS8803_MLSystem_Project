@@ -7,7 +7,7 @@ node to the output node.
 load trained model, load input, choose mode (eval or train), save model, path
 """
 
-class Monitor(Enum):
+class MonitorType(Enum):
     MonitorFinal = auto()
     MonitorSaver = auto()
 
@@ -24,6 +24,9 @@ class MonitorWrapper(object):
 class MonitorFinal(MonitorWrapper):
     def __init__(self, name):
         super(MonitorFinal, self).__init__(name)
+
+    def save_model(self, *layer):
+        raise NotImplementedError
 
 
 class MonitorSaver(MonitorWrapper):

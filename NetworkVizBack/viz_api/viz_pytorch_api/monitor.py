@@ -3,6 +3,7 @@ import torch
 from torchvision.utils import save_image
 from viz_api import monitor
 from viz_api import input
+from viz_api import node
 from viz_api.viz_pytorch_api import input as input_torch
 from viz_api import tensor
 
@@ -12,6 +13,10 @@ class MonitorFinal_Torch(monitor.MonitorFinal):
         self.epochs = epochs
         self.model_save_path = model_save_path
         self.device = torch.device(device_name)
+
+    def save_model(self, *layer):
+        for layerNode in list(layer):
+            pass
 
     def get_description(self):
         return "Monitor for model"

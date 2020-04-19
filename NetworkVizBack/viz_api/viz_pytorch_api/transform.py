@@ -1,5 +1,4 @@
 import torch
-import torchvision
 from viz_api import transform
 from viz_api.viz_pytorch_api.tensor import Tensor_Torch
 
