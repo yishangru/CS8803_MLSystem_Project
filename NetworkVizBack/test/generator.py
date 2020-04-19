@@ -352,7 +352,7 @@ class GlobalManager(object):
 
 """
 format -
-    nodeList:
+    nodes: [
         {
             id:
             node:
@@ -366,18 +366,21 @@ format -
                 }
             ]
         }
-    linkList:
+    ]
+    links: [
         {
             start: id
             portStart: int
             end: id
             portEnd: int
         }
-    blockList:
+    ]
+    block: [
         {   
             name:
             id: []
         }
+    ]
 """
 
 def generateSystemModel(API, nodeList, linkList, blockList):
