@@ -1,4 +1,3 @@
-import torch
 from enum import Enum, auto
 from viz_api.tensor import DataType
 

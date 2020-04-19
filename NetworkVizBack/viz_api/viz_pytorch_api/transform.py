@@ -17,7 +17,7 @@ class FlatTransform_Torch(transform.FlatTransform):
         output_linked_tensor = input_linked_tensor.view(input_linked_tensor.shape[0], -1)
         if self.inplace_forward:
             input_tensor.set_linked_tensor(output_linked_tensor)
-        return Tensor_Torch(output_linked_tensor, name=self.name + "_output")
+        return output_linked_tensor
 
     def get_description(self):
         return "Flat tensor to One"
@@ -33,10 +33,10 @@ class DataClampTransform_Torch(transform.DataClampTransform):
         input_linked_tensor = input_tensor.get_linked_tensor()
         if self.inplace_forward:
             input_linked_tensor.clamp_(self.clamp_range[0], self.clamp_range[1])
-            return Tensor_Torch(input_linked_tensor, name=self.name + "_output")
+            return input_linked_tensor
         else:
             output_linked_tensor = input_linked_tensor.clamp(self.clamp_range[0], self.clamp_range[1])
-            return Tensor_Torch(output_linked_tensor, name=self.name + "_output")
+            return output_linked_tensor
 
     def get_description(self):
         return "Clamp tensor to certain range"
@@ -56,10 +56,10 @@ class DetachTransform_Torch(transform.DetachTransform):
         input_linked_tensor = input_tensor.get_linked_tensor()
         if self.inplace_forward:
             input_linked_tensor.detach_()
-            return Tensor_Torch(input_linked_tensor, name=self.name + "_output")
+            return input_linked_tensor
         else:
             output_linked_tensor = input_linked_tensor.detach()
-            return Tensor_Torch(output_linked_tensor, name=self.name + "_output")
+            return output_linked_tensor
 
     def get_description(self):
         return "Detach tensor from computation graph. When use detach operation, " \
@@ -79,7 +79,7 @@ class AddTransform_Torch(transform.AddTransform):
         output_linked_tensor = input_linked_tensor_list[0].get_linked_tensor() if self.inplace_forward else input_linked_tensor_list[0].get_deep_copy()
         for i in range(1, len(input_linked_tensor_list)):
             output_linked_tensor.add_(input_linked_tensor_list[i].get_linked_tensor())
-        return Tensor_Torch(output_linked_tensor, name=self.name + "_output")
+        return output_linked_tensor
 
     def get_description(self):
         return "Add multiple tensors"
@@ -103,7 +103,7 @@ class GetGramMatrix_Torch(transform.GetGramMatrix):
         output_linked_tensor = G.div(a * b * c * d)
         if self.inplace_forward:
             input_tensor.set_linked_tensor(output_linked_tensor)
-        return Tensor_Torch(output_linked_tensor, name=self.name + "_output")
+        return output_linked_tensor
 
     def get_description(self):
         return "Get Gram Features (for image)"
@@ -113,32 +113,32 @@ def test_flat_transform():
     from viz_api.viz_pytorch_api.input import ImageConstant_Torch
     image_tensor_input = ImageConstant_Torch(image_path="../../static/img/boat.jpg", imsize=512, device=torch.device("cuda:0")).get_saved_tensor()
     flat_transform = FlatTransform_Torch(inplace_forward=True)
-    image_tensor_output = flat_transform.forward(image_tensor_input)
+    image_tensor_output = Tensor_Torch(flat_transform.forward(image_tensor_input))
     print(image_tensor_input.get_linked_tensor().size(), image_tensor_output.get_linked_tensor().size())
     print(image_tensor_input.get_device(), image_tensor_output.get_device())
 
 def test_data_clamp_transform():
     rand_tensor_input = Tensor_Torch(torch.randn(3, 2).add(5))
     clamp_transform = DataClampTransform_Torch((0, 1), inplace_forward=True)
-    rand_tensor_output = clamp_transform.forward(rand_tensor_input)
+    rand_tensor_output = Tensor_Torch(clamp_transform.forward(rand_tensor_input))
     print(rand_tensor_output.get_linked_tensor())
     print(torch.eq(rand_tensor_input.get_linked_tensor(), rand_tensor_output.get_linked_tensor()))
 
     rand_tensor_input = Tensor_Torch(torch.randn(3, 2).add(5))
     clamp_transform = DataClampTransform_Torch((0, 1), inplace_forward=False)
-    rand_tensor_output = clamp_transform.forward(rand_tensor_input)
+    rand_tensor_output = Tensor_Torch(clamp_transform.forward(rand_tensor_input))
     print(rand_tensor_output.get_linked_tensor())
     print(torch.eq(rand_tensor_input.get_linked_tensor(), rand_tensor_output.get_linked_tensor()))
 
 def test_detach_transform():
     rand_tensor_input = Tensor_Torch(torch.randn(3, 2).requires_grad_(True))
     detach_transform = DetachTransform_Torch(inplace_forward=True)
-    rand_tensor_output = detach_transform.forward(rand_tensor_input)
+    rand_tensor_output = Tensor_Torch(detach_transform.forward(rand_tensor_input))
     print(rand_tensor_input.get_linked_tensor().requires_grad, rand_tensor_output.get_linked_tensor().requires_grad)
 
     rand_tensor_input = Tensor_Torch(torch.randn(3, 2).requires_grad_(True))
     detach_transform = DetachTransform_Torch(inplace_forward=False)
-    rand_tensor_output = detach_transform.forward(rand_tensor_input)
+    rand_tensor_output = Tensor_Torch(detach_transform.forward(rand_tensor_input))
     print(rand_tensor_input.get_linked_tensor().requires_grad, rand_tensor_output.get_linked_tensor().requires_grad)
 
 def test_add_transform():
@@ -146,7 +146,7 @@ def test_add_transform():
     one_tensor_input_2 = Tensor_Torch(torch.ones(1, 1))
     one_tensor_input_3 = Tensor_Torch(torch.ones(1, 1))
     add_transform = AddTransform_Torch(inplace_forward=True)
-    one_tensor_output = add_transform.forward(one_tensor_input_1, one_tensor_input_2, one_tensor_input_3)
+    one_tensor_output = Tensor_Torch(add_transform.forward(one_tensor_input_1, one_tensor_input_2, one_tensor_input_3))
     print(one_tensor_input_1.get_linked_tensor(), one_tensor_input_2.get_linked_tensor(),
           one_tensor_input_3.get_linked_tensor(), one_tensor_output.get_linked_tensor())
 
@@ -154,7 +154,7 @@ def test_add_transform():
     one_tensor_input_2 = Tensor_Torch(torch.ones(1, 1))
     one_tensor_input_3 = Tensor_Torch(torch.ones(1, 1))
     add_transform = AddTransform_Torch(inplace_forward=False)
-    one_tensor_output = add_transform.forward(one_tensor_input_1, one_tensor_input_2, one_tensor_input_3)
+    one_tensor_output = Tensor_Torch(add_transform.forward(one_tensor_input_1, one_tensor_input_2, one_tensor_input_3))
     print(one_tensor_input_1.get_linked_tensor(), one_tensor_input_2.get_linked_tensor(),
           one_tensor_input_3.get_linked_tensor(), one_tensor_output.get_linked_tensor())
 
@@ -163,7 +163,7 @@ def test_gram_matrix_transform():
     image_tensor_input = ImageConstant_Torch(image_path="../../static/img/boat.jpg", imsize=512,
                                              device=torch.device("cuda:0")).get_saved_tensor()
     gram_transform = GetGramMatrix_Torch(inplace_forward=True)
-    gram_tensor_output = gram_transform.forward(image_tensor_input)
+    gram_tensor_output = Tensor_Torch(gram_transform.forward(image_tensor_input))
     print(image_tensor_input.get_linked_tensor().size(), gram_tensor_output.get_linked_tensor().size())
     print(image_tensor_input.get_device(), gram_tensor_output.get_device())
 
@@ -171,7 +171,7 @@ def test_gram_matrix_transform():
     image_tensor_input = ImageConstant_Torch(image_path="../../static/img/boat.jpg", imsize=512,
                                              device=torch.device("cuda:0")).get_saved_tensor()
     gram_transform = GetGramMatrix_Torch(inplace_forward=False)
-    gram_tensor_output = gram_transform.forward(image_tensor_input)
+    gram_tensor_output = Tensor_Torch(gram_transform.forward(image_tensor_input))
     print(image_tensor_input.get_linked_tensor().size(), gram_tensor_output.get_linked_tensor().size())
     print(image_tensor_input.get_device(), gram_tensor_output.get_device())
 

@@ -80,7 +80,7 @@ for epoch in range(MonitorFinal.epochs):
         model_optimizer_1.clear_gradient()
 
         # --------- training --------- #
-        data_iteration = model_input.get_loaded_tensor_img_single(iteration)
+        data_iteration = model_input.get_loaded_tensor_img_single(iteration) # input
         flattransform_1_output = flattransform_1.forward(data_iteration)
         linear_1_output = linear_1.forward(flattransform_1_output)
         relu_1_output = relu_1.forward(linear_1_output)

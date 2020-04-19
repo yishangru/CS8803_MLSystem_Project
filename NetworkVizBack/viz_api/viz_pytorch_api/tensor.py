@@ -44,7 +44,7 @@ class Tensor_Torch(tensor.TensorWrapper):
     # for tensor update
     def set_linked_tensor(self, linked_tensor: torch.Tensor):
         self.linked_tensor = linked_tensor
-        self.data_type = DataType_Torch_Reverse_Mapping[self.linked_tensor.dtype]
+        self.data_type = None if linked_tensor is None else DataType_Torch_Reverse_Mapping[self.linked_tensor.dtype]
 
     def get_linked_tensor(self):
         return self.linked_tensor

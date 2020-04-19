@@ -78,7 +78,7 @@ The first dimension of input will be the batch size. Loss as a scala function ba
 1. x.to(device=device, dtype=dtype)
 
 # Future Project Extension
-1. Add abstraction for more api in PyTorch
+1. Add abstraction for more api in PyTorch (operation abstraction)
 2. Support for distributed learning (hardware assignment)
 3. Add possible exception handling mechanism and more warning
 4. Add interface to support tensorflow
