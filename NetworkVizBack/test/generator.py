@@ -591,20 +591,30 @@ def generateBlock(blockList):
     pass
 
 # part 5 generate link for running logic and saving code
-def generateTraining(linkList):
+def generateTraining(linkList, optimizerList):
     global nodeManager, recordDict
 
-    generateTrainString = "# -------------------- model running -------------------- #\n"
+    generateRunString = "# -------------------- model running -------------------- #\n"
+    generateOptimizerString = ""
     generateSaveString = "# -------------------- output save -------------------- #\n"
+    for optimizer in optimizerList:
+        # generate name mapping
+        pass
+
     for link in linkList:
         pass
+
+    for optimizer in optimizerList:
+        # generate optimize link
+        pass
+    return generateRunString, generateOptimizerString, generateSaveString
 
 # part 6 generate optimizer
 def generateOptimizer(optimizerList):
     pass
 
 # id are all unique - monitor, node, block, optimizer
-def generateSystemModel(monitorList, nodeList, blockList, optimizerList, linkList):
+def generateSystemModel(monitorList, nodeList, blockList, linkList, optimizerList):
     global nodeManager, recordDict
     recordDict = dict()
     nodeManager = GlobalManager()
@@ -614,8 +624,4 @@ def generateSystemModel(monitorList, nodeList, blockList, optimizerList, linkLis
     # generate block
 
     # generate model running code - optimizer link, save link
-    modelLogicString = -1
-
-    # generate optimizer
-
-    # generate saver
+    modelRunString, modelOptimizeString, modelSaveString = generateTraining(linkList, optimizerList)
