@@ -37,6 +37,10 @@ class LayerNode(Node):
     def __init__(self, name: str):
         super(LayerNode, self).__init__(name)
 
+    # return linked layer
+    def get_linked_layer(self):
+        raise NotImplementedError
+
     # return KB in memory usage for layer feature (weight, bias)
     def get_layer_feature_memory_size(self):
         raise NotImplementedError
@@ -51,14 +55,26 @@ class TransformNode(Node):
     def __init__(self, name):
         super(TransformNode, self).__init__(name)
 
+    # return linked transform
+    def get_linked_transform(self):
+        raise NotImplementedError
+
 
 # wrapper for input node
 class InputNode(Node):
     def __init__(self, name: str):
         super(InputNode, self).__init__(name)
 
+    # return linked input
+    def get_linked_input(self):
+        raise NotImplementedError
+
 
 # wrapper for constant node
 class ConstantNode(Node):
     def __init__(self, name: str):
         super(ConstantNode, self).__init__(name)
+
+    # return linked constant
+    def get_linked_constant(self):
+        raise NotImplementedError

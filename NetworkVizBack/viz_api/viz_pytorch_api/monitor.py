@@ -13,9 +13,9 @@ class MonitorFinal_Torch(monitor.MonitorFinal):
         self.model_save_path = model_save_path
         self.device = torch.device(device_name)
 
-    def save_model(self, *layer):
-        for layerNode in list(layer):
-            pass
+    def save_model(self, *layers):
+        for layer in list(layers):
+            torch.save(layer.get)
 
     @staticmethod
     def get_description():

@@ -38,6 +38,13 @@ inputAPITorch = {
     InputType.TensorLoader: input_Torch.TensorLoader_Torch,
     ImageDataSetType.MnistLoader: input_Torch.MnistDataSetLoader_Torch
 }
+inputAPITorchString = {
+    InputType.ImageLoader: "input_Torch.ImageLoader_Torch",
+    InputType.RandomLoader: "input_Torch.RandomLoader_Torch",
+    InputType.ConstantLoader: "input_Torch.ConstantLoader_Torch",
+    InputType.TensorLoader: "input_Torch.TensorLoader_Torch",
+    ImageDataSetType.MnistLoader: "input_Torch.MnistDataSetLoader_Torch"
+}
 # port for pytorch
 inputPortTorch = {
     InputType.ImageLoader: [3, 4],
@@ -63,6 +70,12 @@ constantAPITorch = {
     ConstantType.RandomConstant: input_Torch.RandomConstant_Torch,
     ConstantType.ConstantConstant: input_Torch.ConstantConstant_Torch,
     ConstantType.TensorConstant: input_Torch.TensorConstant_Torch
+}
+constantAPITorchString = {
+    ConstantType.ImageConstant: "input_Torch.ImageConstant_Torch",
+    ConstantType.RandomConstant: "input_Torch.RandomConstant_Torch",
+    ConstantType.ConstantConstant: "input_Torch.ConstantConstant_Torch",
+    ConstantType.TensorConstant: "input_Torch.TensorConstant_Torch"
 }
 # port for pytorch
 constantPortTorch = {
@@ -97,6 +110,16 @@ layerAPITorch = {
     LayerType.MSELoss: layer_Torch.MSELoss_Torch,
     LayerType.NLLLoss: layer_Torch.NLLLoss_Torch
 }
+layerAPITorchString = {
+    LayerType.ReLU: "layer_Torch.ReLU_Torch",
+    LayerType.Linear: "layer_Torch.Linear_Torch",
+    LayerType.Conv2d: "layer_Torch.Conv2d_Torch",
+    LayerType.MaxPool2d: "layer_Torch.MaxPool2d_Torch",
+    LayerType.BatchNorm2d: "layer_Torch.BatchNorm2d_Torch",
+    LayerType.LogSoftMax: "layer_Torch.LogSoftmax_Torch",
+    LayerType.MSELoss: "layer_Torch.MSELoss_Torch",
+    LayerType.NLLLoss: "layer_Torch.NLLLoss_Torch"
+}
 # port for pytorch
 layerPortTorch = {
     LayerType.ReLU: [1, 3, 4],
@@ -130,6 +153,14 @@ transformAPITorch = {
     TransformType.AddTransform: transform_Torch.AddTransform_Torch,
     TransformType.GetGramMatrix: transform_Torch.GetGramMatrix_Torch
 }
+transformAPITorchString = {
+    TransformType.FlatTransform: "transform_Torch.FlatTransform_Torch",
+    TransformType.NormalizeTransform: "transform_Torch.NormalizeTransform_Torch",
+    TransformType.DataClampTransform: "transform_Torch.DataClampTransform_Torch",
+    TransformType.DetachTransform: "transform_Torch.DetachTransform_Torch",
+    TransformType.AddTransform: "transform_Torch.AddTransform_Torch",
+    TransformType.GetGramMatrix: "transform_Torch.GetGramMatrix_Torch"
+}
 # port for pytorch
 transformPortTorch = {
     TransformType.FlatTransform: [1, 3, 4],
@@ -152,6 +183,10 @@ optimizerAPITorch = {
     OptimizerType.SGD: optimizer_Torch.SGD_Torch,
     OptimizerType.LBFGS: optimizer_Torch.LBFGS_Torch
 }
+optimizerAPITorchString = {
+    OptimizerType.SGD: "optimizer_Torch.SGD_Torch",
+    OptimizerType.LBFGS: "optimizer_Torch.LBFGS_Torch"
+}
 # port for pytorch
 optimizerPortTorch = {
     OptimizerType.SGD: [1, 2],
@@ -169,6 +204,10 @@ monitorTypeReverseMapping = {v: k for k, v in monitorTypeMapping.items()}
 monitorAPITorch = {
     MonitorType.MonitorSaver: monitor_Torch.MonitorSaver_Torch,
     MonitorType.MonitorFinal: monitor_Torch.MonitorFinal_Torch
+}
+monitorAPITorchString = {
+    MonitorType.MonitorSaver: "monitor_Torch.MonitorSaver_Torch",
+    MonitorType.MonitorFinal: "monitor_Torch.MonitorFinal_Torch"
 }
 monitorPortTorch = {
     MonitorType.MonitorSaver: [1],
@@ -214,7 +253,7 @@ transformPort = {
     "PyTorch": transformPortTorch
 }
 transformExcludeParameter = {
-    "PyTorch": {"self", "name", "device"}
+    "PyTorch": {"self", "name"}
 }
 
 optimizerAPI = {
@@ -331,25 +370,6 @@ def generateAPI(API):
 #generateAPI("PyTorch")
 
 # ------------------- json parse for model generation ------------------- #
-import collections
-class GlobalManager(object):
-    def __init__(self, name: str = "GlobalManager"):
-        super(GlobalManager, self).__init__()
-        self.name = name
-        self.block_id = 0
-        self.recorder = collections.defaultdict(int)
-
-    def get_block_id(self):
-        block_id_return = self.block_id
-        self.block_id += 1
-        return block_id_return
-
-    def get_node_id(self, name):
-        node_id_return = self.recorder[name]
-        self.recorder[name] += 1
-        return node_id_return
-
-
 """
 format -
     nodes: [
@@ -362,6 +382,7 @@ format -
             parameters: [
                 {
                     paraName:
+                    paraClass
                     paraValue:
                 }
             ]
@@ -383,9 +404,179 @@ format -
     ]
 """
 
-def generateSystemModel(API, nodeList, linkList, blockList):
-    import viz_api.node as VizNode
-    recordDict = dict() # id mapping for
-    nodeManager = GlobalManager()
-    for node in nodeList:
+import ast
+import json
+import collections
+import viz_api.viz_pytorch_api.node as VizNode_Torch
 
+class GlobalManager(object):
+    def __init__(self, name: str = "GlobalManager"):
+        super(GlobalManager, self).__init__()
+        self.name = name
+        self.block_id = 0
+        self.recorder = collections.defaultdict(int)
+
+    def get_block_id(self):
+        block_id_return = self.block_id
+        self.block_id += 1
+        return block_id_return
+
+    def get_node_id(self, name):
+        node_id_return = self.recorder[name]
+        self.recorder[name] += 1
+        return node_id_return
+
+inputNodeAPIString = {
+    "PyTorch": "VizNode_Torch.InputNode_Torch"
+}
+constantNodeAPIString = {
+    "PyTorch": "VizNode_Torch.ConstantNode_Torch"
+}
+layerNodeAPIString = {
+    "PyTorch": "VizNode_Torch.LayerNode_Torch"
+}
+transformNodeAPIString = {
+    "PyTorch": "VizNode_Torch.TransformNode_Torch"
+}
+generalNodeMappingString = {
+    "input": inputNodeAPIString,
+    "constant": constantNodeAPIString,
+    "layer": layerNodeAPIString,
+    "transform": transformNodeAPIString,
+}
+
+inputAPIString = {
+    "PyTorch": inputAPITorchString
+}
+constantAPIString = {
+    "PyTorch": constantAPITorchString
+}
+layerAPIString = {
+    "PyTorch": layerAPITorchString
+}
+transformAPIString = {
+    "PyTorch": transformAPITorchString
+}
+optimizerAPIString = {
+    "PyTorch": optimizerAPITorchString
+}
+monitorAPIString = {
+    "PyTorch": monitorAPITorchString
+}
+
+generalAPIMappingString = {
+    "input": inputAPIString,
+    "constant": constantAPIString,
+    "layer": layerAPIString,
+    "transform": transformAPIString,
+    "optimizer": optimizerAPIString,
+    "monitor": monitorAPIString
+}
+
+# part 1 generate the requirements
+RequirementHeader = {
+    "PyTorch": "from viz_api.viz_pytorch_api import input as input_Torch\n"
+               "from viz_api.viz_pytorch_api import layer as layer_Torch\n"
+               "from viz_api.viz_pytorch_api import monitor as monitor_Torch\n"
+               "from viz_api.viz_pytorch_api import transform as transform_Torch\n"
+               "from viz_api.viz_pytorch_api import optimizer as optimizer_Torch\n"
+               "from viz_api.viz_pytorch_api import node as VizNode_Torch\n\n"
+}
+
+# generate String
+def generateMonitor(monitor):
+    global nodeManager
+    api = monitor["api"]
+    nodeType = monitor["type"]
+    nodeName = monitor["node"]
+    typeRequest = generalTypeMapping[nodeType][api][nodeName]
+    constructor = generalAPIMappingString[nodeType][api][typeRequest]
+
+    parameterDict = dict()
+    for param in monitor["parameters"]:
+        parameterDict[param["paraName"]] = ast.literal_eval(param["paraValue"])
+    generateName = nodeType + "_" + nodeName
+    parameterDict["name"] = generateName + "_" + str(nodeManager.get_node_id(generateName))
+
+    generateDictName = parameterDict["name"] + "_dict"
+    generateString = generateDictName + " = " + json.dumps(parameterDict) + "\n" + \
+                     parameterDict["name"] + constructor + "(**" + generateDictName + ")"
+    return generateString
+
+def generateNodeAndLoad(node, device):
+    global nodeManager
+    api = node["api"]
+    nodeType = node["type"]
+    nodeName = node["node"]
+    typeRequest = generalTypeMapping[nodeType][api][nodeName]
+    constructor = generalAPIMapping[nodeType][api][typeRequest]
+
+    parameterDict = dict()
+    for param in node["parameters"]:
+        parameterDict[param["paraName"]] = ast.literal_eval(param["paraValue"])
+    generateName = nodeType + "_" + nodeName
+    parameterDict["name"] = generateName + "_" + str(nodeManager.get_node_id(generateName))
+    if nodeType != "transform":
+        parameterDict["device"] = device
+    # add support for imported_layer_loading - load layer from
+    if nodeType == "layer" and node["source"] != "":
+        parameterDict["import_layer"] = -1
+    # special treatment for MNIST --- possible need to change later
+
+    if node["type"] == "input" and nodeName == "MNIST":
+        return VizNode_Torch.MnistNode_Torch(constructor, parameterDict)
+    else:
+        return generalNodeMapping[nodeType][api](constructor, parameterDict)
+
+
+def generateSystemModel(monitorList, nodeList, linkList, blockList, optimizerList):
+    recordDict = dict() # id mapping for
+    global nodeManager
+    nodeManager = GlobalManager()
+
+    managerMonitor = None # for the model iteration
+    for monitor in monitorList:
+        monitorId = monitor["id"]
+        recordDict[monitorId] = generateMonitor(monitor)
+        if monitor["node"] == "Manager":
+            managerMonitor = recordDict[monitorId]
+
+    for node in nodeList:
+        pass
+    for link in linkList:
+        pass
+    for block in blockList:
+        pass
+
+def generateHeader():
+    pass
+
+def generateMonitor():
+    pass
+
+def generateInput():
+    pass
+
+def generateLayer():
+    pass
+
+def generateTransform():
+    pass
+
+def generateOptimizer():
+    pass
+
+def generateTraining():
+    pass
+
+def generateSaving():
+    pass
+
+def generateEvaluation():
+    pass
+
+nodeName = "MNIST"
+nodeType = "input"
+api = "PyTorch"
+typeRequest = generalTypeMapping[nodeType][api][nodeName]
+print(generalAPIMapping[nodeType][api][typeRequest])

@@ -9,6 +9,10 @@ class LayerNode_Torch(node.LayerNode):
         self.linkedClass = type(self.linkedLayer).__name__
         self.outputMapping = list()
 
+    # return linked layer
+    def get_linked_layer(self):
+        return self.linkedLayer
+
     def set_output_port(self, number: int):
         for i in range(number):
             self.outputMapping.append(Tensor_Torch(linked_tensor=None, name=self.name + "_output_" + str(i+1)))
@@ -93,6 +97,10 @@ class InputNode_Torch(node.InputNode):
         self.linkedClass = type(self.linkedInput).__name__
         self.outputMapping = list()
 
+    # return linked input
+    def get_linked_input(self):
+        return self.linkedInput
+
     def set_output_port(self, number: int):
         for i in range(number):
             self.outputMapping.append(Tensor_Torch(linked_tensor=None, name=self.name + "_output_" + str(i + 1)))
@@ -134,6 +142,10 @@ class MnistNode_Torch(node.InputNode):
         self.linkedClass = type(self.linkedInput).__name__
         self.outputMapping = list()
         self.labelMapping = list()
+
+    # return linked input
+    def get_linked_input(self):
+        return self.linkedInput
 
     def set_output_port(self, number: int):
         for i in range(number):
@@ -181,6 +193,10 @@ class ConstantNode_Torch(node.ConstantNode):
         self.linkedConstant = ConstantClass(**GenerateDict)
         self.linkedClass = type(self.linkedConstant).__name__
         self.outputMapping = list()
+
+    # return linked constant
+    def get_linked_constant(self):
+        return self.linkedConstant
 
     def set_output_port(self, number: int):
         for i in range(number):
