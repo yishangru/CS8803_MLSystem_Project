@@ -41,6 +41,14 @@ class LayerNode(Node):
     def get_linked_layer(self):
         raise NotImplementedError
 
+    # set as evaluation mode
+    def set_as_eval(self):
+        raise NotImplementedError
+
+    # set as train mode
+    def set_as_training(self):
+        raise NotImplementedError
+
     # return KB in memory usage for layer feature (weight, bias)
     def get_layer_feature_memory_size(self):
         raise NotImplementedError

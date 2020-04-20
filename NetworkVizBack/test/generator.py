@@ -398,16 +398,22 @@ format -
     ]
     block: [
         {   
+            id:
             name:
             id: []
         }
     ]
+    optimizer: {
+        {
+            id:
+            
+        }
+    }
 """
 
 import ast
 import json
 import collections
-import viz_api.viz_pytorch_api.node as VizNode_Torch
 
 class GlobalManager(object):
     def __init__(self, name: str = "GlobalManager"):
@@ -487,7 +493,8 @@ RequirementHeader = {
 def generateMonitor(monitorList):
     global nodeManager, recordDict
 
-    generateMonitorString = "# -------------------- define model monitor (saving, device) -------------------- #"
+    generateMonitorString = "# -------------------- define model monitor (mode, saving, device) -------------------- #\n" \
+                            "model_running_train = True\n\n"
     managerMonitor = None
 
     for monitor in monitorList:
@@ -534,6 +541,7 @@ def generateNodeAndLoad(nodeList, managerMonitor):
                          "\telse:\n"\
                          "\t\tglobalImportDict[name] = None\n\n"
     generateNodeString = "# -------------------- define model node structure -------------------- #"
+    generateModeString = "if not model_running_train:\n"
 
     for node in nodeList:
         api = node["api"]
@@ -563,6 +571,10 @@ def generateNodeAndLoad(nodeList, managerMonitor):
         generateNodeString = generateNodeString + generateDictName + " = " + json.dumps(parameterDict) + "\n" + \
                          parameterDict["name"] + " = " + nodeConstructor + "(" + constructor + ", " + generateDictName + ")\n\n"
 
+        if nodeType == "layer":
+            # check mode of training
+            generateModeString = generateModeString + "\t" + parameterDict["name"] + ".set_as_eval()\n"
+
         infoDict = {
             "name": parameterDict["name"],
             "type": node["type"],
@@ -571,34 +583,39 @@ def generateNodeAndLoad(nodeList, managerMonitor):
         recordDict[node["id"]] = infoDict
 
     generateLoadString += "\n\n\n"
-    generateNodeString += "\n\n\n"
+    generateNodeString += (generateModeString + "\n\n")
     return generateLoadString, generateNodeString
 
+# part 4 generate block recorder
+def generateBlock(blockList):
+    pass
 
-def generateSystemModel(monitorList, nodeList, linkList, blockList, optimizerList):
+# part 5 generate link for running logic and saving code
+def generateTraining(linkList):
+    global nodeManager, recordDict
+
+    generateTrainString = "# -------------------- model running -------------------- #\n"
+    generateSaveString = "# -------------------- output save -------------------- #\n"
+    for link in linkList:
+        pass
+
+# part 6 generate optimizer
+def generateOptimizer(optimizerList):
+    pass
+
+# id are all unique - monitor, node, block, optimizer
+def generateSystemModel(monitorList, nodeList, blockList, optimizerList, linkList):
     global nodeManager, recordDict
     recordDict = dict()
     nodeManager = GlobalManager()
     monitorString, managerMonitor = generateMonitor(monitorList)  # for the model iteration
     loadString, nodeString = generateNodeAndLoad(nodeList, managerMonitor)  # for node declare and load model
 
-    # parse link
-    
+    # generate block
 
-def generateOptimizer():
-    pass
+    # generate model running code - optimizer link, save link
+    modelLogicString = -1
 
-def generateTraining():
-    pass
+    # generate optimizer
 
-def generateSaving():
-    pass
-
-def generateEvaluation():
-    pass
-
-nodeName = "MNIST"
-nodeType = "input"
-api = "PyTorch"
-typeRequest = generalTypeMapping[nodeType][nodeName]
-print(generalAPIMappingString[nodeType][api][typeRequest])
+    # generate saver

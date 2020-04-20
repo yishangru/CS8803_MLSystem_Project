@@ -13,6 +13,14 @@ class LayerNode_Torch(node.LayerNode):
     def get_linked_layer(self):
         return self.linkedLayer
 
+    # set as evaluation mode
+    def set_as_eval(self):
+        self.linkedLayer.set_as_eval()
+
+    # set as train mode
+    def set_as_training(self):
+        self.linkedLayer.set_as_training()
+
     def set_output_port(self, number: int):
         for i in range(number):
             self.outputMapping.append(Tensor_Torch(linked_tensor=None, name=self.name + "_output_" + str(i+1)))
