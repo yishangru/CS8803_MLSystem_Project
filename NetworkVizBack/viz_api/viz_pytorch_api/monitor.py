@@ -15,7 +15,7 @@ class MonitorFinal_Torch(monitor.MonitorFinal):
 
     def save_model(self, *layers):
         for layer in list(layers):
-            torch.save(layer.get)
+            pass
 
     @staticmethod
     def get_description():

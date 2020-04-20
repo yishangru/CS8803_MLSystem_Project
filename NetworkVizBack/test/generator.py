@@ -475,7 +475,7 @@ generalAPIMappingString = {
 
 # part 1 generate the requirements
 RequirementHeader = {
-    "PyTorch": "from viz_api.viz_pytorch_api import input as input_Torch\n"
+    "PyTorch": "import os\nimport torch\nfrom viz_api.viz_pytorch_api import input as input_Torch\n"
                "from viz_api.viz_pytorch_api import layer as layer_Torch\n"
                "from viz_api.viz_pytorch_api import monitor as monitor_Torch\n"
                "from viz_api.viz_pytorch_api import transform as transform_Torch\n"
@@ -483,85 +483,107 @@ RequirementHeader = {
                "from viz_api.viz_pytorch_api import node as VizNode_Torch\n\n"
 }
 
-# generate String
-def generateMonitor(monitor):
-    global nodeManager
-    api = monitor["api"]
-    nodeType = monitor["type"]
-    nodeName = monitor["node"]
-    typeRequest = generalTypeMapping[nodeType][api][nodeName]
-    constructor = generalAPIMappingString[nodeType][api][typeRequest]
+# part 2 generate the requirements
+def generateMonitor(monitorList):
+    global nodeManager, recordDict
 
-    parameterDict = dict()
-    for param in monitor["parameters"]:
-        parameterDict[param["paraName"]] = ast.literal_eval(param["paraValue"])
-    generateName = nodeType + "_" + nodeName
-    parameterDict["name"] = generateName + "_" + str(nodeManager.get_node_id(generateName))
+    generateMonitorString = "# -------------------- define model monitor (saving, device) -------------------- #"
+    managerMonitor = None
 
-    generateDictName = parameterDict["name"] + "_dict"
-    generateString = generateDictName + " = " + json.dumps(parameterDict) + "\n" + \
-                     parameterDict["name"] + constructor + "(**" + generateDictName + ")"
-    return generateString
+    for monitor in monitorList:
+        api = monitor["api"]
+        nodeType = monitor["type"]
+        nodeName = monitor["node"]
+        typeRequest = generalTypeMapping[nodeType][nodeName]
+        constructor = generalAPIMappingString[nodeType][api][typeRequest]
 
-def generateNodeAndLoad(node, device):
-    global nodeManager
-    api = node["api"]
-    nodeType = node["type"]
-    nodeName = node["node"]
-    typeRequest = generalTypeMapping[nodeType][api][nodeName]
-    constructor = generalAPIMapping[nodeType][api][typeRequest]
+        parameterDict = dict()
+        for param in monitor["parameters"]:
+            parameterDict[param["paraName"]] = ast.literal_eval(param["paraValue"])
+        generateName = nodeType + "_" + nodeName
+        parameterDict["name"] = generateName + "_" + str(nodeManager.get_node_id(generateName))
 
-    parameterDict = dict()
-    for param in node["parameters"]:
-        parameterDict[param["paraName"]] = ast.literal_eval(param["paraValue"])
-    generateName = nodeType + "_" + nodeName
-    parameterDict["name"] = generateName + "_" + str(nodeManager.get_node_id(generateName))
-    if nodeType != "transform":
-        parameterDict["device"] = device
-    # add support for imported_layer_loading - load layer from
-    if nodeType == "layer" and node["source"] != "":
-        parameterDict["import_layer"] = -1
-    # special treatment for MNIST --- possible need to change later
+        if nodeName == "Manager":
+            managerMonitor = parameterDict["name"]
 
-    if node["type"] == "input" and nodeName == "MNIST":
-        return VizNode_Torch.MnistNode_Torch(constructor, parameterDict)
-    else:
-        return generalNodeMapping[nodeType][api](constructor, parameterDict)
+        generateDictName = parameterDict["name"] + "_dict"
+        generateMonitorString = generateMonitorString + generateDictName + " = " + json.dumps(parameterDict) + "\n" + \
+                         parameterDict["name"] + " = " + constructor + "(**" + generateDictName + ")\n\n"
+
+        infoDict = {
+            "name": parameterDict["name"],
+            "type": monitor["type"],
+            "node": monitor["node"]
+        }
+        recordDict[monitor["id"]] = infoDict
+
+    return generateMonitorString, managerMonitor
+
+# part 3 generate load and node
+def generateNodeAndLoad(nodeList, managerMonitor):
+    global nodeManager, recordDict
+
+    generateLoadString = '# -------------------- load pretrained or system model -------------------- #\n' \
+                         'loadPath = "./static/model/system"\n' \
+                         'globalImportDict = dict()\n\n'\
+                         'def loadLayerNode(name, source):\n'\
+                         "\tif os.path.exists(os.path.join(loadPath, name)):\n"\
+                         "\t\tglobalImportDict[name] = torch.load(os.path.join(loadPath, name))\n"\
+                         '\telif source != "" and os.path.exists(os.path.join(loadPath, source)):\n'\
+                         "\t\tglobalImportDict[name] = torch.load(os.path.join(loadPath, source))\n"\
+                         "\telse:\n"\
+                         "\t\tglobalImportDict[name] = None\n\n"
+    generateNodeString = "# -------------------- define model node structure -------------------- #"
+
+    for node in nodeList:
+        api = node["api"]
+        nodeType = node["type"]
+        nodeName = node["node"]
+        typeRequest = generalTypeMapping[nodeType][nodeName]
+        constructor = generalAPIMappingString[nodeType][api][typeRequest]
+
+        parameterDict = dict()
+        for param in node["parameters"]:
+            parameterDict[param["paraName"]] = ast.literal_eval(param["paraValue"])
+        generateName = nodeType + "_" + nodeName
+        parameterDict["name"] = generateName + "_" + str(nodeManager.get_node_id(generateName))
+
+        if nodeType != "transform":
+            parameterDict["device"] = managerMonitor + ".device"
+
+        if nodeType == "layer":
+            generateLoadString = generateLoadString + "loadLayerNode(" + parameterDict["name"] + "," + node["source"] + ")\n"
+            parameterDict["import_layer"] = "globalImportDict[" + parameterDict["name"] + "]"
+
+        nodeConstructor = generalNodeMappingString[nodeType][api]
+        if nodeType == "input" and nodeName == "MNIST":
+            nodeConstructor = "VizNode_Torch.MnistNode_Torch"
+
+        generateDictName = parameterDict["name"] + "_dict"
+        generateNodeString = generateNodeString + generateDictName + " = " + json.dumps(parameterDict) + "\n" + \
+                         parameterDict["name"] + " = " + nodeConstructor + "(" + constructor + ", " + generateDictName + ")\n\n"
+
+        infoDict = {
+            "name": parameterDict["name"],
+            "type": node["type"],
+            "node": node["node"]
+        }
+        recordDict[node["id"]] = infoDict
+
+    generateLoadString += "\n\n\n"
+    generateNodeString += "\n\n\n"
+    return generateLoadString, generateNodeString
 
 
 def generateSystemModel(monitorList, nodeList, linkList, blockList, optimizerList):
-    recordDict = dict() # id mapping for
-    global nodeManager
+    global nodeManager, recordDict
+    recordDict = dict()
     nodeManager = GlobalManager()
+    monitorString, managerMonitor = generateMonitor(monitorList)  # for the model iteration
+    loadString, nodeString = generateNodeAndLoad(nodeList, managerMonitor)  # for node declare and load model
 
-    managerMonitor = None # for the model iteration
-    for monitor in monitorList:
-        monitorId = monitor["id"]
-        recordDict[monitorId] = generateMonitor(monitor)
-        if monitor["node"] == "Manager":
-            managerMonitor = recordDict[monitorId]
-
-    for node in nodeList:
-        pass
-    for link in linkList:
-        pass
-    for block in blockList:
-        pass
-
-def generateHeader():
-    pass
-
-def generateMonitor():
-    pass
-
-def generateInput():
-    pass
-
-def generateLayer():
-    pass
-
-def generateTransform():
-    pass
+    # parse link
+    
 
 def generateOptimizer():
     pass
@@ -578,5 +600,5 @@ def generateEvaluation():
 nodeName = "MNIST"
 nodeType = "input"
 api = "PyTorch"
-typeRequest = generalTypeMapping[nodeType][api][nodeName]
-print(generalAPIMapping[nodeType][api][typeRequest])
+typeRequest = generalTypeMapping[nodeType][nodeName]
+print(generalAPIMappingString[nodeType][api][typeRequest])
