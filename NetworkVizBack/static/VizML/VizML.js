@@ -7,11 +7,14 @@ function VizML(parentBlockId) {
         .attr("class", "VizTooltip")
         .style("opacity", 0);
 
+    /* data structure for graph */
     this.nodeId = 0;
     this.linkId = 0;
-    //this.nodeRecorder;
-    //this.linkRecorder;
-    //this.blockRecorder;
+    this.blockId = 0;
+    this.nodeRecorder = d3.map();
+    this.linkRecorder = d3.map();
+    this.blockRecorder = d3.map();
+
     /* prepare the dashboard */
     this.dashBoardDivWidth = 25;
     this.dashBoardDivHeight = 87;
@@ -41,10 +44,9 @@ function VizML(parentBlockId) {
 }
 
 VizML.prototype.initialViz = function(APIData) {
-    // append node for sub svg 3 node in a row
+    // append node for sub svg 2 node in a row
     this.linkedData = APIData;
     this.updateDashBoard(this.linkedData);
-
 };
 
 VizML.prototype.getNodeId = function() {
@@ -56,6 +58,12 @@ VizML.prototype.getNodeId = function() {
 VizML.prototype.getLinkId = function() {
     var generateId = this.linkId;
     this.linkId++;
+    return generateId;
+};
+
+VizML.prototype.getBlockId = function() {
+    var generateId = this.blockId;
+    this.blockId++;
     return generateId;
 };
 
@@ -105,7 +113,7 @@ VizML.prototype.updateDashBoard = function(APIData) {
             });
         APINode.selectAll("circle").data(d => [d]).enter()
             .append("circle")
-            .attr("class", "nodeDot")
+            .attr("class", "APINodeDot")
             .attr("fill", d=>d["color"])
             .attr("cx", 18)
             .attr("cy", 12)
@@ -120,21 +128,33 @@ VizML.prototype.updateDashBoard = function(APIData) {
 
     /* event register */
     this.dashBoardDiv.selectAll(".APINode")
-        .on("mouseover", APINodeHover)
+        .on("mouseenter", APINodeEnter)
         .on("mouseout", APINodeOut)
         .on("click", APINodeClick);
 };
 
 VizML.prototype.addNode = function (NodeInfo) {
-    var generatedNode = JSON.parse(JSON.stringify(NodeInfo)); // return a deep copy of the node
-    if (!generatedNode.hasOwnProperty("id"))
-        generatedNode["id"] = this.getNodeId();
-    if (!generateNode.hasOwnProperty("position"))
-        generatedNode["position"] = {"x": 200, "y": 200};
-
+    var generatedNodeInfo;
+    if (NodeInfo.hasOwnProperty("id")) {
+        generatedNodeInfo = NodeInfo;
+    } else {
+        generatedNodeInfo = JSON.parse(JSON.stringify(NodeInfo)); // return a deep copy of the node
+        generatedNodeInfo["id"] = this.getNodeId();
+    }
+    if (!generatedNodeInfo.hasOwnProperty("position"))
+        generatedNodeInfo["position"] = {"x": 400, "y": 200};
     // add to node map
+    console.log(generatedNodeInfo);
+    var generatedNode = this.vizPanelSVG.append("g").attr("class", "vizNode")
+        .datum(generatedNodeInfo)
+        .attr("transform", "translate(" + generatedNodeInfo["position"]["x"] + ", " + generatedNodeInfo["position"]["y"] + ")");
+    generatedNode.selectAll(".vizNodeRect").data(d => [d]).enter().append("rect")
+        .attr("class", "vizNodeRect")
 
-    // update in the global map (maintain the link)
+
+    this.nodeRecorder.set(generatedNodeInfo["id"])
+
+    // update in the global map (maintain the link) - blockid, linkid, remove original link, add new link
 
 };
 
@@ -142,38 +162,52 @@ VizML.prototype.addLink = function () {
 
 };
 
+// double click to remove node
 VizML.prototype.removeNode = function () {
 
 };
 
+// double click to remove link
 VizML.prototype.removeLink = function() {
 
 };
 
-function APINodeHover(e) {
+VizML.prototype.addBlock = function () {
+    //alert("Node test");
+}
+
+// double click to remove block
+VizML.prototype.removeBlock = function() {
+
+}
+
+function APINodeEnter(e) {
     var linkedVizML = this.linkedVizML;
     var VizTooltip = linkedVizML.VizTooltip;
     var linkedData = d3.select(this).datum();
-    VizTooltip.transition()
-         .style("opacity", .9);
-    VizTooltip.html(
-        '<h4>' + linkedData["node"] + '</h4>' +
-        '<p>' + "Decription:<br>" + linkedData["description"] + '<br><br>' +
-        'Ports:  ' + linkedData["ports"] + '</p>'
-    ).style("left", (d3.event.pageX + 10) + "px")
-        .style("top", (d3.event.pageY - 30) + "px");
+    if (linkedData !== undefined) {
+        VizTooltip.transition()
+        .style("opacity", .9);
+        VizTooltip.html(
+            '<h4>' + linkedData["node"] + '</h4>' +
+            '<p>' + "Decription:<br>" + linkedData["description"] + '<br><br>' +
+            'Ports:  ' + linkedData["ports"] + '</p>'
+        ).style("left", (d3.event.pageX + 10) + "px")
+            .style("top", (d3.event.pageY - 30) + "px");
+    }
 }
 
 function APINodeOut(e) {
-    console.log("test")
     var linkedVizML = this.linkedVizML;
     var VizTooltip = linkedVizML.VizTooltip;
-    VizTooltip.html("").style("opacity", 0);
+    VizTooltip.html("")
+        .style("opacity", 0);
 }
 
 function APINodeClick(e) {
-    console.log(this.linkedVizML);
-    console.log(d3.select(this).datum());
+    var linkedVizML = this.linkedVizML;
+    var linkedData = d3.select(this).datum();
+    linkedVizML.addNode(linkedData);
 }
 
 export { VizML };
