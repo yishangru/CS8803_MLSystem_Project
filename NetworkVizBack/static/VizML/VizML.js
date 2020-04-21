@@ -184,12 +184,13 @@ VizML.prototype.addNode = function (NodeInfo) {
         .attr("transform", "translate(" + generatedNodeInfo["position"]["x"] + ", " + generatedNodeInfo["position"]["y"] + ")");
 
     /* port generation */
-    var rectWidth = 200;
-    var rectHeight = 80;
-    var rectPositionX = generatedNodeInfo["ports"].has(3)? 25: 5;
+    var portRadius = 10;
+    var rectWidth = 160;
+    var rectHeight = 35;
+    var rectPositionX = generatedNodeInfo["ports"].has(3)? 2*portRadius + 1:10;
     var rectPositionY = 10;
     if (generatedNodeInfo["ports"].has(4) || generatedNodeInfo["ports"].has(5)) {
-        var linkedData = [4];
+        let linkedData = [4];
         if (generatedNodeInfo["ports"].has(4) && generatedNodeInfo["ports"].has(5))
             linkedData = [4, 5];
 
@@ -200,11 +201,52 @@ VizML.prototype.addNode = function (NodeInfo) {
                 this.linkedNodeId = generatedNodeInfo["id"];
                 return rectPositionX + rectWidth/(2 * linkedData.length) * (1 + 2 * i);
             })
-            .attr("cy", 30)
-            .attr("r", 25)
+            .attr("cy", portRadius)
+            .attr("r", portRadius)
             .attr("fill", d=>linkedVizML.portColorMapping[d-1]);
-        rectPositionY = 60;
+        rectPositionY = 2*portRadius + 1;
     }
+    if (generatedNodeInfo["ports"].has(3)) {
+        generatedNode.append("circle").attr("class", "vizNodePort")
+            .attr("cx", function (d, i) {
+                d3.select(this).datum(3);
+                this.linkedVizML = linkedVizML;
+                this.linkedNodeId = generatedNodeInfo["id"];
+                return portRadius;
+            })
+            .attr("cy", rectPositionY + rectHeight/2)
+            .attr("r", portRadius)
+            .attr("fill", d=>linkedVizML.portColorMapping[d-1]);
+    }
+    generatedNode.append("rect").attr("class", "vizNodeRect")
+        .attr("x", rectPositionX).attr("y", rectPositionY)
+        .attr("width", rectWidth)
+        .attr("height", rectHeight)
+        .attr("fill", generatedNodeInfo["color"]);
+    generatedNode.append("text").attr("class", "vizNodeText")
+        .attr("transform", "translate(" + (rectPositionX + rectWidth/2) + " , " + (rectPositionY + rectHeight/2 + 6) + ")")
+        .text(generatedNodeInfo["node"]);
+
+    if (generatedNodeInfo["ports"].has(1) || generatedNodeInfo["ports"].has(2)) {
+        let linkedData = [1];
+        if (generatedNodeInfo["ports"].has(1) && generatedNodeInfo["ports"].has(2))
+            linkedData = [1, 2];
+        let counter = 0;
+        linkedData.forEach(function (d) {
+            generatedNode.append("circle").attr("class", "vizNodePort")
+            .attr("cx", function () {
+                d3.select(this).datum(d);
+                this.linkedVizML = linkedVizML;
+                this.linkedNodeId = generatedNodeInfo["id"];
+                return rectPositionX + rectWidth/(2 * linkedData.length) * (1 + 2 * counter);
+            })
+            .attr("cy", rectPositionY + rectHeight + portRadius + 1)
+            .attr("r", portRadius)
+            .attr("fill", d=>linkedVizML.portColorMapping[d-1]);
+            counter++;
+        })
+    }
+
     if (generatedNodeInfo.hasOwnProperty("links")) {
         /* regenerate the links */
 
