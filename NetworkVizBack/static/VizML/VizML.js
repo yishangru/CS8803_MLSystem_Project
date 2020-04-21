@@ -9,18 +9,18 @@ function VizML(parentBlockId) {
     //this.linkRecorder;
     //this.blockRecorder;
     /* prepare the dashboard */
-    this.dashBoardDivWidth = "25vw";
-    this.dashBoardDivHeight = "87vh";
+    this.dashBoardDivWidth = 25;
+    this.dashBoardDivHeight = 87;
     this.dashBoardDiv = workingDIV.append("div")
         .attr("class", "dashBoardDiv")
-        .style("width", this.dashBoardDivWidth)
-        .style("height", this.dashBoardDivHeight);
-    this.vizPanelDivWidth = "70vw";
-    this.vizPanelDivHeight = "87vh";
+        .style("width", this.dashBoardDivWidth + "vw")
+        .style("height", this.dashBoardDivHeight + "vh");
+    this.vizPanelDivWidth = 70;
+    this.vizPanelDivHeight = 87;
     this.vizPanelDiv = workingDIV.append("div")
         .attr("class", "vizPanelDiv")
-        .style("width", this.vizPanelDivWidth)
-        .style("height", this.vizPanelDivHeight);
+        .style("width", this.vizPanelDivWidth + "vw")
+        .style("height", this.vizPanelDivHeight + "vh");
     /* append bottom for interaction - group, generate code */
     this.buttonDiv = workingDIV.append("div").attr("class", "buttonDiv");
     this.buttonDiv.append("div").attr("class", "buttonHolder")
@@ -54,7 +54,61 @@ VizML.prototype.getLinkId = function() {
 
 VizML.prototype.updateDashBoard = function(APIData) {
     /* add node */
+    var nodePerRow = 2;
+    var totalTypeCount = 0;
+    var totalLayerCount = 0;
+    for (var nodeType in APIData) {
+        totalTypeCount++;
+        totalLayerCount += (Math.ceil(APIData[nodeType].length/nodePerRow));
+    }
 
+    var dashBoardWidth = this.dashBoardDivWidth;
+    var dashBoardHeight = this.dashBoardDivHeight;
+
+    var counter = 0;
+    var badgeType = ["badge-primary", "badge-secondary", "badge-success", "badge-warning", "badge-danger", "badge-light", "badge-dark"];
+    var nodeColor = ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5"];
+    for (var nodeType in APIData) {
+        var sectionRowCount = Math.ceil(APIData[nodeType].length/nodePerRow);
+        var sectionHeight = sectionRowCount/totalLayerCount * (dashBoardHeight - totalTypeCount * 3.7) + 3;
+        var innerDiv = this.dashBoardDiv.append("div")
+            .attr("class", "nodeTypeDashDiv")
+            .style("width", (dashBoardWidth - 1) + "vw")
+            .style("height", sectionHeight + "vh");
+        var badgeDiv = innerDiv.append("div").attr("class", "nodeTypeTitleDiv");
+        badgeDiv.append("span").attr("class", "badge " + badgeType[counter] + " nodeTypeTitle")
+            .text(nodeType);
+        var SVGDivHeight = document.documentElement.clientHeight * sectionHeight/100 - parseInt(badgeDiv.style("height"));
+        var innerSVG = innerDiv.append("div").attr("class", "nodeTypeSVGDiv")
+            .style("width", (dashBoardWidth - 1) + "vw")
+            .style("height", SVGDivHeight + "px")
+            .append("svg").attr("class", "nodeTypeSVG")
+            .attr("width", "100%")
+            .attr("height", "100%");
+
+        /* get the actual svg height and width */
+        console.log(svgWidth, svgHeight);
+        var APINode = innerSVG.selectAll(".APINode").data(APIData[nodeType])
+            .enter().append("g").attr("class", "APINode").attr("transform", function (d, i) {
+                d["color"] = nodeColor[counter];
+                return "translate(" + i%nodePerRow * (svgWidth/nodePerRow) + ", " + Math.floor(i/nodePerRow)/sectionRowCount * svgHeight + ")";
+            });
+        /*
+        APINode.selectAll("circle").data(d => [d]).enter()
+            .append("circle")
+            .attr("class", "nodeDot")
+            .attr("fill", d=>d["color"])
+            .attr("cx", 20)
+            .attr("cy", 20)
+            .attr("r", 10);
+        */
+        APINode.selectAll("text").data(d => [d]).enter()
+            .append("text")
+            .attr("class", "APINodeText")
+            .attr("transform", "translate(35, 15)")
+            .text(d => d.node);
+        counter++;
+    }
 
     /* event register */
 };

@@ -2,12 +2,39 @@
     margin: 20px 5px 0 20px;
     display: inline-block;
     border: aqua 5px solid;
+    vertical-align: top;
+}
+
+.dashBoardDiv .nodeTypeDashDiv {
+    border: black 3px dotted;
+    margin: 5px 5px 5px 5px;
+}
+
+.dashBoardDiv .nodeTypeTitleDiv {
+    margin: 5px 0 0 5px;
+}
+
+.dashBoardDiv .nodeTypeTitleDiv .nodeTypeTitle {
+    font-size: 2vh;
+    height: 3vh;
+    text-align: left;
+}
+
+.dashBoardDiv .nodeTypeSVGDiv {
+    margin: 5px 0 0 10px;
+}
+
+.dashBoardDiv .nodeTypeSVG .APINodeText {
+    font-family: 'Consolas', 'Monaco', 'Bitstream Vera Sans Mono', monospace;
+    font-weight: bold;
+    font-size: 2vh;
 }
 
 .vizPanelDiv {
     margin: 20px 0 0 5px;
     display: inline-block;
     border: aquamarine 5px solid;
+    vertical-align: top;
 }
 
 .buttonDiv {
