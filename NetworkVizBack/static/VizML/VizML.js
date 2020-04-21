@@ -21,6 +21,9 @@ function VizML(parentBlockId) {
         .attr("class", "vizPanelDiv")
         .style("width", this.vizPanelDivWidth + "vw")
         .style("height", this.vizPanelDivHeight + "vh");
+    this.vizPanelSVG = this.vizPanelDiv.append("svg").attr("class", "vizPanelSVG")
+        .attr("width", "100%")
+        .attr("height", "100%");
     /* append bottom for interaction - group, generate code */
     this.buttonDiv = workingDIV.append("div").attr("class", "buttonDiv");
     this.buttonDiv.append("div").attr("class", "buttonHolder")
@@ -34,10 +37,10 @@ function VizML(parentBlockId) {
 }
 
 VizML.prototype.initialViz = function(APIData) {
-    console.log(APIData);
     // append node for sub svg 3 node in a row
     this.linkedData = APIData;
     this.updateDashBoard(this.linkedData);
+
 };
 
 VizML.prototype.getNodeId = function() {
@@ -112,7 +115,7 @@ VizML.prototype.updateDashBoard = function(APIData) {
     }
 
     /* event register */
-    this.dashBoardDiv.selectAll(".APINode").on("db")
+    this.dashBoardDiv.selectAll(".APINode").on("dblclick", APINodeEvent);
 };
 
 VizML.prototype.addNode = function (NodeInfo) {
@@ -139,5 +142,10 @@ VizML.prototype.removeNode = function () {
 VizML.prototype.removeLink = function() {
 
 };
+
+function APINodeEvent(e) {
+    console.log(this.linkedVizML);
+    console.log(d3.select(this).datum());
+}
 
 export { VizML };
