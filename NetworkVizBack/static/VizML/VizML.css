@@ -70,6 +70,10 @@
     margin: 0 5px 0 10px;
 }
 
+.buttonDiv .buttonHolder .uploadButton {
+    margin: 0 5px 0 10px;
+}
+
 div.VizTooltip {
     position: absolute;
     text-align: left;
@@ -89,5 +93,10 @@ div.VizTooltip p {
     font: 15px Consolas;
     display: inline-block;
     overflow-wrap: break-word;
+    font-weight: bold;
+}
+
+.vizPanelSVG .portLegendLabel .portLegendLabelText {
+    font: 20px Consolas;
     font-weight: bold;
 }

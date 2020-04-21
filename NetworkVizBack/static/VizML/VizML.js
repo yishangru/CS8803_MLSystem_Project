@@ -12,10 +12,11 @@ function VizML(parentBlockId) {
     /* data structure for graph */
     this.nodeId = 0;
     this.linkId = 0;
-    this.blockId = 0;
     this.nodeRecorder = new Map();
     this.linkRecorder = new Map();
     this.blockRecorder = new Map();
+    this.portIllustration = ["Main Input", "Sub Input", "Meta Info", "Main Output", "Sub Output"];
+    this.portColorMapping = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00"];
 
     /* prepare the dashboard */
     this.dashBoardDivWidth = 25;
@@ -49,12 +50,35 @@ function VizML(parentBlockId) {
             this.linkedVizML = linkedVizML;
             return "Generate Code";
         }); // add click event handler
+    this.buttonDiv.append("div").attr("class", "buttonHolder")
+        .append("button").attr("type", "button")
+        .attr("class","btn btn-danger uploadButton")
+        .text(function () {
+            this.linkedVizML = linkedVizML;
+            return "Import Model";
+        }); // add click event handler
 }
 
 VizML.prototype.initialViz = function(APIData) {
     // append node for sub svg 2 node in a row
+    var linkedVizML = this;
     this.linkedData = APIData;
     this.updateDashBoard(this.linkedData);
+    var svgHeight = parseInt(this.vizPanelSVG.style("height"), 10);
+    console.log(svgHeight);
+    var portLegenLabel = this.vizPanelSVG.append("g").attr("class", "portLegend")
+        .attr("transform", "translate(10, " + (svgHeight - 40) + ")")
+        .selectAll(".portLegendLabel")
+        .data([0, 1, 2, 3, 4]).enter().append("g").attr("class", "portLegendLabel").attr("transform", function (d) {
+            return "translate(" + d * 160 + " , 0)";
+        });
+    portLegenLabel.selectAll(".portLegendLabelDot").data(d=>[d]).enter().append("circle")
+        .attr("class", "portLegendLabelDot")
+        .attr("cx", 15).attr("cy", 15).attr("r", 10)
+        .attr("fill", d=>linkedVizML.portColorMapping[d]);
+    portLegenLabel.selectAll(".portLegendLabelText").data(d=>[d]).enter().append("text").attr("class", "portLegendLabelText")
+        .attr("transform", "translate(30, 22)")
+        .text(d=>linkedVizML.portIllustration[d]);
 };
 
 VizML.prototype.getNodeId = function() {
@@ -70,8 +94,7 @@ VizML.prototype.getLinkId = function() {
 };
 
 VizML.prototype.getBlockId = function() {
-    var generateId = this.blockId;
-    this.blockId++;
+    var generateId = this.getNodeId();
     return generateId;
 };
 
@@ -142,6 +165,8 @@ VizML.prototype.updateDashBoard = function(APIData) {
 };
 
 VizML.prototype.addNode = function (NodeInfo) {
+    var linkedVizML = this;
+
     var generatedNodeInfo;
     if (NodeInfo.hasOwnProperty("id")) {
         generatedNodeInfo = NodeInfo;
@@ -154,22 +179,41 @@ VizML.prototype.addNode = function (NodeInfo) {
         generatedNodeInfo["position"] = {"x": 400, "y": 200};
     // add to node map
     console.log(generatedNodeInfo);
-    var generatedNode = this.vizPanelSVG.append("g").attr("class", "vizNode")
-        .datum(generatedNodeInfo)
+    var generatedNode = this.vizPanelSVG.append("g").datum(generatedNodeInfo)
+        .attr("class", "vizNode")
         .attr("transform", "translate(" + generatedNodeInfo["position"]["x"] + ", " + generatedNodeInfo["position"]["y"] + ")");
-    generatedNode.selectAll(".vizNodePort").data(generatedNodeInfo["ports"]).enter().append("circle")
-        .attr("class", "vizNodePort").attr("cx", function (d) {
 
-        })
-    generatedNode.selectAll(".vizNodeRect").data(d => [d]).enter().append("rect")
-        .attr("class", "vizNodeRect")
+    /* port generation */
+    var rectWidth = 200;
+    var rectHeight = 80;
+    var rectPositionX = generatedNodeInfo["ports"].has(3)? 25: 5;
+    var rectPositionY = 10;
+    if (generatedNodeInfo["ports"].has(4) || generatedNodeInfo["ports"].has(5)) {
+        var linkedData = [4];
+        if (generatedNodeInfo["ports"].has(4) && generatedNodeInfo["ports"].has(5))
+            linkedData = [4, 5];
 
-    //this.removeNode(nodeID);
+        generatedNode.selectAll(".vizNodePort").data(linkedData).enter()
+            .append("circle").attr("class", "vizNodePort")
+            .attr("cx", function (d, i) {
+                this.linkedVizML = linkedVizML;
+                this.linkedNodeId = generatedNodeInfo["id"];
+                return rectPositionX + rectWidth/(2 * linkedData.length) * (1 + 2 * i);
+            })
+            .attr("cy", 30)
+            .attr("r", 25)
+            .attr("fill", d=>linkedVizML.portColorMapping[d-1]);
+        rectPositionY = 60;
+    }
+    if (generatedNodeInfo.hasOwnProperty("links")) {
+        /* regenerate the links */
 
-    //this.nodeRecorder.set(generatedNodeInfo["id"])
-
-    // update in the global map (maintain the link) - blockid, linkid, remove original link, add new link
-
+    } else {
+        generatedNodeInfo["links"] = new Set(); // link id as key - will update the g element
+    }
+    if (linkedVizML.nodeRecorder.has(generatedNodeInfo["id"]))
+        d3.select(linkedVizML.nodeRecorder.get(generatedNode["id"])).remove();
+    linkedVizML.nodeRecorder.set(generatedNodeInfo["id"], generatedNode)
 };
 
 // double click to remove node
@@ -183,8 +227,6 @@ VizML.prototype.addLink = function (LinkInfo) {
 
 };
 
-
-
 // double click to remove link
 VizML.prototype.removeLink = function() {
 
@@ -196,8 +238,7 @@ VizML.prototype.addBlock = function (BlockInfo) {
 
 // double click to remove block
 VizML.prototype.removeBlock = function() {
-    /* for all node in block, recreate the node */
-    /* for all link for nodes, recreate the link */
+    /* just remove is ok */
 }
 
 VizML.prototype.generateCode = function () {
@@ -212,7 +253,7 @@ VizML.prototype.generateCode = function () {
 				console.log(response);
 			},
 			error: function(error){
-				console.log(error);
+				alert(error);
 			}
 		});
 }
@@ -244,7 +285,6 @@ function APINodeClick(e) {
     var linkedVizML = this.linkedVizML;
     var linkedData = d3.select(this).datum();
     linkedVizML.addNode(linkedData);
-    linkedVizML.generateCode();
 }
 
 export { VizML };
