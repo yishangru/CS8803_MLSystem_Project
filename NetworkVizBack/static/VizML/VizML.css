@@ -1,0 +1,33 @@
+.dashBoardDiv {
+    margin: 20px 5px 0 20px;
+    display: inline-block;
+    border: aqua 5px solid;
+}
+
+.vizPanelDiv {
+    margin: 20px 0 0 5px;
+    display: inline-block;
+    border: aquamarine 5px solid;
+}
+
+.buttonDiv {
+    margin: 5px 0 0 15px;
+}
+
+.buttonDiv .buttonHolder {
+    display: inline-block;
+    text-align: center;
+}
+
+.buttonDiv .buttonHolder .btn {
+    font-size: 20px;
+    min-width: 50px;
+}
+
+.buttonDiv .buttonHolder .groupButton {
+    margin: 0 10px 0 5px;
+}
+
+.buttonDiv .buttonHolder .generateButton {
+    margin: 0 5px 0 10px;
+}

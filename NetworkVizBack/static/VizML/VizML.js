@@ -5,10 +5,32 @@ function VizML(parentBlockId) {
 
     this.nodeId = 0;
     this.linkId = 0;
-    this.nodeMapping = d3.map();
+    //this.nodeRecorder;
+    //this.linkRecorder;
+    //this.blockRecorder;
     /* prepare the dashboard */
-    this.vizPanelSpan = workingDIV.append("span").attr("id", "dashBoardDiv");
-    this.dashBoardSpan = workingDIV.append("span").attr("id", "vizPanelDiv");
+    this.dashBoardDivWidth = "350px";
+    this.dashBoardDivHeight = "900px";
+    this.dashBoardDiv = workingDIV.append("div")
+        .attr("class", "dashBoardDiv")
+        .style("width", this.dashBoardDivWidth)
+        .style("height", this.dashBoardDivHeight);
+    this.vizPanelDivWidth = "1400px";
+    this.vizPanelDivHeight = "900px";
+    this.vizPanelDiv = workingDIV.append("div")
+        .attr("class", "vizPanelDiv")
+        .style("width", this.vizPanelDivWidth)
+        .style("height", this.vizPanelDivHeight);
+    /* append bottom for interaction - group, generate code */
+    this.buttonDiv = workingDIV.append("div").attr("class", "buttonDiv");
+    this.buttonDiv.append("div").attr("class", "buttonHolder")
+        .append("button").attr("type", "button")
+        .attr("class","btn btn-info groupButton")
+        .text("Group Block");
+    this.buttonDiv.append("div").attr("class", "buttonHolder")
+        .append("button").attr("type", "button")
+        .attr("class","btn btn-warning generateButton")
+        .text("Generate Code");
 }
 
 VizML.prototype.initialViz = function(APIData) {
@@ -32,6 +54,7 @@ VizML.prototype.getLinkId = function() {
 
 VizML.prototype.updateDashBoard = function(APIData) {
     /* add node */
+
 
     /* event register */
 };
