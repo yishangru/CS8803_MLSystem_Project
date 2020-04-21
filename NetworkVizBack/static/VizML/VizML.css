@@ -24,10 +24,18 @@
     margin: 5px 0 0 10px;
 }
 
+.dashBoardDiv .nodeTypeSVG .APINode {
+    cursor: pointer;
+}
+
 .dashBoardDiv .nodeTypeSVG .APINodeText {
     font-family: 'Consolas', 'Monaco', 'Bitstream Vera Sans Mono', monospace;
     font-weight: bold;
     font-size: 2vh;
+}
+
+.dashBoardDiv .nodeTypeSVG .APINodeText:active {
+    background-color: #ffffff;
 }
 
 .vizPanelDiv {
@@ -60,4 +68,23 @@
 
 .buttonDiv .buttonHolder .generateButton {
     margin: 0 5px 0 10px;
+}
+
+div.VizTooltip {
+    position: absolute;
+    text-align: left;
+    padding: 2px 5px 0px 5px;
+    background: lightsteelblue;
+    border: 0;
+    border-radius: 5px;
+}
+
+div.VizTooltip h4 {
+    font: 20px Consolas;
+    font-weight: bold;
+}
+
+div.VizTooltip p {
+    font: 15px Consolas;
+    font-weight: bold;
 }

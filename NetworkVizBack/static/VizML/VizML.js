@@ -3,6 +3,10 @@ function VizML(parentBlockId) {
     var workingDIV = d3.select("#" + parentBlockId).append("div")
         .attr("id", "VizML");
 
+    this.VizTooltip = workingDIV.append("div")
+        .attr("class", "VizTooltip")
+        .style("opacity", 0);
+
     this.nodeId = 0;
     this.linkId = 0;
     //this.nodeRecorder;
@@ -115,7 +119,9 @@ VizML.prototype.updateDashBoard = function(APIData) {
     }
 
     /* event register */
-    this.dashBoardDiv.selectAll(".APINode").on("dblclick", APINodeEvent);
+    this.dashBoardDiv.selectAll(".APINode")
+        .on("mouseover", APINodeHover)
+        .on("click", APINodeClick);
 };
 
 VizML.prototype.addNode = function (NodeInfo) {
@@ -143,7 +149,22 @@ VizML.prototype.removeLink = function() {
 
 };
 
-function APINodeEvent(e) {
+function APINodeHover(e) {
+    console.log('test');
+    var linkedVizML = this.linkedVizML;
+    var VizTooltip = linkedVizML.VizTooltip;
+    var linkedData = d3.select(this).datum();
+    VizTooltip.transition()
+         .style("opacity", .9);
+    VizTooltip.html(
+        '<h4>' + linkedData["node"] + '</h4>' +
+        '<p>' + "Decription:  " + linkedData["description"] + '<br>' +
+        'Ports:  ' + linkedData["ports"] + '</p>'
+    ).style("left", (d3.event.pageX + 10) + "px")
+        .style("top", (d3.event.pageY - 30) + "px");
+}
+
+function APINodeClick(e) {
     console.log(this.linkedVizML);
     console.log(d3.select(this).datum());
 }
