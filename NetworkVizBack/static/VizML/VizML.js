@@ -121,6 +121,7 @@ VizML.prototype.updateDashBoard = function(APIData) {
     /* event register */
     this.dashBoardDiv.selectAll(".APINode")
         .on("mouseover", APINodeHover)
+        .on("mouseout", APINodeOut)
         .on("click", APINodeClick);
 };
 
@@ -150,7 +151,6 @@ VizML.prototype.removeLink = function() {
 };
 
 function APINodeHover(e) {
-    console.log('test');
     var linkedVizML = this.linkedVizML;
     var VizTooltip = linkedVizML.VizTooltip;
     var linkedData = d3.select(this).datum();
@@ -158,10 +158,17 @@ function APINodeHover(e) {
          .style("opacity", .9);
     VizTooltip.html(
         '<h4>' + linkedData["node"] + '</h4>' +
-        '<p>' + "Decription:  " + linkedData["description"] + '<br>' +
+        '<p>' + "Decription:<br>" + linkedData["description"] + '<br><br>' +
         'Ports:  ' + linkedData["ports"] + '</p>'
     ).style("left", (d3.event.pageX + 10) + "px")
         .style("top", (d3.event.pageY - 30) + "px");
+}
+
+function APINodeOut(e) {
+    console.log("test")
+    var linkedVizML = this.linkedVizML;
+    var VizTooltip = linkedVizML.VizTooltip;
+    VizTooltip.html("").style("opacity", 0);
 }
 
 function APINodeClick(e) {

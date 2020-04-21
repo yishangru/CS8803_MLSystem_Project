@@ -73,6 +73,7 @@
 div.VizTooltip {
     position: absolute;
     text-align: left;
+    width: 200px;
     padding: 2px 5px 0px 5px;
     background: lightsteelblue;
     border: 0;
@@ -86,5 +87,7 @@ div.VizTooltip h4 {
 
 div.VizTooltip p {
     font: 15px Consolas;
+    display: inline-block;
+    overflow-wrap: break-word;
     font-weight: bold;
 }
