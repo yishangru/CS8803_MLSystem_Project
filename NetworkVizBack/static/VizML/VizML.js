@@ -54,6 +54,7 @@ VizML.prototype.getLinkId = function() {
 
 VizML.prototype.updateDashBoard = function(APIData) {
     /* add node */
+    var linkedVizML = this;
     var nodePerRow = 2;
     var totalTypeCount = 0;
     var totalLayerCount = 0;
@@ -67,7 +68,7 @@ VizML.prototype.updateDashBoard = function(APIData) {
 
     var counter = 0;
     var badgeType = ["badge-primary", "badge-secondary", "badge-success", "badge-warning", "badge-danger", "badge-light", "badge-dark"];
-    var nodeColor = ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5"];
+    var nodeColor = ["#8dd3c7", "#bc80bd", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#bebada"];
     for (var nodeType in APIData) {
         var sectionRowCount = Math.ceil(APIData[nodeType].length/nodePerRow);
         var sectionHeight = sectionRowCount/totalLayerCount * (dashBoardHeight - totalTypeCount * 3.7) + 3;
@@ -89,9 +90,9 @@ VizML.prototype.updateDashBoard = function(APIData) {
         /* get the actual svg height and width */
         var svgWidth = parseInt(innerSVG.style("width"), 10);
         var svgHeight = parseInt(innerSVG.style("height"), 10);
-        console.log(svgWidth, svgHeight);
         var APINode = innerSVG.selectAll(".APINode").data(APIData[nodeType])
             .enter().append("g").attr("class", "APINode").attr("transform", function (d, i) {
+                this.linkedVizML = linkedVizML;
                 d["color"] = nodeColor[counter];
                 return "translate(" + i%nodePerRow * (svgWidth/nodePerRow) + ", " + Math.floor(i/nodePerRow)/sectionRowCount * svgHeight + ")";
             });
@@ -111,6 +112,7 @@ VizML.prototype.updateDashBoard = function(APIData) {
     }
 
     /* event register */
+    this.dashBoardDiv.selectAll(".APINode").on("db")
 };
 
 VizML.prototype.addNode = function (NodeInfo) {
