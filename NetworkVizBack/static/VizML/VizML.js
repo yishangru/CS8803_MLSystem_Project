@@ -9,14 +9,14 @@ function VizML(parentBlockId) {
     //this.linkRecorder;
     //this.blockRecorder;
     /* prepare the dashboard */
-    this.dashBoardDivWidth = "350px";
-    this.dashBoardDivHeight = "900px";
+    this.dashBoardDivWidth = "25vw";
+    this.dashBoardDivHeight = "87vh";
     this.dashBoardDiv = workingDIV.append("div")
         .attr("class", "dashBoardDiv")
         .style("width", this.dashBoardDivWidth)
         .style("height", this.dashBoardDivHeight);
-    this.vizPanelDivWidth = "1400px";
-    this.vizPanelDivHeight = "900px";
+    this.vizPanelDivWidth = "70vw";
+    this.vizPanelDivHeight = "87vh";
     this.vizPanelDiv = workingDIV.append("div")
         .attr("class", "vizPanelDiv")
         .style("width", this.vizPanelDivWidth)
@@ -26,11 +26,11 @@ function VizML(parentBlockId) {
     this.buttonDiv.append("div").attr("class", "buttonHolder")
         .append("button").attr("type", "button")
         .attr("class","btn btn-info groupButton")
-        .text("Group Block");
+        .text("Group Block");  // add click event handler
     this.buttonDiv.append("div").attr("class", "buttonHolder")
         .append("button").attr("type", "button")
         .attr("class","btn btn-warning generateButton")
-        .text("Generate Code");
+        .text("Generate Code"); // add click event handler
 }
 
 VizML.prototype.initialViz = function(APIData) {
