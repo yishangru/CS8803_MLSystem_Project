@@ -599,19 +599,63 @@ def generateTraining(linkList, optimizerList):
     generateSaveString = "# -------------------- output save -------------------- #\n"
     for optimizer in optimizerList:
         # generate name mapping
-        pass
+        nodeType = optimizer["type"]
+        nodeName = optimizer["node"]
 
+        generateName = nodeType + "_" + nodeName
+        nodeGeneratedName = generateName + "_" + str(nodeManager.get_node_id(generateName))
+        infoDict = {
+            "name": nodeGeneratedName,
+            "type": nodeType,
+            "node": nodeName,
+            "tracking": list()
+        }
+        recordDict[optimizer["id"]] = infoDict
+
+    GraphDict = collections.defaultdict(lambda: dict)
     for link in linkList:
-        pass
+        startNode = recordDict[link["start"]]
+        startPort = link["portStart"]
+        endNode = recordDict[link["end"]]
+        endPort = link["portEnd"]
+
+        # startPort (1 input, 2, sub input, 3 meta, 4 main output, 5 sub output
+        GraphDict[]
+
+    if endNode["type"] == "optimizer":  # check optimizer (should have no outbound link)
+        if endPort == 1:  # 1 for track object
+            pass
+        elif endPort == 2:  # 2 for loss
+            pass
+    elif endNode["type"] == "monitor" and endNode["node"] == "Saver":  # check monitor
+        if endPort == 1:  # only track port 1
+            if startPort == 4 or startPort == 5:
+                pass
 
     for optimizer in optimizerList:
         # generate optimize link
-        pass
+        api = optimizer["api"]
+        nodeType = optimizer["type"]
+        nodeName = optimizer["node"]
+        typeRequest = generalTypeMapping[nodeType][nodeName]
+        constructor = generalAPIMappingString[nodeType][api][typeRequest]
+
+        parameterDict = dict()
+        for param in optimizer["parameters"]:
+            parameterDict[param["paraName"]] = ast.literal_eval(param["paraValue"])
+
+        infoDict = recordDict[optimizer["id"]]
+        parameterDict["name"] = infoDict["name"]
+
+        # register variables block support
+
+
+        generateDictName = parameterDict["name"] + "_dict"
+        generateOptimizerString = generateOptimizerString + generateDictName + " = " + json.dumps(parameterDict) + "\n" + \
+                                parameterDict["name"] + " = " + constructor + "(**" + generateDictName + ")\n\n"
+
     return generateRunString, generateOptimizerString, generateSaveString
 
-# part 6 generate optimizer
-def generateOptimizer(optimizerList):
-    pass
 
 # id are all unique - monitor, node, block, optimizer
 def generateSystemModel(monitorList, nodeList, blockList, linkList, optimizerList):

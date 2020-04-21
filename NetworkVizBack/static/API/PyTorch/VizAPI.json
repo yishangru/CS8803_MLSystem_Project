@@ -1,12 +1,13 @@
 [
   {
-    "name": "ImageTensor",
+    "node": "ImageTensor",
     "type": "input",
     "api": "PyTorch",
     "ports": [
       3,
       4
     ],
+    "source": "",
     "description": "Loader for single image",
     "parameters": [
       {
@@ -24,13 +25,14 @@
     ]
   },
   {
-    "name": "RandomTensor",
+    "node": "RandomTensor",
     "type": "input",
     "api": "PyTorch",
     "ports": [
       3,
       4
     ],
+    "source": "",
     "description": "Loader for random tensor",
     "parameters": [
       {
@@ -42,13 +44,14 @@
     ]
   },
   {
-    "name": "ConstantTensor",
+    "node": "ConstantTensor",
     "type": "input",
     "api": "PyTorch",
     "ports": [
       3,
       4
     ],
+    "source": "",
     "description": "Loader for constant tensor (1, 0)",
     "parameters": [
       {
@@ -66,13 +69,14 @@
     ]
   },
   {
-    "name": "SavedTensor",
+    "node": "SavedTensor",
     "type": "input",
     "api": "PyTorch",
     "ports": [
       3,
       4
     ],
+    "source": "",
     "description": "Loader for tensor",
     "parameters": [
       {
@@ -84,7 +88,7 @@
     ]
   },
   {
-    "name": "MNIST",
+    "node": "MNIST",
     "type": "input",
     "api": "PyTorch",
     "ports": [
@@ -92,6 +96,7 @@
       4,
       5
     ],
+    "source": "",
     "description": "Loader for MNIST dataset",
     "parameters": [
       {
@@ -127,13 +132,14 @@
     ]
   },
   {
-    "name": "ImageTensor",
+    "node": "ImageTensor",
     "type": "constant",
     "api": "PyTorch",
     "ports": [
       3,
       4
     ],
+    "source": "",
     "description": "Loader for single image",
     "parameters": [
       {
@@ -151,13 +157,14 @@
     ]
   },
   {
-    "name": "RandomTensor",
+    "node": "RandomTensor",
     "type": "constant",
     "api": "PyTorch",
     "ports": [
       3,
       4
     ],
+    "source": "",
     "description": "Random tensor constant",
     "parameters": [
       {
@@ -169,13 +176,14 @@
     ]
   },
   {
-    "name": "ConstantTensor",
+    "node": "ConstantTensor",
     "type": "constant",
     "api": "PyTorch",
     "ports": [
       3,
       4
     ],
+    "source": "",
     "description": "Constant tensor constant (1, 0)",
     "parameters": [
       {
@@ -193,13 +201,14 @@
     ]
   },
   {
-    "name": "SavedTensor",
+    "node": "SavedTensor",
     "type": "constant",
     "api": "PyTorch",
     "ports": [
       3,
       4
     ],
+    "source": "",
     "description": "Constant Tensor constant",
     "parameters": [
       {
@@ -211,7 +220,7 @@
     ]
   },
   {
-    "name": "ReLU",
+    "node": "ReLU",
     "type": "layer",
     "api": "PyTorch",
     "ports": [
@@ -219,11 +228,12 @@
       3,
       4
     ],
+    "source": "",
     "description": "ReLu Layer",
     "parameters": []
   },
   {
-    "name": "Linear",
+    "node": "Linear",
     "type": "layer",
     "api": "PyTorch",
     "ports": [
@@ -231,6 +241,7 @@
       3,
       4
     ],
+    "source": "",
     "description": "Linear Layer",
     "parameters": [
       {
@@ -260,7 +271,7 @@
     ]
   },
   {
-    "name": "Conv2D",
+    "node": "Conv2D",
     "type": "layer",
     "api": "PyTorch",
     "ports": [
@@ -268,6 +279,7 @@
       3,
       4
     ],
+    "source": "",
     "description": "Conv2d Layer",
     "parameters": [
       {
@@ -342,7 +354,7 @@
     ]
   },
   {
-    "name": "MaxPool2D",
+    "node": "MaxPool2D",
     "type": "layer",
     "api": "PyTorch",
     "ports": [
@@ -350,6 +362,7 @@
       3,
       4
     ],
+    "source": "",
     "description": "MaxPool2d Layer",
     "parameters": [
       {
@@ -403,7 +416,7 @@
     ]
   },
   {
-    "name": "BatchNorm2D",
+    "node": "BatchNorm2D",
     "type": "layer",
     "api": "PyTorch",
     "ports": [
@@ -411,6 +424,7 @@
       3,
       4
     ],
+    "source": "",
     "description": "Batch2dNorm Layer",
     "parameters": [
       {
@@ -452,7 +466,7 @@
     ]
   },
   {
-    "name": "LogSoftMax",
+    "node": "LogSoftMax",
     "type": "layer",
     "api": "PyTorch",
     "ports": [
@@ -460,6 +474,7 @@
       3,
       4
     ],
+    "source": "",
     "description": "LogSoftMax Layer",
     "parameters": [
       {
@@ -477,7 +492,7 @@
     ]
   },
   {
-    "name": "MSELoss",
+    "node": "MSELoss",
     "type": "layer",
     "api": "PyTorch",
     "ports": [
@@ -485,6 +500,7 @@
       3,
       4
     ],
+    "source": "",
     "description": "MSELoss Layer",
     "parameters": [
       {
@@ -496,7 +512,7 @@
     ]
   },
   {
-    "name": "NLLLoss",
+    "node": "NLLLoss",
     "type": "layer",
     "api": "PyTorch",
     "ports": [
@@ -504,6 +520,7 @@
       3,
       4
     ],
+    "source": "",
     "description": "NLLLoss Layer",
     "parameters": [
       {
@@ -515,7 +532,7 @@
     ]
   },
   {
-    "name": "Flatten",
+    "node": "Flatten",
     "type": "transform",
     "api": "PyTorch",
     "ports": [
@@ -523,6 +540,7 @@
       3,
       4
     ],
+    "source": "",
     "description": "Flat tensor to One",
     "parameters": [
       {
@@ -534,7 +552,7 @@
     ]
   },
   {
-    "name": "Normalize",
+    "node": "Normalize",
     "type": "transform",
     "api": "PyTorch",
     "ports": [
@@ -542,6 +560,7 @@
       3,
       4
     ],
+    "source": "",
     "description": "Normalize img tensor to certain range",
     "parameters": [
       {
@@ -573,7 +592,7 @@
     ]
   },
   {
-    "name": "ClampData",
+    "node": "ClampData",
     "type": "transform",
     "api": "PyTorch",
     "ports": [
@@ -581,6 +600,7 @@
       3,
       4
     ],
+    "source": "",
     "description": "Clamp tensor to certain range",
     "parameters": [
       {
@@ -601,7 +621,7 @@
     ]
   },
   {
-    "name": "Detach",
+    "node": "Detach",
     "type": "transform",
     "api": "PyTorch",
     "ports": [
@@ -609,6 +629,7 @@
       3,
       4
     ],
+    "source": "",
     "description": "Detach tensor from computation graph. When use detach operation, it is safer to first clone the tensor and then use the inplace detach version",
     "parameters": [
       {
@@ -620,7 +641,7 @@
     ]
   },
   {
-    "name": "Adder",
+    "node": "Adder",
     "type": "transform",
     "api": "PyTorch",
     "ports": [
@@ -628,6 +649,7 @@
       3,
       4
     ],
+    "source": "",
     "description": "Add multiple tensors",
     "parameters": [
       {
@@ -639,7 +661,7 @@
     ]
   },
   {
-    "name": "GetGramMatrix",
+    "node": "GetGramMatrix",
     "type": "transform",
     "api": "PyTorch",
     "ports": [
@@ -647,6 +669,7 @@
       3,
       4
     ],
+    "source": "",
     "description": "Get Gram Features (for image)",
     "parameters": [
       {
@@ -658,13 +681,14 @@
     ]
   },
   {
-    "name": "SGD",
+    "node": "SGD",
     "type": "optimizer",
     "api": "PyTorch",
     "ports": [
       1,
       2
     ],
+    "source": "",
     "description": "SGD Optimizer",
     "parameters": [
       {
@@ -682,13 +706,14 @@
     ]
   },
   {
-    "name": "LBFGS",
+    "node": "LBFGS",
     "type": "optimizer",
     "api": "PyTorch",
     "ports": [
       1,
       2
     ],
+    "source": "",
     "description": "LBFGS Optimizer",
     "parameters": [
       {
@@ -700,12 +725,13 @@
     ]
   },
   {
-    "name": "Saver",
+    "node": "Saver",
     "type": "monitor",
     "api": "PyTorch",
     "ports": [
       1
     ],
+    "source": "",
     "description": "Monitor for variable saver",
     "parameters": [
       {
@@ -717,10 +743,11 @@
     ]
   },
   {
-    "name": "Manager",
+    "node": "Manager",
     "type": "monitor",
     "api": "PyTorch",
     "ports": [],
+    "source": "",
     "description": "Monitor for model",
     "parameters": [
       {

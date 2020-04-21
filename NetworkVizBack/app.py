@@ -1,20 +1,20 @@
+import os
 from flask import Flask, request, jsonify, render_template, url_for
 from StyleTransfer import image_style_transfer_main
+from model_generation.generator import generateAPI
 
 app = Flask(__name__)
 
 @app.route("/")
 @app.route("/index")
 def index():
-    return render_template("index.html", title="Style Transfer")
+    if not os.path.exists("./static/API"):
+        os.mkdir("./static/API")
+    if not os.path.exists("./static/API/PyTorch"):
+        os.mkdir("./static/API/PyTorch")
+    generateAPI(API="PyTorch", GeneratePath="./static/API/PyTorch/VizAPI.json")
+    return render_template("index.html", title="VizML")
 
-@app.route("/uploadStyle", methods=['POST'])
-def upload_style_image():
-    pass
-
-@app.route("/uploadContent", methods=['POST'])
-def upload_content_image():
-    pass
 
 @app.route("/transfer", methods=['POST'])
 def style_transfer():
