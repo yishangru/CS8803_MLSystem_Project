@@ -15,6 +15,12 @@ def index():
     generateAPI(API="PyTorch", GeneratePath="./static/API/PyTorch/VizAPI.json")
     return render_template("index.html", title="VizML")
 
+@app.route("/ModelGeneration", methods=['POST'])
+def model_generation():
+    if request.method == "POST":
+        data = request.json
+        print(data)
+        return jsonify({'msg': "test"})
 
 @app.route("/transfer", methods=['POST'])
 def style_transfer():

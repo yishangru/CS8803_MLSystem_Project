@@ -164,7 +164,7 @@ VizML.prototype.addNode = function (NodeInfo) {
     generatedNode.selectAll(".vizNodeRect").data(d => [d]).enter().append("rect")
         .attr("class", "vizNodeRect")
 
-    this.removeNode(nodeID);
+    //this.removeNode(nodeID);
 
     //this.nodeRecorder.set(generatedNodeInfo["id"])
 
@@ -200,6 +200,23 @@ VizML.prototype.removeBlock = function() {
     /* for all link for nodes, recreate the link */
 }
 
+VizML.prototype.generateCode = function () {
+    var linkedData = this.linkedData;
+    console.log(linkedData);
+    $.ajax({
+			url: '/ModelGeneration',
+			data: JSON.stringify(linkedData),
+			type: 'POST',
+            contentType: "application/json; charset=utf-8",
+			success: function(response){
+				console.log(response);
+			},
+			error: function(error){
+				console.log(error);
+			}
+		});
+}
+
 function APINodeEnter(e) {
     var linkedVizML = this.linkedVizML;
     var VizTooltip = linkedVizML.VizTooltip;
@@ -227,6 +244,7 @@ function APINodeClick(e) {
     var linkedVizML = this.linkedVizML;
     var linkedData = d3.select(this).datum();
     linkedVizML.addNode(linkedData);
+    linkedVizML.generateCode();
 }
 
 export { VizML };
