@@ -87,25 +87,25 @@ VizML.prototype.updateDashBoard = function(APIData) {
             .attr("height", "100%");
 
         /* get the actual svg height and width */
+        var svgWidth = parseInt(innerSVG.style("width"), 10);
+        var svgHeight = parseInt(innerSVG.style("height"), 10);
         console.log(svgWidth, svgHeight);
         var APINode = innerSVG.selectAll(".APINode").data(APIData[nodeType])
             .enter().append("g").attr("class", "APINode").attr("transform", function (d, i) {
                 d["color"] = nodeColor[counter];
                 return "translate(" + i%nodePerRow * (svgWidth/nodePerRow) + ", " + Math.floor(i/nodePerRow)/sectionRowCount * svgHeight + ")";
             });
-        /*
         APINode.selectAll("circle").data(d => [d]).enter()
             .append("circle")
             .attr("class", "nodeDot")
             .attr("fill", d=>d["color"])
-            .attr("cx", 20)
-            .attr("cy", 20)
+            .attr("cx", 18)
+            .attr("cy", 12)
             .attr("r", 10);
-        */
         APINode.selectAll("text").data(d => [d]).enter()
             .append("text")
             .attr("class", "APINodeText")
-            .attr("transform", "translate(35, 15)")
+            .attr("transform", "translate(38, 18)")
             .text(d => d.node);
         counter++;
     }
