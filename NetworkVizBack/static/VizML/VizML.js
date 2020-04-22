@@ -261,17 +261,18 @@ VizML.prototype.addNode = function (NodeInfo) {
         })
     }
 
-    /* remove old node */
+    /* remove old node and update node */
     if (linkedVizML.nodeRecorder.has(generatedNodeInfo["id"]))
         d3.select(linkedVizML.nodeRecorder.get(generatedNode["id"])).remove();
+    linkedVizML.nodeRecorder.set(generatedNodeInfo["id"], generatedNode)
 
     /* handle with link */
     if (generatedNodeInfo.hasOwnProperty("links")) {
         /* remove old links, and regenerate the links */
         generatedNodeInfo["links"].forEach(function (LinkID) {
             linkedVizML.removeLink(LinkID);
-        })
-        linkedVizML.removeLink()
+        });
+        linkedVizML.removeLink();
     } else {
         generatedNodeInfo["links"] = new Set(); // link id as key - will update the g element
     }
@@ -284,8 +285,6 @@ VizML.prototype.addNode = function (NodeInfo) {
 
     /* double click event listener */
     generatedNode.on("dbclick", dbclickGeneratedNode);
-
-    linkedVizML.nodeRecorder.set(generatedNodeInfo["id"], generatedNode)
 };
 
 // double click to remove node
