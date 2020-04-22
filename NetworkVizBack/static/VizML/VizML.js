@@ -1,8 +1,3 @@
-const line = d3.line()
-  .x(d=>d.x)
-  .y(d=>d.y)
-  .curve(d3.curveCatmullRom.alpha(.5))
-
 function VizML(parentBlockId) {
     var workingDIV = d3.select("#" + parentBlockId).append("div")
         .attr("id", "VizML");
@@ -363,7 +358,21 @@ VizML.prototype.addLink = function (LinkInfo) {
         generatedLinkInfo["id"] = this.getLinkId();
     }
 
-    /* add link to Viz */
+    /* get link coordination */
+    var sourcePort = sourceNodeInfo["portMap"].get(sourceNodePort);
+    var sourcePortCenter = {
+        x: parseInt(sourcePort.attr("cx"), 10),
+        y: parseInt(sourcePort.attr("cy"), 10)
+    };
+    var targetPort = targetNodeInfo["portMap"].get(targetNodePort);
+    var targetPortCenter = {
+        x: parseInt(targetPort.attr("cx"), 10),
+        y: parseInt(targetPort.attr("cy"), 10)
+    };
+    var startPoint = {x: sourceNodeInfo["position"]["x"] + sourcePort["x"], y: sourcePort["position"]["y"] + sourcePort["y"]};
+    var targetPoint = {x: targetNodeInfo["position"]["x"] + targetPort["x"], y: targetPort["position"]["y"] + targetPort["y"]};
+
+    /* add link to viz */
     
 
     return generatedLinkInfo["id"]
@@ -516,7 +525,12 @@ function clickPanel(e) {
 
 /* event handler for viz link */
 function dbclickGeneratedLink() {
-
+    var linkedVizML = this.linkedVizML;
+    var generatedLinkInfo = d3.select(this).datum();
+    /* remove the info in node */
+    linkedVizML.nodeRecorder.get(generatedLinkInfo["source"]["nodeID"]).datum()["links"].delete(generatedLinkInfo["id"]);
+    linkedVizML.nodeRecorder.get(generatedLinkInfo["target"]["nodeID"]).datum()["links"].delete(generatedLinkInfo["id"]);
+    linkedVizML.removeLink(generatedLinkInfo["id"]);
 }
 
 /* event handler for viz block */
