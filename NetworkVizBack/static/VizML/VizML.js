@@ -23,7 +23,7 @@ function VizML(parentBlockId) {
     this.portColorMapping = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00"];
 
     /* recorder current selection */
-    this.currentSelection = {source: {nodeId: undefined, port:undefined}, target: {nodeId: undefined, port: undefined}}; // for port link
+    this.currentSelection = {source: {nodeID: undefined, port:undefined}, target: {nodeID: undefined, port: undefined}}; // for port link
     this.currentLayerSelection = new Set();  // for block generation
 
     /* prepare the dashboard */
@@ -338,14 +338,34 @@ VizML.prototype.removeNode = function (nodeID) {
 // add link between two selected nodes and ports
 VizML.prototype.addLink = function (LinkInfo) {
     var generatedLinkInfo;
+    var linkedVizML = this;
+    var sourceNodeInfo = linkedVizML.nodeRecorder.get(LinkInfo["source"]["nodeID"]).datum();
+    var targetNodeInfo = linkedVizML.nodeRecorder.get(LinkInfo["target"]["nodeID"]).datum();
+    var sourceNodePort = LinkInfo["source"]["port"];
+    var targetNodePort = LinkInfo["target"]["port"];
+
+    /* generate the link id */
     if (LinkInfo.hasOwnProperty("id")) {
         generatedLinkInfo = LinkInfo;  // recreate the link
     } else {
+        /* check whether the link exist */
+        for (let linkID of sourceNodeInfo["links"].values()) {
+            let linkInfo = linkedVizML.linkRecorder.get(linkID).datum();
+            if (linkInfo["source"]["nodeID"] === sourceNodeInfo["id"] &&
+                linkInfo["target"]["nodeID"] === targetNodeInfo["id"] &&
+                linkInfo["source"]["port"] === sourceNodePort &&
+                linkInfo["target"]["port"] === targetNodePort) {
+                return linkInfo["id"];
+            }
+        }
+        /* link is not exist */
         generatedLinkInfo = JSON.parse(JSON.stringify(LinkInfo));  // return a deep copy of the link
         generatedLinkInfo["id"] = this.getLinkId();
     }
-    /* add link */
+
+    /* add link to Viz */
     
+
     return generatedLinkInfo["id"]
 };
 
