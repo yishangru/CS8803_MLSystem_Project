@@ -23,7 +23,8 @@ function VizML(parentBlockId) {
     this.portColorMapping = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00"];
 
     /* recorder current selection */
-    this.currentSelection = [];
+    this.currentSelection = {source: {nodeId: undefined, port:undefined}, target: {nodeId: undefined, port: undefined}}; // for port link
+    this.currentLayerSelection = new Set();  // for block generation
 
     /* prepare the dashboard */
     this.dashBoardDivWidth = 25;
@@ -233,7 +234,11 @@ VizML.prototype.addNode = function (NodeInfo) {
     }
 
     var vizNodePanel = generatedNode.append("g").attr("class", "vizNodePanel")
-        .attr("transform", "translate(" + rectPositionX + "," + rectPositionY + ")");
+        .attr("transform", function () {
+            this.linkedVizML = linkedVizML;
+            this.linkedNodeId = generatedNodeInfo["id"];
+            return "translate(" + rectPositionX + "," + rectPositionY + ")";
+        });
     vizNodePanel.append("rect").attr("class", "vizNodeRect")
         .attr("x", 0).attr("y", 0)
         .attr("width", rectWidth)
@@ -292,13 +297,13 @@ VizML.prototype.addNode = function (NodeInfo) {
         .on("end", dragGenerateNodeEnd));
 
     /* double click event listener */
-    generatedNode.on("dbclick", dbclickGeneratedNode);
+    generatedNode.on("dblclick", dbclickGeneratedNode);
 };
 
 // double click to remove node
 VizML.prototype.removeNode = function (nodeID) {
     var linkedVizML = this;
-    var generatedNodeInfo = linkedVizML.nodeRecorder.get(nodeID);
+    var generatedNodeInfo = linkedVizML.nodeRecorder.get(nodeID).datum();
     if (linkedVizML.nodeRecorder.has(nodeID)) {
         /* remove the block relation */
         if (generatedNodeInfo["assignedBlock"] !== -1) {
@@ -316,6 +321,13 @@ VizML.prototype.removeNode = function (nodeID) {
         });
         /* delete the node */
         linkedVizML.nodeRecorder.get(nodeID).remove();
+    }
+    /* remove the data in selection */
+    if (linkedVizML.currentLayerSelection.has(nodeID))
+        linkedVizML.currentLayerSelection.delete(nodeID);
+    if (linkedVizML.currentSelection.source.nodeId === nodeID) {
+        linkedVizML.currentSelection.source.nodeId = undefined;
+        linkedVizML.currentSelection.source.port = undefined;
     }
 };
 
@@ -391,15 +403,16 @@ function APINodeClick(e) {
 
 
 /* event handler for viz node */
-function dbclickGeneratedNode() {
+function dbclickGeneratedNode(e) {
     var linkedVizML = this.linkedVizML;
     var generatedNodeInfo = d3.select(this).datum();
     console.log(linkedVizML);
     console.log(generatedNodeInfo);
     linkedVizML.removeNode(generatedNodeInfo["id"]);
+    console.log(linkedVizML.nodeRecorder);
 }
 
-function dragGenerateNodeStart() {
+function dragGenerateNodeStart(e) {
     /* remove the generated link */
     // translate(x, y)
     let translateInitial = d3.select(this).attr("transform").split("(")[1].split(")")[0].split(",").map(x=>parseInt(x, 10));
@@ -409,7 +422,7 @@ function dragGenerateNodeStart() {
     this.checkDragged = false;
 }
 
-function dragGenerateNode() {
+function dragGenerateNode(e) {
     /* update the position of node */
     let currentPosition = {x: d3.event.x, y: d3.event.y};
     if (!this.checkDragged) {
@@ -428,7 +441,7 @@ function dragGenerateNode() {
     }
 }
 
-function dragGenerateNodeEnd() {
+function dragGenerateNodeEnd(e) {
     if (this.checkDragged) {
         let linkedData = d3.select(this).datum();
         linkedData["position"]["x"] = d3.event.x - this.startPosition.x + this.initialPosition.x;
@@ -450,12 +463,25 @@ function dragGenerateNodeEnd() {
     this.initialPosition = undefined;
 }
 
-function clickPort() {
+function clickPort(e) {
+    d3.select(this).attr("stroke", "none").attr("stroke-width", 0);
     console.log("test for click - port");
 }
 
-function clickPanel() {
+function clickPanel(e) {
     console.log("test for click - panel");
+    var linkedVizML = this.linkedVizML;
+    /* check whether current is already selected */
+    if (linkedVizML.nodeRecorder.has(this.linkedNodeId)) {
+        if (linkedVizML.currentLayerSelection.has(this.linkedNodeId)) {
+            d3.select(this).select(".vizNodeRect").style("stroke", "none").style("stroke-width", 0);
+            linkedVizML.currentLayerSelection.delete(this.linkedNodeId);
+        } else {
+            d3.select(this).select(".vizNodeRect").style("stroke", "black").style("stroke-width", 5);
+            linkedVizML.currentLayerSelection.add(this.linkedNodeId);
+        }
+    }
+    console.log(linkedVizML.currentLayerSelection);
 }
 
 /* event handler for viz link */
