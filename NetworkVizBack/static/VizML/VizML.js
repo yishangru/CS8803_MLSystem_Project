@@ -421,4 +421,16 @@ function dragGenerateNodeEnd() {
     //console.log(linkedData)
 }
 
+/* event handler for viz link */
+function dbclickGeneratedLink() {
+
+}
+
+/* event handler for viz block */
+function dbclickGeneratedBlock() {
+
+}
+
+function
+
 export { VizML };
