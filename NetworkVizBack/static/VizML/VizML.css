@@ -101,6 +101,10 @@ div.VizTooltip p {
     font-weight: bold;
 }
 
+.vizPanelSVG .vizNode {
+    cursor: pointer;
+}
+
 .vizPanelSVG .vizNode .vizNodeText {
     font: 23px Consolas;
     text-anchor: middle;
