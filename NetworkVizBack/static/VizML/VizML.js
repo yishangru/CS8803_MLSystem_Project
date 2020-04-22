@@ -22,6 +22,9 @@ function VizML(parentBlockId) {
     this.portIllustration = ["Main Input", "Sub Input", "Meta Info", "Main Output", "Sub Output"];
     this.portColorMapping = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00"];
 
+    /* recorder current selection */
+    this.currentSelection = [];
+
     /* prepare the dashboard */
     this.dashBoardDivWidth = 25;
     this.dashBoardDivHeight = 87;
@@ -70,19 +73,18 @@ VizML.prototype.initialViz = function(APIData) {
     this.linkedData = APIData;
     this.updateDashBoard(this.linkedData);
     var svgHeight = parseInt(this.vizPanelSVG.style("height"), 10);
-    console.log(svgHeight);
     var portLegenLabel = this.vizPanelSVG.append("g").attr("class", "portLegend")
-        .attr("transform", "translate(10, " + (svgHeight - 40) + ")")
+        .attr("transform", "translate(10," + (svgHeight - 40) + ")")
         .selectAll(".portLegendLabel")
         .data([0, 1, 2, 3, 4]).enter().append("g").attr("class", "portLegendLabel").attr("transform", function (d) {
-            return "translate(" + d * 160 + " , 0)";
+            return "translate(" + d * 160 + ",0)";
         });
     portLegenLabel.selectAll(".portLegendLabelDot").data(d=>[d]).enter().append("circle")
         .attr("class", "portLegendLabelDot")
         .attr("cx", 15).attr("cy", 15).attr("r", 10)
         .attr("fill", d=>linkedVizML.portColorMapping[d]);
     portLegenLabel.selectAll(".portLegendLabelText").data(d=>[d]).enter().append("text").attr("class", "portLegendLabelText")
-        .attr("transform", "translate(30, 22)")
+        .attr("transform", "translate(30,22)")
         .text(d=>linkedVizML.portIllustration[d]);
 };
 
@@ -144,7 +146,7 @@ VizML.prototype.updateDashBoard = function(APIData) {
             .enter().append("g").attr("class", "APINode").attr("transform", function (d, i) {
                 this.linkedVizML = linkedVizML;
                 d["color"] = nodeColor[counter];
-                return "translate(" + i%nodePerRow * (svgWidth/nodePerRow) + ", " + Math.floor(i/nodePerRow)/sectionRowCount * svgHeight + ")";
+                return "translate(" + i%nodePerRow * (svgWidth/nodePerRow) + "," + Math.floor(i/nodePerRow)/sectionRowCount * svgHeight + ")";
             });
         APINode.selectAll("circle").data(d => [d]).enter()
             .append("circle")
@@ -156,7 +158,7 @@ VizML.prototype.updateDashBoard = function(APIData) {
         APINode.selectAll("text").data(d => [d]).enter()
             .append("text")
             .attr("class", "APINodeText")
-            .attr("transform", "translate(38, 18)")
+            .attr("transform", "translate(38,18)")
             .text(d => d.node);
         counter++;
     }
@@ -184,12 +186,11 @@ VizML.prototype.addNode = function (NodeInfo) {
     if (!generatedNodeInfo.hasOwnProperty("position"))
         generatedNodeInfo["position"] = {"x": 400, "y": 200};
     // add to node map
-    console.log(generatedNodeInfo);
     var generatedNode = this.vizPanelSVG.append("g").datum(generatedNodeInfo)
         .attr("class", "vizNode")
         .attr("transform", function () {
             this.linkedVizML = linkedVizML;
-            return "translate(" + generatedNodeInfo["position"]["x"] + ", " + generatedNodeInfo["position"]["y"] + ")";
+            return "translate(" + generatedNodeInfo["position"]["x"] + "," + generatedNodeInfo["position"]["y"] + ")";
         });
 
     /* port generation */
@@ -231,13 +232,15 @@ VizML.prototype.addNode = function (NodeInfo) {
             .attr("fill", d=>linkedVizML.portColorMapping[d-1]);
     }
 
-    generatedNode.append("rect").attr("class", "vizNodeRect")
-        .attr("x", rectPositionX).attr("y", rectPositionY)
+    var vizNodePanel = generatedNode.append("g").attr("class", "vizNodePanel")
+        .attr("transform", "translate(" + rectPositionX + "," + rectPositionY + ")");
+    vizNodePanel.append("rect").attr("class", "vizNodeRect")
+        .attr("x", 0).attr("y", 0)
         .attr("width", rectWidth)
         .attr("height", rectHeight)
         .attr("fill", generatedNodeInfo["color"]);
-    generatedNode.append("text").attr("class", "vizNodeText")
-        .attr("transform", "translate(" + (rectPositionX + rectWidth/2) + " , " + (rectPositionY + rectHeight/2 + 6) + ")")
+    vizNodePanel.append("text").attr("class", "vizNodeText")
+        .attr("transform", "translate(" + rectWidth/2 + "," + (rectHeight/2 + 6) + ")")
         .text(generatedNodeInfo["node"]);
 
     if (generatedNodeInfo["ports"].has(1) || generatedNodeInfo["ports"].has(2)) {
@@ -276,6 +279,11 @@ VizML.prototype.addNode = function (NodeInfo) {
     } else {
         generatedNodeInfo["links"] = new Set(); // link id as key - will update the g element
     }
+
+    /* event handler for port */
+    generatedNode.selectAll(".vizNodePort").on("click", clickPort);
+    /* event handler for layer */
+    generatedNode.select(".vizNodePanel").on("click", clickPanel);
 
     /* drag event listener */
     generatedNode.call(d3.drag()
@@ -393,32 +401,61 @@ function dbclickGeneratedNode() {
 
 function dragGenerateNodeStart() {
     /* remove the generated link */
+    // translate(x, y)
+    let translateInitial = d3.select(this).attr("transform").split("(")[1].split(")")[0].split(",").map(x=>parseInt(x, 10));
+    console.log(translateInitial);
+    this.initialPosition = {x: translateInitial[0], y: translateInitial[1]};
+    this.startPosition = {x: d3.event.x, y: d3.event.y};
+    this.checkDragged = false;
 }
 
 function dragGenerateNode() {
     /* update the position of node */
-    d3.select(this)
-        .attr("transform", "translate(" + d3.event.x + "," + d3.event.y + ")");
+    let currentPosition = {x: d3.event.x, y: d3.event.y};
+    if (!this.checkDragged) {
+        let moveDistance = Math.pow(currentPosition["x"] - this.startPosition["x"], 2) +
+            Math.pow(currentPosition["y"] - this.startPosition["y"], 2);
+        if (moveDistance > 10)
+            this.checkDragged = true;
+    }
+
+    if (this.checkDragged) {
+        let presentPosition = {
+            x: currentPosition.x - this.startPosition.x + this.initialPosition.x,
+            y: currentPosition.y - this.startPosition.y + this.initialPosition.y
+        };
+        d3.select(this).attr("transform", "translate(" + presentPosition.x + "," + presentPosition.y + ")");
+    }
 }
 
 function dragGenerateNodeEnd() {
-    var linkedData = d3.select(this).datum();
-    linkedData["position"]["x"] = d3.event.x;
-    linkedData["position"]["y"] = d3.event.y;
-    d3.select(this)
-        .attr("transform", "translate(" + linkedData["position"]["x"] + ", " + linkedData["position"]["y"] + ")");
-    var linkedVizML = this.linkedVizML;
+    if (this.checkDragged) {
+        let linkedData = d3.select(this).datum();
+        linkedData["position"]["x"] = d3.event.x - this.startPosition.x + this.initialPosition.x;
+        linkedData["position"]["y"] = d3.event.y - this.startPosition.y + this.initialPosition.y;
+        d3.select(this)
+            .attr("transform", "translate(" + linkedData["position"]["x"] + "," + linkedData["position"]["y"] + ")");
+        let linkedVizML = this.linkedVizML;
 
-    /* recreate link */
-    linkedVizML.vizPanelSVG.append('path')
-        .datum([{x: 100, y: 200}, {x: linkedData["position"]["x"], y: linkedData["position"]["y"]}])
-        .attr('d', line)
-        .style("stroke", "red")
-        .style("stroke-width", 2);
-    console.log(linkedData["portMap"]);
-    //console.log(linkedVizML);
-    //console.log(d3.select(this).datum())
-    //console.log(linkedData)
+        /* recreate link */
+        linkedVizML.vizPanelSVG.append('path')
+            .datum([{x: 100, y: 200}, {x: linkedData["position"]["x"], y: linkedData["position"]["y"]}])
+            .attr('d', line)
+            .style("stroke", "red")
+            .style("stroke-width", 2);
+        console.log(linkedData["portMap"]);
+    }
+    this.checkDragged = false;
+    this.startPosition = undefined;
+    this.initialPosition = undefined;
+}
+
+function clickPort() {
+    console.log("test for click - port");
+}
+
+function clickPanel() {
+    console.log("test for click - panel");
 }
 
 /* event handler for viz link */
@@ -430,7 +467,5 @@ function dbclickGeneratedLink() {
 function dbclickGeneratedBlock() {
 
 }
-
-function
 
 export { VizML };
