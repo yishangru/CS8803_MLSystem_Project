@@ -171,6 +171,7 @@ VizML.prototype.updateDashBoard = function(APIData) {
         .on("click", APINodeClick);
 };
 
+// click API to add node
 VizML.prototype.addNode = function (NodeInfo) {
     var linkedVizML = this;
 
@@ -276,11 +277,15 @@ VizML.prototype.addNode = function (NodeInfo) {
 
     /* handle with link */
     if (generatedNodeInfo.hasOwnProperty("links")) {
-        /* remove old links, and regenerate the links */
-        generatedNodeInfo["links"].forEach(function (LinkID) {
-            linkedVizML.removeLink(LinkID);
+        /* remove old links, and regenerate the links, update link recorder */
+        let nodeLinks = new Set();
+        generatedNodeInfo["links"].forEach(function (linkID) {
+            let newLinkID = linkedVizML.addLink(linkedVizML.linkRecorder.get(linkID).datum());
+            nodeLinks.add(newLinkID);
+            linkedVizML.removeLink(linkID);
         });
-        linkedVizML.removeLink();
+        generatedNodeInfo["links"].clear();
+        generatedNodeInfo["links"] = nodeLinks;
     } else {
         generatedNodeInfo["links"] = new Set(); // link id as key - will update the g element
     }
@@ -304,6 +309,15 @@ VizML.prototype.addNode = function (NodeInfo) {
 VizML.prototype.removeNode = function (nodeID) {
     var linkedVizML = this;
     var generatedNodeInfo = linkedVizML.nodeRecorder.get(nodeID).datum();
+
+    /* remove the data in selection */
+    if (linkedVizML.currentLayerSelection.has(nodeID))
+        linkedVizML.currentLayerSelection.delete(nodeID);
+    if (linkedVizML.currentSelection.source.nodeId === nodeID) {
+        linkedVizML.currentSelection.source.nodeId = undefined;
+        linkedVizML.currentSelection.source.port = undefined;
+    }
+
     if (linkedVizML.nodeRecorder.has(nodeID)) {
         /* remove the block relation */
         if (generatedNodeInfo["assignedBlock"] !== -1) {
@@ -313,29 +327,25 @@ VizML.prototype.removeNode = function (nodeID) {
                 this.removeBlock(linkedBlockInfo["id"]);
         }
         /* remove the link relation */
-        let nodeLinks = new Set();
         generatedNodeInfo["links"].forEach(function (linkID) {
-            let newLinkID = linkedVizML.addLink(linkedVizML.linkRecorder.get(linkID).datum());
-            nodeLinks.add(newLinkID);
             linkedVizML.removeLink(linkID);
         });
         /* delete the node */
         linkedVizML.nodeRecorder.get(nodeID).remove();
     }
-    /* remove the data in selection */
-    if (linkedVizML.currentLayerSelection.has(nodeID))
-        linkedVizML.currentLayerSelection.delete(nodeID);
-    if (linkedVizML.currentSelection.source.nodeId === nodeID) {
-        linkedVizML.currentSelection.source.nodeId = undefined;
-        linkedVizML.currentSelection.source.port = undefined;
-    }
 };
 
+// add link between two selected nodes and ports
 VizML.prototype.addLink = function (LinkInfo) {
-    var generatedLinkInfo = JSON.parse(JSON.stringify(LinkInfo)); // return a deep copy of the node
-    generatedLinkInfo["id"] = this.getLinkId();
+    var generatedLinkInfo;
+    if (LinkInfo.hasOwnProperty("id")) {
+        generatedLinkInfo = LinkInfo;  // recreate the link
+    } else {
+        generatedLinkInfo = JSON.parse(JSON.stringify(LinkInfo));  // return a deep copy of the link
+        generatedLinkInfo["id"] = this.getLinkId();
+    }
     /* add link */
-
+    
     return generatedLinkInfo["id"]
 };
 
