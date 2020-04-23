@@ -421,7 +421,7 @@ VizML.prototype.addLink = function (LinkInfo) {
             return generatedLinkInfo["color"];
         })
         .attr('fill', 'none')
-        .attr("stroke-width", 5);
+        .attr("stroke-width", 6);
     generatedLink.datum(generatedLinkInfo);
 
     /* remove old node and update node */
@@ -529,7 +529,6 @@ function dragGenerateNodeStart(e) {
     /* remove the generated link */
     // translate(x, y)
     let translateInitial = d3.select(this).attr("transform").split("(")[1].split(")")[0].split(",").map(x=>parseInt(x, 10));
-    console.log(translateInitial);
     this.initialPosition = {x: translateInitial[0], y: translateInitial[1]};
     this.startPosition = {x: d3.event.x, y: d3.event.y};
     this.checkDragged = false;
