@@ -52,9 +52,9 @@ function VizML(parentBlockId) {
         .attr('orient', 'auto-start-reverse')
         .append('polygon')
         .attr('points', '0 0, 4 2, 0 4')
-        .attr('fill', 'red')
-        .style('stroke', 'black')
-        .style('stroke-width', 1);
+        .attr('fill', '#737373')
+        .style('stroke', '#bdbdbd')
+        .style('stroke-width', 0.5);
 
     /* append bottom for interaction - group, generate code */
     this.buttonDiv = workingDIV.append("div").attr("class", "buttonDiv");

@@ -363,6 +363,6 @@ def generateAPI(API, GeneratePath):
                         paraDict["Required"] = 0
                     node["parameters"].append(paraDict)
             passNodeList.append(node)
-    writeFile = open(GeneratePath, mode="w", encoding="utf-8")
+    writeFile = open(GeneratePath, mode="w+", encoding="utf-8")
     json.dump(passNodeList, fp=writeFile, indent=2)
     writeFile.close()
