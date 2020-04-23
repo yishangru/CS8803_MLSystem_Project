@@ -128,8 +128,8 @@ layerPortTorch = {
     LayerType.MaxPool2d: [1, 3, 4],
     LayerType.BatchNorm2d: [1, 3, 4],
     LayerType.LogSoftMax: [1, 3, 4],
-    LayerType.MSELoss: [1, 3, 4],
-    LayerType.NLLLoss: [1, 3, 4]
+    LayerType.MSELoss: [1, 2, 3, 4],
+    LayerType.NLLLoss: [1, 2, 3, 4]
 }
 
 
@@ -163,12 +163,12 @@ transformAPITorchString = {
 }
 # port for pytorch
 transformPortTorch = {
-    TransformType.FlatTransform: [1, 3, 4],
-    TransformType.NormalizeTransform: [1, 3, 4],
-    TransformType.DataClampTransform: [1, 3, 4],
-    TransformType.DetachTransform: [1, 3, 4],
-    TransformType.AddTransform: [1, 3, 4],
-    TransformType.GetGramMatrix: [1, 3, 4]
+    TransformType.FlatTransform: [1, 4],
+    TransformType.NormalizeTransform: [1, 4],
+    TransformType.DataClampTransform: [1, 4],
+    TransformType.DetachTransform: [1, 4],
+    TransformType.AddTransform: [1, 4],
+    TransformType.GetGramMatrix: [1, 4]
 }
 
 # ------------------- optimize mapping ------------------- #
@@ -328,7 +328,7 @@ defaultParameterMapping = {
     "float": -1
 }
 
-def generateAPI(API):
+def generateAPI(API, GeneratePath):
     import json
     import inspect
     passNodeList = list()
@@ -363,7 +363,7 @@ def generateAPI(API):
                         paraDict["Required"] = 0
                     node["parameters"].append(paraDict)
             passNodeList.append(node)
-    writeFile = open("./VizAPI.json", mode="w", encoding="utf-8")
+    writeFile = open(GeneratePath, mode="w", encoding="utf-8")
     json.dump(passNodeList, fp=writeFile, indent=2)
     writeFile.close()
 
@@ -552,7 +552,9 @@ def generateNodeAndLoad(nodeList, managerMonitor):
 
         parameterDict = dict()
         for param in node["parameters"]:
-            parameterDict[param["paraName"]] = ast.literal_eval(param["paraValue"])
+            if param["ParaClass"] == "tuple":
+                param["ParaValue"] = "tuple(" + param["ParaValue"] + ")"
+            parameterDict[param["ParaName"]] = ast.literal_eval(param["ParaValue"])
         generateName = nodeType + "_" + nodeName
         parameterDict["name"] = generateName + "_" + str(nodeManager.get_node_id(generateName))
 
