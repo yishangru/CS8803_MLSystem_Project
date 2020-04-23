@@ -110,3 +110,8 @@ div.VizTooltip p {
     text-anchor: middle;
     font-weight: bold;
 }
+.vizPanelSVG .vizNode .vizNodeParam {
+    font: 30px Consolas;
+    text-anchor: start;
+    font-weight: bold;
+}

@@ -273,6 +273,9 @@ VizML.prototype.addNode = function (NodeInfo) {
     vizNodePanel.append("text").attr("class", "vizNodeText")
         .attr("transform", "translate(" + rectWidth/2 + "," + (rectHeight/2 + 6) + ")")
         .text(generatedNodeInfo["node"]);
+    generatedNode.append("text").attr("class", "vizNodeParam")
+        .attr("transform", "translate(" + (rectPositionX + rectWidth + 5) + "," + (rectPositionY + rectHeight/2 + 6) + ")")
+        .text("▼").on("click", clickParam); // ▼▲
 
     if (generatedNodeInfo["ports"].has(1) || generatedNodeInfo["ports"].has(2)) {
         let linkedData = [1];
@@ -757,6 +760,11 @@ function dbclickGeneratedLink() {
     var generatedLinkInfo = d3.select(this).datum();
     /* remove the info in node */
     linkedVizML.removeLink(generatedLinkInfo["id"]);
+}
+
+/* event handler for viz para */
+function clickParam(e) {
+    console.log("test");
 }
 
 /* event handler for viz block */
