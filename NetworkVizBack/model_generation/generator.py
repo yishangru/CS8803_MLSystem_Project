@@ -350,7 +350,7 @@ def generateAPI(API, GeneratePath):
                     "ports": PORTRequest[RequestNode],
                     "source": "",
                     "description": APIRequest[RequestNode].get_description(),
-                    "parameters": list()}
+                    "parameters": dict()}
             signature = inspect.signature(APIRequest[RequestNode].__init__)
             for param in signature.parameters.values():
                 if param.name not in ParaExclude:
@@ -361,7 +361,7 @@ def generateAPI(API, GeneratePath):
                     else:
                         paraDict["ParaValue"] = str(param.default)
                         paraDict["Required"] = 0
-                    node["parameters"].append(paraDict)
+                    node["parameters"][paraDict["ParaName"]] = paraDict
             passNodeList.append(node)
     writeFile = open(GeneratePath, mode="w+", encoding="utf-8")
     json.dump(passNodeList, fp=writeFile, indent=2)

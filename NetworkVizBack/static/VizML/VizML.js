@@ -13,7 +13,8 @@ function VizML(parentBlockId) {
 
     this.VizParamEnter = workingDIV.append("div")
         .attr("class", "VizParamEnter")
-        .style("opacity", 0);
+        .style("opacity", 0)
+        .datum(undefined);
 
     var linkedVizML = this;
 
@@ -81,7 +82,7 @@ function VizML(parentBlockId) {
         .attr("class","btn btn-danger uploadButton")
         .text(function () {
             this.linkedVizML = linkedVizML;
-            return "Import Model";
+            return "Import VGG19 Model";
         }); // add click event handler
 }
 
@@ -310,7 +311,14 @@ VizML.prototype.addNode = function (NodeInfo) {
     if (linkedVizML.nodeRecorder.has(generatedNodeInfo["id"])) {
         /* restore parameter entering */
         let currentNode = linkedVizML.nodeRecorder.get(generatedNode["id"]);
-
+        /* restore the param enter */
+        if (linkedVizML.VizParamEnter.datum() === generatedNodeInfo["id"]) {
+            linkedVizML.VizParamEnter.html("")
+                .style("width", 0)
+                .style("padding", 0)
+                .style("opacity", 0);
+            linkedVizML.VizParamEnter.datum(undefined);
+        }
         currentNode.remove();
     }
     linkedVizML.nodeRecorder.set(generatedNodeInfo["id"], generatedNode)
@@ -367,8 +375,13 @@ VizML.prototype.removeNode = function (nodeID) {
         });
         generatedNodeInfo["links"].clear();
         /* restore the param enter */
-
-
+        if (linkedVizML.VizParamEnter.datum() === generatedNodeInfo["id"]) {
+            linkedVizML.VizParamEnter.html("")
+                .style("width", 0)
+                .style("padding", 0)
+                .style("opacity", 0);
+            linkedVizML.VizParamEnter.datum(undefined);
+        }
         /* delete the node */
         linkedVizML.nodeRecorder.get(nodeID).remove();
         linkedVizML.nodeRecorder.delete(nodeID);
@@ -565,8 +578,21 @@ function dragGenerateNode(e) {
     if (!this.checkDragged) {
         let moveDistance = Math.pow(currentPosition["x"] - this.startPosition["x"], 2) +
             Math.pow(currentPosition["y"] - this.startPosition["y"], 2);
-        if (moveDistance > 10)
+        if (moveDistance > 10) {
             this.checkDragged = true;
+
+            let linkedVizML = this.linkedVizML;
+            let linkedData = d3.select(this).datum();
+            console.log(linkedVizML.VizParamEnter.datum(), linkedData["id"]);
+            if (linkedVizML.VizParamEnter.datum() === linkedData["id"]) {
+                linkedVizML.VizParamEnter.html("")
+                    .style("width", 0)
+                    .style("padding", 0)
+                    .style("opacity", 0);
+                d3.select(this).select(".vizNodeParam").text("▼");
+                linkedVizML.VizParamEnter.datum(undefined);
+            }
+        }
     }
 
     if (this.checkDragged) {
@@ -791,24 +817,29 @@ function clickParam(e) {
     var linkedNodeId = this.linkedNodeId;
     if (currentText === "▼") {
         /* check current vizParamEnter */
-        if (parseInt(linkedVizML.VizParamEnter.style("opacity"), 10) > 0) {
+        if (linkedVizML.VizParamEnter.datum() !== undefined) {
             alert("Please enter the parameter for current node!");
             return
         }
         /* make sure all parameter is entered - paraName, paraValue, paraType, Required */
         linkedVizML.VizParamEnter.transition()
             .style("opacity", .9);
+        linkedVizML.VizParamEnter.datum(linkedNodeId);
         let generatedNodeInfo = linkedVizML.nodeRecorder.get(linkedNodeId).datum();
-        let generatedNodeParam = generatedNodeInfo["parameters"];
         let generatedHTMLText = '<form>';
         generatedHTMLText += generatedHTMLText += ('<label id="source"><b>source</b>:' + generatedNodeInfo["source"] + '</label><br>');
-        generatedNodeParam.forEach(function (d) {
-            generatedHTMLText += ('<label>' + d["ParaName"]);
-            if (d["Required"] === 1)
-                generatedHTMLText += "(*)"
-            generatedHTMLText += (" - <b>" + d["ParaClass"] + "</b></label>");
-            generatedHTMLText += ('<input type="text" id="' + d["ParaName"] + '" value="' + d["ParaValue"] + '"><br>')
-        });
+
+        let generatedNodeParam = generatedNodeInfo["parameters"];
+        for (const paraName in generatedNodeParam) {
+            if (generatedNodeParam.hasOwnProperty(paraName)) {
+                let paraInfo = generatedNodeParam[paraName];
+                generatedHTMLText += ('<label>' + paraInfo["ParaName"]);
+                if (paraInfo["Required"] === 1)
+                    generatedHTMLText += "(*)"
+                generatedHTMLText += (" - <b>" + paraInfo["ParaClass"] + "</b></label>");
+                generatedHTMLText += ('<input type="text" id="' + paraInfo["ParaName"] + '" value="' + paraInfo["ParaValue"] + '"><br>')
+            }
+        }
         generatedHTMLText += '</form>';
 
         linkedVizML.VizParamEnter.html(generatedHTMLText)
@@ -817,14 +848,33 @@ function clickParam(e) {
             .style("width", "250px")
             .style("padding", "5px 5px 5px 8px");
         d3.select(this).text("▲");
+        console.log(linkedVizML.VizParamEnter.datum());
 
     } else if (currentText === "▲") {
         /* make sure all parameter is entered */
+        /*
+        linkedVizML.VizParamEnter.selectAll("input").call(function() {
+           d3.select(this)
+        });
+        */
         linkedVizML.VizParamEnter.html("")
             .style("width", 0)
             .style("padding", 0)
             .style("opacity", 0);
         d3.select(this).text("▼");
+        linkedVizML.VizParamEnter.datum(undefined);
+        console.log(linkedVizML.VizParamEnter.datum())
+    }
+}
+
+/* simple param valid check */
+function checkParamValid(ParamValue, ParaClass, WhetherRequired) {
+    if (WhetherRequired) {
+        if (ParaClass === "list") {
+            /* should as [] */
+        } else if (ParaClass === "tuple") {
+            /* should as () */
+        }
     }
 }
 
