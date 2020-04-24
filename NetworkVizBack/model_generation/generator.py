@@ -320,12 +320,12 @@ generalPortMapping = {
 
 # default value for json
 defaultParameterMapping = {
-    "int": -1,
+    "int": "-1",
     "list": "[]",
     "tuple": "()",
     "str": "",
-    "bool": -1,
-    "float": -1
+    "bool": "False",
+    "float": "-1"
 }
 
 def generateAPI(API, GeneratePath):
@@ -359,7 +359,7 @@ def generateAPI(API, GeneratePath):
                         paraDict["ParaValue"] = defaultParameterMapping[param.annotation.__name__]
                         paraDict["Required"] = 1
                     else:
-                        paraDict["ParaValue"] = param.default
+                        paraDict["ParaValue"] = str(param.default)
                         paraDict["Required"] = 0
                     node["parameters"].append(paraDict)
             passNodeList.append(node)

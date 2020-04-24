@@ -790,21 +790,32 @@ function clickParam(e) {
     var linkedVizML = this.linkedVizML;
     var linkedNodeId = this.linkedNodeId;
     if (currentText === "▼") {
+        /* check current vizParamEnter */
+        if (parseInt(linkedVizML.VizParamEnter.style("opacity"), 10) > 0) {
+            alert("Please enter the parameter for current node!");
+            return
+        }
         /* make sure all parameter is entered - paraName, paraValue, paraType, Required */
         linkedVizML.VizParamEnter.transition()
             .style("opacity", .9);
         let generatedNodeInfo = linkedVizML.nodeRecorder.get(linkedNodeId).datum();
-        linkedVizML.VizParamEnter.html(
-            '<form>' +
-              '<label for="fname">First name:</label><br>' +
-              '<input type="text" id="fname" name="fname"><br>' +
-              '<label for="lname">Last name:</label><br>' +
-              '<input type="text" id="lname" name="lname">' +
-            '</form>'
-        ).style("left", (d3.event.pageX - 300) + "px")
+        let generatedNodeParam = generatedNodeInfo["parameters"];
+        let generatedHTMLText = '<form>';
+        generatedHTMLText += generatedHTMLText += ('<label id="source"><b>source</b>:' + generatedNodeInfo["source"] + '</label><br>');
+        generatedNodeParam.forEach(function (d) {
+            generatedHTMLText += ('<label>' + d["ParaName"]);
+            if (d["Required"] === 1)
+                generatedHTMLText += "(*)"
+            generatedHTMLText += (" - <b>" + d["ParaClass"] + "</b></label>");
+            generatedHTMLText += ('<input type="text" id="' + d["ParaName"] + '" value="' + d["ParaValue"] + '"><br>')
+        });
+        generatedHTMLText += '</form>';
+
+        linkedVizML.VizParamEnter.html(generatedHTMLText)
+            .style("left", (d3.event.pageX - 300) + "px")
             .style("top", (d3.event.pageY + 25) + "px")
-            .style("width", "300px")
-            .style("padding", "2px 5px 0px 5px");
+            .style("width", "250px")
+            .style("padding", "5px 5px 5px 8px");
         d3.select(this).text("▲");
 
     } else if (currentText === "▲") {

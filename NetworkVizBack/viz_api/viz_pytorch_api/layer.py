@@ -127,7 +127,7 @@ class Conv2d_Torch(layer.Conv2d):
 class MaxPool2d_Torch(layer.MaxPool2d):
     # we can pad the linked block name to the name of layer
     def __init__(self, kernel_size: tuple, inplace_forward: bool = False, evaluate: bool = False, import_layer: nn.MaxPool2d = None, name: str = "MaxPool2d_Torch", stride: tuple=None, padding: tuple=(0, 0),
-                 dilation: tuple=(1, 1), return_indices=False, ceil_mode=False, device=torch.device("cpu")):
+                 dilation: tuple=(1, 1), return_indices: bool=False, ceil_mode: bool=False, device=torch.device("cpu")):
         super(MaxPool2d_Torch, self).__init__(name)
         self.maxpool2d = nn.MaxPool2d(kernel_size, stride=kernel_size if None else stride, padding=padding,
                                       dilation=dilation, return_indices=return_indices, ceil_mode=ceil_mode) if import_layer is None else import_layer

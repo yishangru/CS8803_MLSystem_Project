@@ -19,7 +19,7 @@
       {
         "ParaName": "imsize",
         "ParaClass": "int",
-        "ParaValue": 512,
+        "ParaValue": "512",
         "Required": 0
       }
     ]
@@ -63,7 +63,7 @@
       {
         "ParaName": "value",
         "ParaClass": "int",
-        "ParaValue": -1,
+        "ParaValue": "-1",
         "Required": 1
       }
     ]
@@ -108,25 +108,25 @@
       {
         "ParaName": "max_batch_size",
         "ParaClass": "int",
-        "ParaValue": 1,
+        "ParaValue": "1",
         "Required": 0
       },
       {
         "ParaName": "shuffle",
         "ParaClass": "bool",
-        "ParaValue": false,
+        "ParaValue": "False",
         "Required": 0
       },
       {
         "ParaName": "train",
         "ParaClass": "bool",
-        "ParaValue": true,
+        "ParaValue": "True",
         "Required": 0
       },
       {
         "ParaName": "download",
         "ParaClass": "bool",
-        "ParaValue": false,
+        "ParaValue": "False",
         "Required": 0
       }
     ]
@@ -151,7 +151,7 @@
       {
         "ParaName": "imsize",
         "ParaClass": "int",
-        "ParaValue": 512,
+        "ParaValue": "512",
         "Required": 0
       }
     ]
@@ -195,7 +195,7 @@
       {
         "ParaName": "value",
         "ParaClass": "int",
-        "ParaValue": -1,
+        "ParaValue": "-1",
         "Required": 1
       }
     ]
@@ -234,7 +234,7 @@
       {
         "ParaName": "evaluate",
         "ParaClass": "bool",
-        "ParaValue": false,
+        "ParaValue": "False",
         "Required": 0
       }
     ]
@@ -254,31 +254,31 @@
       {
         "ParaName": "in_features",
         "ParaClass": "int",
-        "ParaValue": -1,
+        "ParaValue": "-1",
         "Required": 1
       },
       {
         "ParaName": "out_features",
         "ParaClass": "int",
-        "ParaValue": -1,
+        "ParaValue": "-1",
         "Required": 1
       },
       {
         "ParaName": "inplace_forward",
         "ParaClass": "bool",
-        "ParaValue": false,
+        "ParaValue": "False",
         "Required": 0
       },
       {
         "ParaName": "evaluate",
         "ParaClass": "bool",
-        "ParaValue": false,
+        "ParaValue": "False",
         "Required": 0
       },
       {
         "ParaName": "bias",
         "ParaClass": "bool",
-        "ParaValue": true,
+        "ParaValue": "True",
         "Required": 0
       }
     ]
@@ -298,13 +298,13 @@
       {
         "ParaName": "in_channels",
         "ParaClass": "int",
-        "ParaValue": -1,
+        "ParaValue": "-1",
         "Required": 1
       },
       {
         "ParaName": "out_channels",
         "ParaClass": "int",
-        "ParaValue": -1,
+        "ParaValue": "-1",
         "Required": 1
       },
       {
@@ -316,52 +316,43 @@
       {
         "ParaName": "inplace_forward",
         "ParaClass": "bool",
-        "ParaValue": false,
+        "ParaValue": "False",
         "Required": 0
       },
       {
         "ParaName": "evaluate",
         "ParaClass": "bool",
-        "ParaValue": false,
+        "ParaValue": "False",
         "Required": 0
       },
       {
         "ParaName": "stride",
         "ParaClass": "tuple",
-        "ParaValue": [
-          1,
-          1
-        ],
+        "ParaValue": "(1, 1)",
         "Required": 0
       },
       {
         "ParaName": "padding",
         "ParaClass": "tuple",
-        "ParaValue": [
-          0,
-          0
-        ],
+        "ParaValue": "(0, 0)",
         "Required": 0
       },
       {
         "ParaName": "dilation",
         "ParaClass": "tuple",
-        "ParaValue": [
-          1,
-          1
-        ],
+        "ParaValue": "(1, 1)",
         "Required": 0
       },
       {
         "ParaName": "groups",
         "ParaClass": "int",
-        "ParaValue": 1,
+        "ParaValue": "1",
         "Required": 0
       },
       {
         "ParaName": "bias",
         "ParaClass": "bool",
-        "ParaValue": true,
+        "ParaValue": "True",
         "Required": 0
       },
       {
@@ -393,49 +384,43 @@
       {
         "ParaName": "inplace_forward",
         "ParaClass": "bool",
-        "ParaValue": false,
+        "ParaValue": "False",
         "Required": 0
       },
       {
         "ParaName": "evaluate",
         "ParaClass": "bool",
-        "ParaValue": false,
+        "ParaValue": "False",
         "Required": 0
       },
       {
         "ParaName": "stride",
         "ParaClass": "tuple",
-        "ParaValue": null,
+        "ParaValue": "None",
         "Required": 0
       },
       {
         "ParaName": "padding",
         "ParaClass": "tuple",
-        "ParaValue": [
-          0,
-          0
-        ],
+        "ParaValue": "(0, 0)",
         "Required": 0
       },
       {
         "ParaName": "dilation",
         "ParaClass": "tuple",
-        "ParaValue": [
-          1,
-          1
-        ],
+        "ParaValue": "(1, 1)",
         "Required": 0
       },
       {
         "ParaName": "return_indices",
-        "ParaClass": "_empty",
-        "ParaValue": false,
+        "ParaClass": "bool",
+        "ParaValue": "False",
         "Required": 0
       },
       {
         "ParaName": "ceil_mode",
-        "ParaClass": "_empty",
-        "ParaValue": false,
+        "ParaClass": "bool",
+        "ParaValue": "False",
         "Required": 0
       }
     ]
@@ -455,43 +440,43 @@
       {
         "ParaName": "num_features",
         "ParaClass": "int",
-        "ParaValue": -1,
+        "ParaValue": "-1",
         "Required": 1
       },
       {
         "ParaName": "inplace_forward",
         "ParaClass": "bool",
-        "ParaValue": false,
+        "ParaValue": "False",
         "Required": 0
       },
       {
         "ParaName": "evaluate",
         "ParaClass": "bool",
-        "ParaValue": false,
+        "ParaValue": "False",
         "Required": 0
       },
       {
         "ParaName": "eps",
         "ParaClass": "float",
-        "ParaValue": 1e-05,
+        "ParaValue": "1e-05",
         "Required": 0
       },
       {
         "ParaName": "momentum",
         "ParaClass": "float",
-        "ParaValue": 0.1,
+        "ParaValue": "0.1",
         "Required": 0
       },
       {
         "ParaName": "affine",
         "ParaClass": "bool",
-        "ParaValue": true,
+        "ParaValue": "True",
         "Required": 0
       },
       {
         "ParaName": "track_running_stats",
         "ParaClass": "bool",
-        "ParaValue": true,
+        "ParaValue": "True",
         "Required": 0
       }
     ]
@@ -511,19 +496,19 @@
       {
         "ParaName": "dim",
         "ParaClass": "int",
-        "ParaValue": -1,
+        "ParaValue": "-1",
         "Required": 1
       },
       {
         "ParaName": "inplace_forward",
         "ParaClass": "bool",
-        "ParaValue": false,
+        "ParaValue": "False",
         "Required": 0
       },
       {
         "ParaName": "evaluate",
         "ParaClass": "bool",
-        "ParaValue": false,
+        "ParaValue": "False",
         "Required": 0
       }
     ]
@@ -544,7 +529,7 @@
       {
         "ParaName": "evaluate",
         "ParaClass": "bool",
-        "ParaValue": false,
+        "ParaValue": "False",
         "Required": 0
       },
       {
@@ -571,7 +556,7 @@
       {
         "ParaName": "evaluate",
         "ParaClass": "bool",
-        "ParaValue": false,
+        "ParaValue": "False",
         "Required": 0
       },
       {
@@ -596,7 +581,7 @@
       {
         "ParaName": "inplace_forward",
         "ParaClass": "bool",
-        "ParaValue": false,
+        "ParaValue": "False",
         "Required": 0
       }
     ]
@@ -615,27 +600,19 @@
       {
         "ParaName": "mean",
         "ParaClass": "tuple",
-        "ParaValue": [
-          0.485,
-          0.456,
-          0.406
-        ],
+        "ParaValue": "(0.485, 0.456, 0.406)",
         "Required": 0
       },
       {
         "ParaName": "std",
         "ParaClass": "tuple",
-        "ParaValue": [
-          0.229,
-          0.224,
-          0.225
-        ],
+        "ParaValue": "(0.229, 0.224, 0.225)",
         "Required": 0
       },
       {
         "ParaName": "inplace_forward",
         "ParaClass": "bool",
-        "ParaValue": false,
+        "ParaValue": "False",
         "Required": 0
       }
     ]
@@ -654,16 +631,13 @@
       {
         "ParaName": "clamp_range",
         "ParaClass": "tuple",
-        "ParaValue": [
-          0,
-          1
-        ],
+        "ParaValue": "(0, 1)",
         "Required": 0
       },
       {
         "ParaName": "inplace_forward",
         "ParaClass": "bool",
-        "ParaValue": false,
+        "ParaValue": "False",
         "Required": 0
       }
     ]
@@ -682,7 +656,7 @@
       {
         "ParaName": "inplace_forward",
         "ParaClass": "bool",
-        "ParaValue": false,
+        "ParaValue": "False",
         "Required": 0
       }
     ]
@@ -701,7 +675,7 @@
       {
         "ParaName": "inplace_forward",
         "ParaClass": "bool",
-        "ParaValue": false,
+        "ParaValue": "False",
         "Required": 0
       }
     ]
@@ -720,7 +694,7 @@
       {
         "ParaName": "inplace_forward",
         "ParaClass": "bool",
-        "ParaValue": false,
+        "ParaValue": "False",
         "Required": 0
       }
     ]
@@ -739,13 +713,13 @@
       {
         "ParaName": "learning_rate",
         "ParaClass": "float",
-        "ParaValue": -1,
+        "ParaValue": "-1",
         "Required": 1
       },
       {
         "ParaName": "momentum",
         "ParaClass": "float",
-        "ParaValue": 0,
+        "ParaValue": "0",
         "Required": 0
       }
     ]
@@ -764,7 +738,7 @@
       {
         "ParaName": "learning_rate",
         "ParaClass": "float",
-        "ParaValue": 1,
+        "ParaValue": "1",
         "Required": 0
       }
     ]
@@ -798,7 +772,7 @@
       {
         "ParaName": "epochs",
         "ParaClass": "int",
-        "ParaValue": -1,
+        "ParaValue": "-1",
         "Required": 1
       },
       {
