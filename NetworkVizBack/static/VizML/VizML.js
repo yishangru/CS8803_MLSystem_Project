@@ -11,6 +11,10 @@ function VizML(parentBlockId) {
         .attr("class", "VizTooltip")
         .style("opacity", 0);
 
+    this.VizParamEnter = workingDIV.append("div")
+        .attr("class", "VizParamEnter")
+        .style("opacity", 0);
+
     var linkedVizML = this;
 
     /* data structure for graph */
@@ -274,7 +278,11 @@ VizML.prototype.addNode = function (NodeInfo) {
         .attr("transform", "translate(" + rectWidth/2 + "," + (rectHeight/2 + 6) + ")")
         .text(generatedNodeInfo["node"]);
     generatedNode.append("text").attr("class", "vizNodeParam")
-        .attr("transform", "translate(" + (rectPositionX + rectWidth + 5) + "," + (rectPositionY + rectHeight/2 + 6) + ")")
+        .attr("transform", function () {
+            this.linkedVizML = linkedVizML;
+            this.linkedNodeId = generatedNodeInfo["id"];
+            return "translate(" + (rectPositionX + rectWidth + 5) + "," + (rectPositionY + rectHeight/2 + 6) + ")"
+        })
         .text("▼").on("click", clickParam); // ▼▲
 
     if (generatedNodeInfo["ports"].has(1) || generatedNodeInfo["ports"].has(2)) {
@@ -299,8 +307,12 @@ VizML.prototype.addNode = function (NodeInfo) {
     }
 
     /* remove old node and update node */
-    if (linkedVizML.nodeRecorder.has(generatedNodeInfo["id"]))
-        linkedVizML.nodeRecorder.get(generatedNode["id"]).remove();
+    if (linkedVizML.nodeRecorder.has(generatedNodeInfo["id"])) {
+        /* restore parameter entering */
+        let currentNode = linkedVizML.nodeRecorder.get(generatedNode["id"]);
+
+        currentNode.remove();
+    }
     linkedVizML.nodeRecorder.set(generatedNodeInfo["id"], generatedNode)
 
     /* handle with link */
@@ -354,6 +366,9 @@ VizML.prototype.removeNode = function (nodeID) {
             linkedVizML.removeLink(linkID, generatedNodeInfo["id"]);
         });
         generatedNodeInfo["links"].clear();
+        /* restore the param enter */
+
+
         /* delete the node */
         linkedVizML.nodeRecorder.get(nodeID).remove();
         linkedVizML.nodeRecorder.delete(nodeID);
@@ -507,7 +522,9 @@ function APINodeEnter(e) {
             '<p>' + "Decription:<br>" + linkedData["description"] + '<br><br>' +
             'Ports:  ' + linkedData["ports"] + '</p>'
         ).style("left", (d3.event.pageX + 10) + "px")
-            .style("top", (d3.event.pageY - 30) + "px");
+            .style("top", (d3.event.pageY - 30) + "px")
+            .style("width", "200px")
+            .style("padding", "2px 5px 0px 5px");
     }
 }
 
@@ -515,6 +532,8 @@ function APINodeOut(e) {
     var linkedVizML = this.linkedVizML;
     var VizTooltip = linkedVizML.VizTooltip;
     VizTooltip.html("")
+        .style("width", 0)
+        .style("padding", 0)
         .style("opacity", 0);
 }
 
@@ -523,7 +542,6 @@ function APINodeClick(e) {
     var linkedData = d3.select(this).datum();
     linkedVizML.addNode(linkedData);
 }
-
 
 /* event handler for viz node */
 function dbclickGeneratedNode(e) {
@@ -768,8 +786,37 @@ function dbclickGeneratedLink() {
 
 /* event handler for viz para */
 function clickParam(e) {
-    console.log("test");
+    var currentText = d3.select(this).text();
+    var linkedVizML = this.linkedVizML;
+    var linkedNodeId = this.linkedNodeId;
+    if (currentText === "▼") {
+        /* make sure all parameter is entered - paraName, paraValue, paraType, Required */
+        linkedVizML.VizParamEnter.transition()
+            .style("opacity", .9);
+        let generatedNodeInfo = linkedVizML.nodeRecorder.get(linkedNodeId).datum();
+        linkedVizML.VizParamEnter.html(
+            '<form>' +
+              '<label for="fname">First name:</label><br>' +
+              '<input type="text" id="fname" name="fname"><br>' +
+              '<label for="lname">Last name:</label><br>' +
+              '<input type="text" id="lname" name="lname">' +
+            '</form>'
+        ).style("left", (d3.event.pageX - 300) + "px")
+            .style("top", (d3.event.pageY + 25) + "px")
+            .style("width", "300px")
+            .style("padding", "2px 5px 0px 5px");
+        d3.select(this).text("▲");
+
+    } else if (currentText === "▲") {
+        /* make sure all parameter is entered */
+        linkedVizML.VizParamEnter.html("")
+            .style("width", 0)
+            .style("padding", 0)
+            .style("opacity", 0);
+        d3.select(this).text("▼");
+    }
 }
+
 
 /* event handler for viz block */
 function dbclickGeneratedBlock() {

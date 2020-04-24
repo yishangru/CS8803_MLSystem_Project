@@ -230,7 +230,14 @@
     ],
     "source": "",
     "description": "ReLu Layer",
-    "parameters": []
+    "parameters": [
+      {
+        "ParaName": "evaluate",
+        "ParaClass": "bool",
+        "ParaValue": false,
+        "Required": 0
+      }
+    ]
   },
   {
     "node": "Linear",
@@ -258,6 +265,12 @@
       },
       {
         "ParaName": "inplace_forward",
+        "ParaClass": "bool",
+        "ParaValue": false,
+        "Required": 0
+      },
+      {
+        "ParaName": "evaluate",
         "ParaClass": "bool",
         "ParaValue": false,
         "Required": 0
@@ -302,6 +315,12 @@
       },
       {
         "ParaName": "inplace_forward",
+        "ParaClass": "bool",
+        "ParaValue": false,
+        "Required": 0
+      },
+      {
+        "ParaName": "evaluate",
         "ParaClass": "bool",
         "ParaValue": false,
         "Required": 0
@@ -378,6 +397,12 @@
         "Required": 0
       },
       {
+        "ParaName": "evaluate",
+        "ParaClass": "bool",
+        "ParaValue": false,
+        "Required": 0
+      },
+      {
         "ParaName": "stride",
         "ParaClass": "tuple",
         "ParaValue": null,
@@ -440,6 +465,12 @@
         "Required": 0
       },
       {
+        "ParaName": "evaluate",
+        "ParaClass": "bool",
+        "ParaValue": false,
+        "Required": 0
+      },
+      {
         "ParaName": "eps",
         "ParaClass": "float",
         "ParaValue": 1e-05,
@@ -488,6 +519,12 @@
         "ParaClass": "bool",
         "ParaValue": false,
         "Required": 0
+      },
+      {
+        "ParaName": "evaluate",
+        "ParaClass": "bool",
+        "ParaValue": false,
+        "Required": 0
       }
     ]
   },
@@ -504,6 +541,12 @@
     "source": "",
     "description": "MSELoss Layer",
     "parameters": [
+      {
+        "ParaName": "evaluate",
+        "ParaClass": "bool",
+        "ParaValue": false,
+        "Required": 0
+      },
       {
         "ParaName": "reduction",
         "ParaClass": "str",
@@ -525,6 +568,12 @@
     "source": "",
     "description": "NLLLoss Layer",
     "parameters": [
+      {
+        "ParaName": "evaluate",
+        "ParaClass": "bool",
+        "ParaValue": false,
+        "Required": 0
+      },
       {
         "ParaName": "reduction",
         "ParaClass": "str",

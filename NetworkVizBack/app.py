@@ -12,7 +12,10 @@ def index():
         os.mkdir("./static/API")
     if not os.path.exists("./static/API/PyTorch"):
         os.mkdir("./static/API/PyTorch")
-    generateAPI(API="PyTorch", GeneratePath="./static/API/PyTorch/VizAPI.json")
+    generatePath = "./static/API/PyTorch/VizAPI.json"
+    if os.path.exists(generatePath):
+        os.remove(generatePath)
+    generateAPI(API="PyTorch", GeneratePath=generatePath)
     return render_template("index.html", title="VizML")
 
 @app.route("/ModelGeneration", methods=['POST'])

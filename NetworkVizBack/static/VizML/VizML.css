@@ -77,8 +77,6 @@
 div.VizTooltip {
     position: absolute;
     text-align: left;
-    width: 200px;
-    padding: 2px 5px 0px 5px;
     background: lightsteelblue;
     border: 0;
     border-radius: 5px;
@@ -114,4 +112,12 @@ div.VizTooltip p {
     font: 30px Consolas;
     text-anchor: start;
     font-weight: bold;
+}
+
+div.VizParamEnter {
+    position: absolute;
+    text-align: left;
+    background: lightsteelblue;
+    border: 0;
+    border-radius: 5px;
 }
