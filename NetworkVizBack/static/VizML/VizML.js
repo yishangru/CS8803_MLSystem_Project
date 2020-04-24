@@ -491,12 +491,13 @@ VizML.prototype.removeLink = function(linkID, nodeID=null) {
 
 
 VizML.prototype.addBlock = function (BlockInfo) {
-    //alert("Node test");
+    let cont
 }
 
 // double click to remove block
 VizML.prototype.removeBlock = function() {
     /* just remove is ok */
+
 }
 
 
@@ -787,19 +788,23 @@ function clickPort(e) {
 }
 
 function clickPanel(e) {
-    console.log("test for click - panel");
     var linkedVizML = this.linkedVizML;
     /* check whether current is already selected */
     if (linkedVizML.nodeRecorder.has(this.linkedNodeId)) {
-        if (linkedVizML.currentLayerSelection.has(this.linkedNodeId)) {
-            d3.select(this).select(".vizNodeRect").style("stroke", "none").style("stroke-width", 0);
-            linkedVizML.currentLayerSelection.delete(this.linkedNodeId);
+        let linkedNodeData = linkedVizML.nodeRecorder.get(this.linkedNodeId).datum();
+        /* only for transform, layer, constant, input */
+        if (linkedNodeData["type"] !== "optimizer" && linkedNodeData["type"] !== "monitor") {
+            if (linkedVizML.currentLayerSelection.has(this.linkedNodeId)) {
+                d3.select(this).select(".vizNodeRect").style("stroke", "none").style("stroke-width", 0);
+                linkedVizML.currentLayerSelection.delete(this.linkedNodeId);
+            } else {
+                d3.select(this).select(".vizNodeRect").style("stroke", "black").style("stroke-width", 5);
+                linkedVizML.currentLayerSelection.add(this.linkedNodeId);
+            }
         } else {
-            d3.select(this).select(".vizNodeRect").style("stroke", "black").style("stroke-width", 5);
-            linkedVizML.currentLayerSelection.add(this.linkedNodeId);
+            alert("Can't select non-node for block generation");
         }
     }
-    console.log(linkedVizML.currentLayerSelection);
 }
 
 /* event handler for viz link */
@@ -906,8 +911,22 @@ function checkParamValid(ParamValue, ParaClass, WhetherRequired) {
 }
 
 /* event handler for viz block */
-function dbclickGeneratedBlock() {
+function clickGeneratedBlock() {
+    var linkedVizML = this.linkedVizML;
+    if (linkedVizML.currentLayerSelection.size === 0) {
+        alert("Select nothing for block generation !");
+    } else {
+        let generatedBlockInfo = {};
+        generatedBlockInfo["nodeId"] = new Set(linkedVizML.currentSelection);
+        linkedVizML.currentSelection.clear();
+        linkedVizML.addBlock(generatedBlockInfo);
+    }
+}
 
+function dbclickGeneratedBlock() {
+    var linkedVizML = this.linkedVizML;
+    var generatedBlockInfo = d3.select(this).datum();
+    linkedVizML.removeBlock(generatedBlockInfo["id"]);
 }
 
 export { VizML };

@@ -388,6 +388,13 @@ format -
             ]
         }
     ]
+    block: [
+        {   
+            id:
+            name:
+            ids: []
+        }
+    ]
     links: [
         {
             start: id
@@ -396,13 +403,7 @@ format -
             portEnd: int
         }
     ]
-    block: [
-        {   
-            id:
-            name:
-            id: []
-        }
-    ]
+
     optimizer: {
         {
             id:
