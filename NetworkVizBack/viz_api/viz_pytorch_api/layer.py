@@ -22,11 +22,13 @@ The input tensor is the corresponding tensor wrapper in this directory.
 
 class Linear_Torch(layer.Linear):
     # we can pad the linked block name to the name of layer
-    def __init__(self, in_features: int, out_features: int, inplace_forward: bool = False, import_layer: nn.Linear = None, name: str = "Linear_Torch", bias: bool = True, device=torch.device("cpu")):
+    def __init__(self, in_features: int, out_features: int, inplace_forward: bool = False, import_layer: nn.Linear = None, evaluate: bool = False, name: str = "Linear_Torch", bias: bool = True, device=torch.device("cpu")):
         super(Linear_Torch, self).__init__(name)
         self.linear = nn.Linear(in_features=in_features, out_features=out_features, bias=bias) if import_layer is None else import_layer
         if device.type == "cuda":
             self.linear.to(device)
+        if evaluate:
+            self.set_as_eval()
         self.device = device
         self.inplace_forward = inplace_forward
 
@@ -49,10 +51,10 @@ class Linear_Torch(layer.Linear):
                     for parameter in self.linear.parameters()]) / 1024
 
     def set_as_eval(self):
-        self.linear.eval()
+        self.linear = self.linear.eval()
 
     def set_as_training(self):
-        self.linear.train()
+        self.linear = self.linear.train()
 
     def change_data_type(self, new_type: DataType):
         self.linear.to(DataType_Torch_Mapping[new_type])
@@ -71,13 +73,15 @@ class Linear_Torch(layer.Linear):
 
 class Conv2d_Torch(layer.Conv2d):
     # we can pad the linked block name to the name of layer
-    def __init__(self, in_channels: int, out_channels: int, kernel_size: tuple, inplace_forward: bool = False, import_layer: nn.Conv2d = None, name: str="Conv2d_Torch",
+    def __init__(self, in_channels: int, out_channels: int, kernel_size: tuple, inplace_forward: bool = False, evaluate: bool = False, import_layer: nn.Conv2d = None, name: str="Conv2d_Torch",
                  stride: tuple=(1, 1), padding: tuple=(0, 0), dilation: tuple=(1, 1), groups: int=1, bias: bool=True, padding_mode: str='zeros', device=torch.device("cpu")):
         super(Conv2d_Torch, self).__init__(name)
         self.conv2d = nn.Conv2d(in_channels, out_channels, kernel_size, stride=stride, padding=padding,
                                 dilation=dilation, groups=groups, bias=bias, padding_mode=padding_mode) if import_layer is None else import_layer
         if device.type == "cuda":
             self.conv2d.to(device)
+        if evaluate:
+            self.set_as_eval()
         self.device = device
         self.inplace_forward = inplace_forward
 
@@ -100,10 +104,10 @@ class Conv2d_Torch(layer.Conv2d):
                     for parameter in self.conv2d.parameters()]) / 1024
 
     def set_as_eval(self):
-        self.conv2d.eval()
+        self.conv2d = self.conv2d.eval()
 
     def set_as_training(self):
-        self.conv2d.eval()
+        self.conv2d = self.conv2d.eval()
 
     def change_data_type(self, new_type: DataType):
         self.conv2d.to(DataType_Torch_Mapping[new_type])
@@ -122,13 +126,15 @@ class Conv2d_Torch(layer.Conv2d):
 
 class MaxPool2d_Torch(layer.MaxPool2d):
     # we can pad the linked block name to the name of layer
-    def __init__(self, kernel_size: tuple, inplace_forward: bool = False, import_layer: nn.MaxPool2d = None, name: str = "MaxPool2d_Torch", stride: tuple=None, padding: tuple=(0, 0),
+    def __init__(self, kernel_size: tuple, inplace_forward: bool = False, evaluate: bool = False, import_layer: nn.MaxPool2d = None, name: str = "MaxPool2d_Torch", stride: tuple=None, padding: tuple=(0, 0),
                  dilation: tuple=(1, 1), return_indices=False, ceil_mode=False, device=torch.device("cpu")):
         super(MaxPool2d_Torch, self).__init__(name)
         self.maxpool2d = nn.MaxPool2d(kernel_size, stride=kernel_size if None else stride, padding=padding,
                                       dilation=dilation, return_indices=return_indices, ceil_mode=ceil_mode) if import_layer is None else import_layer
         if device.type == "cuda":
             self.maxpool2d.to(device)
+        if evaluate:
+            self.set_as_eval()
         self.device = device
         self.inplace_forward = inplace_forward
 
@@ -151,10 +157,10 @@ class MaxPool2d_Torch(layer.MaxPool2d):
                     for parameter in self.maxpool2d.parameters()]) / 1024
 
     def set_as_eval(self):
-        self.maxpool2d.eval()
+        self.maxpool2d = self.maxpool2d.eval()
 
     def set_as_training(self):
-        self.maxpool2d.train()
+        self.maxpool2d = self.maxpool2d.train()
 
     def change_data_type(self, new_type: DataType):
         self.maxpool2d.to(DataType_Torch_Mapping[new_type])
@@ -173,7 +179,7 @@ class MaxPool2d_Torch(layer.MaxPool2d):
 
 class BatchNorm2d_Torch(layer.BatchNorm2d):
     # we can pad the linked block name to the name of layer,  C from an expected input of size (N, C, H, W)
-    def __init__(self, num_features: int, inplace_forward: bool = False, import_layer: nn.BatchNorm2d = None,
+    def __init__(self, num_features: int, inplace_forward: bool = False, import_layer: nn.BatchNorm2d = None, evaluate: bool = False,
                  name: str = "BatchNorm2d_Torch", eps: float=1e-05, momentum: float=0.1, affine: bool=True,
                  track_running_stats: bool=True, device=torch.device("cpu")):
         super(BatchNorm2d_Torch, self).__init__(name)
@@ -181,6 +187,8 @@ class BatchNorm2d_Torch(layer.BatchNorm2d):
                                           track_running_stats=track_running_stats) if import_layer is None else import_layer
         if device.type == "cuda":
             self.batchnorm2d.to(device)
+        if evaluate:
+            self.set_as_eval()
         self.device = device
         self.inplace_forward = inplace_forward
 
@@ -203,10 +211,10 @@ class BatchNorm2d_Torch(layer.BatchNorm2d):
                     for parameter in self.batchnorm2d.parameters()]) / 1024
 
     def set_as_eval(self):
-        self.batchnorm2d.eval()
+        self.batchnorm2d = self.batchnorm2d.eval()
 
     def set_as_training(self):
-        self.batchnorm2d.train()
+        self.batchnorm2d = self.batchnorm2d.train()
 
     def change_data_type(self, new_type: DataType):
         self.batchnorm2d.to(DataType_Torch_Mapping[new_type])
@@ -225,12 +233,14 @@ class BatchNorm2d_Torch(layer.BatchNorm2d):
 
 class LogSoftmax_Torch(layer.LogSoftMax):
     # we can pad the linked block name to the name of layer
-    def __init__(self, dim: int, inplace_forward: bool = False, import_layer: nn.LogSoftmax = None, name: str = "LogSoftMax_Torch",
+    def __init__(self, dim: int, inplace_forward: bool = False, evaluate: bool = False, import_layer: nn.LogSoftmax = None, name: str = "LogSoftMax_Torch",
                  device=torch.device("cpu")):
         super(LogSoftmax_Torch, self).__init__(name)
         self.logsoftmax = nn.LogSoftmax(dim=dim) if import_layer is None else import_layer
         if device.type == "cuda":
             self.logsoftmax.to(device)
+        if evaluate:
+            self.set_as_eval()
         self.device = device
         self.inplace_forward = inplace_forward
 
@@ -253,10 +263,10 @@ class LogSoftmax_Torch(layer.LogSoftMax):
                     for parameter in self.logsoftmax.parameters()]) / 1024
 
     def set_as_eval(self):
-        self.logsoftmax.eval()
+        self.logsoftmax = self.logsoftmax.eval()
 
     def set_as_training(self):
-        self.logsoftmax.train()
+        self.logsoftmax = self.logsoftmax.train()
 
     def change_data_type(self, new_type: DataType):
         self.logsoftmax.to(DataType_Torch_Mapping[new_type])
@@ -276,11 +286,13 @@ class LogSoftmax_Torch(layer.LogSoftMax):
 # relu will not have the inplace update for forward
 class ReLU_Torch(layer.ReLU):
     # we can pad the linked block name to the name of layer
-    def __init__(self, import_layer: nn.ReLU=None, name: str="ReLU_Torch", device=torch.device("cpu")):
+    def __init__(self, import_layer: nn.ReLU=None, evaluate: bool = False, name: str="ReLU_Torch", device=torch.device("cpu")):
         super(ReLU_Torch, self).__init__(name)
         self.relu = nn.ReLU(inplace=False) # always new a relu
         if device.type == "cuda":
             self.relu.to(device)
+        if evaluate:
+            self.set_as_eval()
         self.device = device
 
     def get_layer(self):
@@ -300,10 +312,10 @@ class ReLU_Torch(layer.ReLU):
                     for parameter in self.relu.parameters()]) / 1024
 
     def set_as_eval(self):
-        self.relu.eval()
+        self.relu = self.relu.eval()
 
     def set_as_training(self):
-        self.relu.train()
+        self.relu = self.relu.train()
 
     def change_data_type(self, new_type: DataType):
         self.relu.to(DataType_Torch_Mapping[new_type])
@@ -323,11 +335,13 @@ class ReLU_Torch(layer.ReLU):
 # mseloss will not have the inplace update for forward
 class MSELoss_Torch(layer.MSELoss):
     # we can pad the linked block name to the name of layer,  reduction = 'mean' | 'none' | 'sum', need exception handling
-    def __init__(self, import_layer: nn.MSELoss = None, name: str = "MSELoss_Torch", reduction: str="mean", device=torch.device("cpu")):
+    def __init__(self, import_layer: nn.MSELoss = None, evaluate: bool = False, name: str = "MSELoss_Torch", reduction: str="mean", device=torch.device("cpu")):
         super(MSELoss_Torch, self).__init__(name)
         self.mseloss = nn.MSELoss(reduction=reduction) if import_layer is None else import_layer
         if device.type == "cuda":
             self.mseloss.to(device)
+        if evaluate:
+            self.set_as_eval()
         self.device = device
 
     def get_layer(self):
@@ -346,10 +360,10 @@ class MSELoss_Torch(layer.MSELoss):
                     for parameter in self.mseloss.parameters()]) / 1024
 
     def set_as_eval(self):
-        self.mseloss.eval()
+        self.mseloss = self.mseloss.eval()
 
     def set_as_training(self):
-        self.mseloss.train()
+        self.mseloss = self.mseloss.train()
 
     def change_data_type(self, new_type: DataType):
         self.mseloss.to(DataType_Torch_Mapping[new_type])
@@ -369,11 +383,13 @@ class MSELoss_Torch(layer.MSELoss):
 # nllloss will not have the inplace update for forward
 class NLLLoss_Torch(layer.NLLLoss):
     # we can pad the linked block name to the name of layer,  reduction = 'mean' | 'none' | 'sum', need exception handling
-    def __init__(self, import_layer: nn.MSELoss = None, name: str = "NLLLoss_Torch", reduction: str="mean", device=torch.device("cpu")):
+    def __init__(self, import_layer: nn.MSELoss = None, evaluate: bool = False, name: str = "NLLLoss_Torch", reduction: str="mean", device=torch.device("cpu")):
         super(NLLLoss_Torch, self).__init__(name)
         self.nllloss = nn.NLLLoss(reduction=reduction) if import_layer is None else import_layer
         if device.type == "cuda":
             self.nllloss.to(device)
+        if evaluate:
+            self.set_as_eval()
         self.device = device
 
     def get_layer(self):
@@ -392,10 +408,10 @@ class NLLLoss_Torch(layer.NLLLoss):
                     for parameter in self.nllloss.parameters()]) / 1024
 
     def set_as_eval(self):
-        self.nllloss.eval()
+        self.nllloss = self.nllloss.eval()
 
     def set_as_training(self):
-        self.nllloss.train()
+        self.nllloss = self.nllloss.train()
 
     def change_data_type(self, new_type: DataType):
         self.nllloss.to(DataType_Torch_Mapping[new_type])

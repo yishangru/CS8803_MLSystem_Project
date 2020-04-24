@@ -490,6 +490,10 @@ VizML.prototype.generateCode = function () {
 }
 
 
+VizML.prototype.importModel = function () {
+
+}
+
 /* event handler for api node */
 function APINodeEnter(e) {
     var linkedVizML = this.linkedVizML;
