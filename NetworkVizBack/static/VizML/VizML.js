@@ -21,6 +21,7 @@ function VizML(parentBlockId) {
     /* data structure for graph */
     this.nodeId = 0;
     this.linkId = 0;
+    this.blockId = 0;
     this.nodeRecorder = new Map();
     this.linkRecorder = new Map();
     this.blockRecorder = new Map();
@@ -69,7 +70,7 @@ function VizML(parentBlockId) {
         .text(function () {
             this.linkedVizML = linkedVizML;
             return "Group Block";
-        });  // add click event handler
+        }).on("click", clickGeneratedBlock);
     this.buttonDiv.append("div").attr("class", "buttonHolder")
         .append("button").attr("type", "button")
         .attr("class","btn btn-warning generateButton")
@@ -130,7 +131,9 @@ VizML.prototype.getLinkId = function() {
 
 
 VizML.prototype.getBlockId = function() {
-    return this.getNodeId();
+    var generateId = this.blockId;
+    this.blockId++;
+    return generateId;
 };
 
 
@@ -227,7 +230,7 @@ VizML.prototype.addNode = function (NodeInfo) {
 
     /* port generation */
     var portRadius = 10;
-    var rectWidth = 180;
+    var rectWidth = 220;
     var rectHeight = 35;
     var rectPositionX = generatedNodeInfo["ports"].has(3)? 2*portRadius + 1:10;
     var rectPositionY = 10;
@@ -277,7 +280,7 @@ VizML.prototype.addNode = function (NodeInfo) {
         .attr("fill", generatedNodeInfo["color"]);
     vizNodePanel.append("text").attr("class", "vizNodeText")
         .attr("transform", "translate(" + rectWidth/2 + "," + (rectHeight/2 + 6) + ")")
-        .text(generatedNodeInfo["node"]);
+        .text(generatedNodeInfo["node"] + "-" + generatedNodeInfo["id"]);
     generatedNode.append("text").attr("class", "vizNodeParam")
         .attr("transform", function () {
             this.linkedVizML = linkedVizML;
@@ -365,8 +368,8 @@ VizML.prototype.removeNode = function (nodeID) {
         /* remove the block relation */
         if (generatedNodeInfo["assignedBlock"] !== -1) {
             let linkedBlockInfo = linkedVizML.blockRecorder.get(generatedNodeInfo["assignedBlock"]).datum();
-            linkedBlockInfo["nodes"].delete(nodeID);
-            if (linkedBlockInfo["nodes"].size === 0)
+            linkedBlockInfo["nodeIDs"].delete(nodeID);
+            if (linkedBlockInfo["nodeIDs"].size === 0)
                 this.removeBlock(linkedBlockInfo["id"]);
         }
         /* remove the link relation */
@@ -470,6 +473,9 @@ VizML.prototype.removeLink = function(linkID, nodeID=null) {
         let linkInfo = this.linkRecorder.get(linkID).datum();
         let sourceInfo = this.nodeRecorder.get(linkInfo["source"]["nodeID"]).datum();
         let targetInfo = this.nodeRecorder.get(linkInfo["target"]["nodeID"]).datum();
+
+        /* check link number for both source and target port - to do */
+
         sourceInfo["portMap"].get(linkInfo["source"]["port"]).attr("stroke", "none").attr("stroke-width", 0);
         targetInfo["portMap"].get(linkInfo["target"]["port"]).attr("stroke", "none").attr("stroke-width", 0);
 
@@ -491,14 +497,94 @@ VizML.prototype.removeLink = function(linkID, nodeID=null) {
 
 
 VizML.prototype.addBlock = function (BlockInfo) {
-    let cont
-}
+    let alreadyAssigned = false;
+    let linkedVizML = this;
+    BlockInfo["nodeIDs"].forEach(function (d) {
+        if (linkedVizML.nodeRecorder.get(d).datum()["assignedBlock"] !== -1)
+            alreadyAssigned = true;
+    });
+    if (alreadyAssigned) {
+        alert("Some nodes has been assigned to block");
+    } else {
+        /* generate block node */
+        BlockInfo["id"] = linkedVizML.getBlockId();
+        BlockInfo["links"] = new Set();
+        BlockInfo["portMap"] = new Map();
+        BlockInfo["position"] = {};
+        BlockInfo["position"]["x"] = 1100;
+        BlockInfo["position"]["y"] = 100 * (BlockInfo["id"] + 1);
+
+        /* assign node block */
+        let linkedNodeText = "(";
+        BlockInfo["nodeIDs"].forEach(function (d) {
+            linkedNodeText += (d + ",");
+            linkedVizML.nodeRecorder.get(d).datum()["assignedBlock"] = BlockInfo["id"];
+        });
+        linkedNodeText += ")";
+
+        /* change later */
+        var generatedBlock = this.vizPanelSVG.append("g").datum(BlockInfo)
+            .attr("class", "vizNode")
+            .attr("transform", function () {
+                this.linkedVizML = linkedVizML;
+                return "translate(" + BlockInfo["position"]["x"] + "," + BlockInfo["position"]["y"] + ")";
+        });
+
+        var portRadius = 10;
+        var rectWidth = 200;
+        var rectHeight = 35;
+
+        generatedBlock.append("circle").attr("class", "vizNodePort")
+            .attr("cx", function () {
+                d3.select(this).datum(3);
+                BlockInfo["portMap"].set(3, d3.select(this));
+                this.linkedVizML = linkedVizML;
+                this.linkedNodeId = BlockInfo["id"];
+                return portRadius;
+            })
+            .attr("cy", 10 + rectHeight/2)
+            .attr("r", portRadius)
+            .attr("fill", d=>linkedVizML.portColorMapping[d-1]);
+
+        var rectPositionX = 2*portRadius + 1;
+        var rectPositionY = 10;
+
+        var vizNodePanel = generatedBlock.append("g").attr("class", "vizNodePanel")
+        .attr("transform", function () {
+            this.linkedVizML = linkedVizML;
+            this.linkedNodeId = BlockInfo["id"];
+            return "translate(" + rectPositionX + "," + rectPositionY + ")";
+        });
+        vizNodePanel.append("rect").attr("class", "vizNodeRect")
+            .attr("x", 0).attr("y", 0)
+            .attr("width", rectWidth)
+            .attr("height", rectHeight)
+            .attr("fill", "#feb24c");
+        vizNodePanel.append("text").attr("class", "vizNodeText")
+            .attr("transform", "translate(" + rectWidth/2 + "," + (rectHeight/2 + 6) + ")")
+            .text("Block" + BlockInfo["id"] + "-" + linkedNodeText);
+
+        vizNodePanel.on("dblclick", dbclickGeneratedBlock);
+        linkedVizML.blockRecorder.set(BlockInfo["id"], generatedBlock);
+    }
+};
 
 // double click to remove block
-VizML.prototype.removeBlock = function() {
+VizML.prototype.removeBlock = function(BlockID) {
     /* just remove is ok */
-
-}
+    var linkedVizMl = this;
+    var linkedBlock = linkedVizMl.blockRecorder.get(BlockID);
+    var linkedBlockInfo = linkedBlock.datum();
+    linkedBlockInfo["nodeIDs"].forEach(function (d) {
+        let linkedNode = linkedVizMl.nodeRecorder.get(d);
+        let linkedNodeData = linkedNode.datum()
+        if (linkedNodeData["assignedBlock"] === BlockID) {
+            linkedNode.select(".vizNodeRect").style("stroke", "none").style("stroke-width", 0);
+            linkedNodeData["assignedBlock"] = -1
+        }
+    });
+    linkedBlock.remove();
+};
 
 
 VizML.prototype.generateCode = function () {
@@ -516,12 +602,12 @@ VizML.prototype.generateCode = function () {
 				alert(error);
 			}
 		});
-}
+};
 
 
 VizML.prototype.importModel = function () {
 
-}
+};
 
 /* event handler for api node */
 function APINodeEnter(e) {
@@ -584,7 +670,6 @@ function dragGenerateNode(e) {
 
             let linkedVizML = this.linkedVizML;
             let linkedData = d3.select(this).datum();
-            console.log(linkedVizML.VizParamEnter.datum(), linkedData["id"]);
             if (linkedVizML.VizParamEnter.datum() === linkedData["id"]) {
                 linkedVizML.VizParamEnter.html("")
                     .style("width", 0)
@@ -677,6 +762,8 @@ function clickPort(e) {
                     source: {nodeID:null, port:null},
                     target: {nodeID:null, port:null}
                 };
+                /* check source port link number - to do */
+
                 sourceLinkedData["portMap"].get(sourcePort).attr("stroke", "none").attr("stroke-width", 0);
                 return;
             } else {
@@ -718,7 +805,7 @@ function clickPort(e) {
                     }
                     generatedLinkInfo["color"] = "#4daf4a"; // gradient
                 } else if (targetPort === 2) {
-                    if (sourcePort === 3) {
+                    if (sourcePort === 4) {
                         whetherGenerateLink = true;
                     } else {
                         alert("Loss should be the output tensor, not label or others");
@@ -917,16 +1004,15 @@ function clickGeneratedBlock() {
         alert("Select nothing for block generation !");
     } else {
         let generatedBlockInfo = {};
-        generatedBlockInfo["nodeId"] = new Set(linkedVizML.currentSelection);
-        linkedVizML.currentSelection.clear();
+        generatedBlockInfo["nodeIDs"] = new Set(linkedVizML.currentLayerSelection);
+        linkedVizML.currentLayerSelection.clear();
         linkedVizML.addBlock(generatedBlockInfo);
     }
 }
 
 function dbclickGeneratedBlock() {
     var linkedVizML = this.linkedVizML;
-    var generatedBlockInfo = d3.select(this).datum();
-    linkedVizML.removeBlock(generatedBlockInfo["id"]);
+    linkedVizML.removeBlock(this.linkedNodeId);
 }
 
 export { VizML };
