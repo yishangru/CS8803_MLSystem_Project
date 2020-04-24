@@ -834,10 +834,14 @@ function clickParam(e) {
             if (generatedNodeParam.hasOwnProperty(paraName)) {
                 let paraInfo = generatedNodeParam[paraName];
                 generatedHTMLText += ('<label>' + paraInfo["ParaName"]);
-                if (paraInfo["Required"] === 1)
-                    generatedHTMLText += "(*)"
+                let assignClass = "NotRequire";
+                if (paraInfo["Required"] === 1) {
+                    generatedHTMLText += "(*)";
+                    assignClass = "Require"
+                }
                 generatedHTMLText += (" - <b>" + paraInfo["ParaClass"] + "</b></label>");
-                generatedHTMLText += ('<input type="text" id="' + paraInfo["ParaName"] + '" value="' + paraInfo["ParaValue"] + '"><br>')
+                generatedHTMLText += ('<input type="text" id="' + paraInfo["ParaName"] + '" name="' + paraInfo["ParaClass"] +
+                    '" value="' + paraInfo["ParaValue"] + '" class="' + assignClass + '"><br>')
             }
         }
         generatedHTMLText += '</form>';
@@ -848,36 +852,58 @@ function clickParam(e) {
             .style("width", "250px")
             .style("padding", "5px 5px 5px 8px");
         d3.select(this).text("▲");
-        console.log(linkedVizML.VizParamEnter.datum());
+        //console.log(linkedVizML.VizParamEnter.datum());
 
     } else if (currentText === "▲") {
         /* make sure all parameter is entered */
-        /*
-        linkedVizML.VizParamEnter.selectAll("input").call(function() {
-           d3.select(this)
+        let temp = {};
+        let valid = true;
+        linkedVizML.VizParamEnter.selectAll("input").each(function() {
+            let parameter = d3.select(this);
+            let paraName = parameter.attr("id");
+            let paraClass = parameter.attr("name");
+            let paraValue = parameter.property("value");
+            let whetherRequired = (parameter.attr("class") === "Require");
+            if (checkParamValid(paraValue, paraClass, whetherRequired))
+                temp[paraName] = paraValue;
+            else
+                valid = false;
         });
-        */
+        /* write to node dict */
+        if (valid) {
+            let parameters = linkedVizML.nodeRecorder.get(linkedNodeId).datum()["parameters"];
+            for (const param in temp) {
+                if (parameters.hasOwnProperty(param))
+                    parameters[param]["ParaValue"] = temp[param];
+            }
+            //console.log(linkedVizML.nodeRecorder.get(linkedNodeId).datum()["parameters"]);
+        } else {
+            alert("The enter input is not valid ! Close without save !");
+        }
+
         linkedVizML.VizParamEnter.html("")
             .style("width", 0)
             .style("padding", 0)
             .style("opacity", 0);
         d3.select(this).text("▼");
         linkedVizML.VizParamEnter.datum(undefined);
-        console.log(linkedVizML.VizParamEnter.datum())
+        //console.log(linkedVizML.VizParamEnter.datum())
     }
 }
 
-/* simple param valid check */
+/* simple param valid check - not fully implement yet */
 function checkParamValid(ParamValue, ParaClass, WhetherRequired) {
     if (WhetherRequired) {
         if (ParaClass === "list") {
             /* should as [] */
         } else if (ParaClass === "tuple") {
             /* should as () */
+        } else if (ParaClass === "int") {
+            return !isNaN(ParamValue);
         }
     }
+    return true;
 }
-
 
 /* event handler for viz block */
 function dbclickGeneratedBlock() {
