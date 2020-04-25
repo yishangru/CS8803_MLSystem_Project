@@ -2,7 +2,7 @@ import { VizML }  from "./VizML/VizML.js"
 var PyTorchAPI = "./static/API/PyTorch/VizAPI.json";
 var PyTorchViz = new VizML("main");
 
-// load API data
+// load API data - load VGG 19
 Promise.all([
     d3.json(PyTorchAPI)
 ]).then(function (data) {

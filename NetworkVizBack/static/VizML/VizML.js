@@ -77,7 +77,7 @@ function VizML(parentBlockId) {
         .text(function () {
             this.linkedVizML = linkedVizML;
             return "Generate Code";
-        }); // add click event handler
+        }).on("click", clickGenerateCode)
     this.buttonDiv.append("div").attr("class", "buttonHolder")
         .append("button").attr("type", "button")
         .attr("class","btn btn-danger uploadButton")
@@ -495,7 +495,7 @@ VizML.prototype.removeLink = function(linkID, nodeID=null) {
     }
 };
 
-
+// click button to add block
 VizML.prototype.addBlock = function (BlockInfo) {
     let alreadyAssigned = false;
     let linkedVizML = this;
@@ -508,6 +508,7 @@ VizML.prototype.addBlock = function (BlockInfo) {
     } else {
         /* generate block node */
         BlockInfo["id"] = linkedVizML.getBlockId();
+        BlockInfo["name"] = "Block" + BlockInfo["id"];
         BlockInfo["links"] = new Set();
         BlockInfo["portMap"] = new Map();
         BlockInfo["position"] = {};
@@ -562,7 +563,7 @@ VizML.prototype.addBlock = function (BlockInfo) {
             .attr("fill", "#feb24c");
         vizNodePanel.append("text").attr("class", "vizNodeText")
             .attr("transform", "translate(" + rectWidth/2 + "," + (rectHeight/2 + 6) + ")")
-            .text("Block" + BlockInfo["id"] + "-" + linkedNodeText);
+            .text( BlockInfo["name"] + "-" + linkedNodeText);
 
         vizNodePanel.on("dblclick", dbclickGeneratedBlock);
         linkedVizML.blockRecorder.set(BlockInfo["id"], generatedBlock);
@@ -587,16 +588,15 @@ VizML.prototype.removeBlock = function(BlockID) {
 };
 
 
-VizML.prototype.generateCode = function () {
-    var linkedData = this.linkedData;
-    console.log(linkedData);
+VizML.prototype.generateCode = function (generatedInfo) {
     $.ajax({
 			url: '/ModelGeneration',
-			data: JSON.stringify(linkedData),
+			data: JSON.stringify(generatedInfo),
 			type: 'POST',
             contentType: "application/json; charset=utf-8",
 			success: function(response){
 				console.log(response);
+				alert("Code Generation Complete");
 			},
 			error: function(error){
 				alert(error);
@@ -605,7 +605,8 @@ VizML.prototype.generateCode = function () {
 };
 
 
-VizML.prototype.importModel = function () {
+VizML.prototype.importModel = function (modelInfo) {
+    /* node - links */
 
 };
 
@@ -718,24 +719,6 @@ function clickPort(e) {
         let sourcePort = d3.select(this).datum();
         if (sourcePort !== 1 && sourcePort !== 2) {
             /* add to source */
-            /* invariant 2 for transform or layer */
-            if (sourceLinkedData["type"] === "transform" || sourceLinkedData["type"] === "layer") {
-                let counter = 0;
-                let whetherSave = false;
-                sourceLinkedData["links"].forEach(function (linkID) {
-                    let linkInfo = linkedVizML.linkRecorder.get(linkID).datum();
-                    if (linkInfo["source"]["port"] === sourcePort) {
-                        counter++;
-                        let linkNodeInfo = linkedVizML.nodeRecorder.get(linkInfo["target"]["nodeID"]).datum();
-                        if (linkNodeInfo["node"] === "Saver" && linkNodeInfo["type"] === "monitor")
-                            whetherSave = true;
-                    }
-                });
-                if (counter > 1 && whetherSave) {
-                    alert("Ambiguous when saving a tensor with multiple outbound link copy");
-                    return;
-                }
-            }
             d3.select(this).attr("stroke", "black").attr("stroke-width", 4);
             linkedVizML.currentSelection["source"]["nodeID"] = this.linkedNodeId;
             linkedVizML.currentSelection["source"]["port"] = sourcePort;
@@ -775,7 +758,6 @@ function clickPort(e) {
         let whetherGenerateLink = false;
         if (targetPort === 1 || targetPort === 2) {
             /* generate link with different color - (to optimizer - loss, track), (to saver), (to other node) */
-
             if (targetLinkedData["type"] === "optimizer") {
                 /* invariant 1: check main input port for leaf invariants, should from input, constant, or detach node, meta port of layer */
                 if (targetPort === 1) {
@@ -813,50 +795,66 @@ function clickPort(e) {
                     }
                     generatedLinkInfo["color"] = "#e41a1c"; // loss
                 }
-            } else if (targetLinkedData["node"] === "Saver" && targetLinkedData["type"] === "Manager") {
-                /*
-                    invariant 2: check end node for safe node, should be from input (not support for dataset, only meta),
-                    constant (only meta), output link of (transform or layer, no other out links)
-                */
-                if (sourceLinkedData["type"] === "input") {
-                    if (sourcePort === 3) {
-                        /* generate link */
-                        if (sourceLinkedData["node"] === "MNIST") {
-                            alert("Not support for saving dataset (MNIST)");
+            } else {
+                /* check whether the target port is linked with other port */
+                let linkedAlready = false;
+                targetLinkedData["links"].forEach(function (d) {
+                    if (linkedVizML.linkRecorder.get(d).datum()["target"]["port"] === targetPort)
+                        linkedAlready = true;
+                });
+                if (linkedAlready) {
+                    alert("Current input is already linked !");
+                    return;
+                }
+
+                if (targetLinkedData["node"] === "Saver" && targetLinkedData["type"] === "monitor") {
+                    /*
+                        invariant 2: check end node for safe node, should be from input (not support for dataset, only meta),
+                        constant (only meta), output link of (transform or layer, no other out links)
+                    */
+                    if (sourceLinkedData["type"] === "input") {
+                        if (sourcePort === 3) {
+                            /* generate link */
+                            if (sourceLinkedData["node"] === "MNIST") {
+                                alert("Not support for saving dataset (MNIST)");
+                                return;
+                            } else {
+                                whetherGenerateLink = true;
+                            }
+                        } else {
+                            alert("Use meta port for saving input");
+                            return;
+                        }
+                    } else if (sourceLinkedData["type"] === "constant") {
+                        if (sourcePort === 3) {
+                            /* generate link */
+                            whetherGenerateLink = true;
+                        } else {
+                            alert("Use meta port for saving constant");
+                            return;
+                        }
+                    } else if (sourceLinkedData["type"] === "transform" || sourceLinkedData["type"] === "layer") {
+                        let counter = 0;
+                        sourceLinkedData["links"].forEach(function (linkID) {
+                            let linkInfo = linkedVizML.linkRecorder.get(linkID).datum();
+                            if (linkInfo["source"]["port"] === sourcePort) {
+                                let linkNodeInfo = linkedVizML.nodeRecorder.get(linkInfo["target"]["nodeID"]).datum();
+                                if (linkNodeInfo["type"] === "layer" || linkNodeInfo["type"] === "transform")
+                                    counter++;
+                            }
+                        });
+                        if (counter > 1) {
+                            alert("Ambiguous when saving a tensor with multiple outbound link copy (or duplicate save)");
                             return;
                         } else {
                             whetherGenerateLink = true;
                         }
-                    } else {
-                        alert("Use meta port for saving input");
-                        return;
                     }
-                } else if (sourceLinkedData["type"] === "constant") {
-                    if (sourcePort === 3) {
-                        /* generate link */
-                        whetherGenerateLink = true;
-                    } else {
-                        alert("Use meta port for saving constant");
-                        return;
-                    }
-                } else if (sourceLinkedData["type"] === "transform" || sourceLinkedData["type"] === "layer") {
-                    let counter = 0;
-                    sourceLinkedData["links"].forEach(function (linkID) {
-                        let linkInfo = linkedVizML.linkRecorder.get(linkID).datum();
-                        if (linkInfo["source"]["port"] === sourcePort)
-                            counter++;
-                    });
-                    if (counter > 1) {
-                        alert("Ambiguous when saving a tensor with multiple outbound link copy (or duplicate save)");
-                        return;
-                    } else {
-                        whetherGenerateLink = true;
-                    }
+                    generatedLinkInfo["color"] = "#b3cde3";  // save tensor
+                } else {
+                    whetherGenerateLink = true;
+                    generatedLinkInfo["color"] = "#fb9a99" // forward
                 }
-                generatedLinkInfo["color"] = "#b3cde3";  // save tensor
-            } else {
-                whetherGenerateLink = true;
-                generatedLinkInfo["color"] = "#fb9a99" // forward
             }
         } else {
             alert("Illegal link end at input port!");
@@ -999,7 +997,7 @@ function checkParamValid(ParamValue, ParaClass, WhetherRequired) {
 
 /* event handler for viz block */
 function clickGeneratedBlock() {
-    var linkedVizML = this.linkedVizML;
+    const linkedVizML = this.linkedVizML;
     if (linkedVizML.currentLayerSelection.size === 0) {
         alert("Select nothing for block generation !");
     } else {
@@ -1013,6 +1011,67 @@ function clickGeneratedBlock() {
 function dbclickGeneratedBlock() {
     var linkedVizML = this.linkedVizML;
     linkedVizML.removeBlock(this.linkedNodeId);
+}
+
+/* event handler for generate code */
+function clickGenerateCode() {
+    const linkedVizML = this.linkedVizML;
+    /* prepare data for generation code */
+    var generatedInfo = {"nodes":[], "blocks":[], "links":[]};
+
+    /* node remove extra info */
+    var checkManager = false;
+    var checkOptimizer = false;
+    var checkInput = false;
+    linkedVizML.nodeRecorder.forEach(function(value, key, map) {
+        let generatedNodeInfo = value.datum();
+        let nodeInfo = {"id": null, "node": null, "type": null, "api": null, "source": null};
+        for (const info in nodeInfo)
+            nodeInfo[info] = generatedNodeInfo[info];
+        let parameters = [];
+        for (const param in generatedNodeInfo["parameters"])
+            parameters.push(JSON.parse(JSON.stringify(generatedNodeInfo["parameters"][param])));
+        nodeInfo["parameters"] = parameters;
+        if (nodeInfo["type"] === "input") {
+            if (checkInput) {
+                alert("Can't have multiple input !");
+                return;
+            } else {
+                checkInput = true;
+            }
+        } else if (nodeInfo["type"] === "monitor" && nodeInfo["node"] === "Manager") {
+            if (checkManager) {
+                alert("Can't have multiple manager !");
+                return;
+            } else {
+                checkManager = true;
+            }
+        } else if (nodeInfo["type"] === "optimizer") {
+            checkOptimizer = true;
+        }
+        generatedInfo["nodes"].push(nodeInfo);
+    });
+    if (!(checkManager && checkOptimizer && checkInput)) {
+        alert("Missing input, optimizer, manager (one or more)!");
+        return
+    }
+    /* block remove extra info */
+    linkedVizML.blockRecorder.forEach(function (value, key, map) {
+        let generatedBlockInfo = value.datum();
+        let nodeInfo = {"id": null, "name": null};
+        for (const info in nodeInfo)
+            nodeInfo[info] = generatedBlockInfo[info];
+        nodeInfo["nodeIDs"] = new Array(generatedBlockInfo["nodeIDs"]);
+        generatedInfo["blocks"].push(nodeInfo);
+    });
+    /* links info */
+    linkedVizML.linkRecorder.forEach(function (value, key, map) {
+        let generatedLinkInfo = value.datum();
+        let linkInfo = JSON.parse(JSON.stringify(generatedLinkInfo));
+        generatedInfo["links"].push(linkInfo);
+    });
+
+    linkedVizML.generateCode(generatedInfo);
 }
 
 export { VizML };

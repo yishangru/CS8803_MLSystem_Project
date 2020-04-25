@@ -403,13 +403,6 @@ format -
             portEnd: int
         }
     ]
-
-    optimizer: {
-        {
-            id:
-            
-        }
-    }
 """
 
 import ast

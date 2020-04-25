@@ -1,4 +1,5 @@
 import os
+import json
 from flask import Flask, request, jsonify, render_template, url_for
 from StyleTransfer import image_style_transfer_main
 from model_generation.generator import generateAPI
@@ -21,17 +22,13 @@ def index():
 @app.route("/ModelGeneration", methods=['POST'])
 def model_generation():
     if request.method == "POST":
+        model_save_prefix = "./static/model/generateModel"
+        model = open(os.path.join(model_save_prefix, "generate.json"), mode="w", encoding="utf-8")
         data = request.json
-        print(data)
-        return jsonify({'msg': "test"})
-
-@app.route("/transfer", methods=['POST'])
-def style_transfer():
-    if request.method == "POST":
-        style_image_path = request.json['style_img']
-        content_image_path = request.json['content_img']
-        status, msg = image_style_transfer_main(style_image_path, content_image_path)
-        return jsonify({'style_img': style_image_path, 'content_img': content_image_path, 'status': status, 'msg': msg})
+        json.dump(data, fp=model, indent=2)
+        model.close()
+        # call method for generation
+        return jsonify({'msg': "success"})
 
 if __name__ == "__main__":
     app.run(debug=True)
