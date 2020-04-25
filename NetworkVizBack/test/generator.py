@@ -320,12 +320,12 @@ generalPortMapping = {
 
 # default value for json
 defaultParameterMapping = {
-    "int": -1,
+    "int": "-1",
     "list": "[]",
     "tuple": "()",
     "str": "",
-    "bool": -1,
-    "float": -1
+    "bool": "False",
+    "float": "-1"
 }
 
 def generateAPI(API, GeneratePath):
@@ -350,7 +350,7 @@ def generateAPI(API, GeneratePath):
                     "ports": PORTRequest[RequestNode],
                     "source": "",
                     "description": APIRequest[RequestNode].get_description(),
-                    "parameters": list()}
+                    "parameters": dict()}
             signature = inspect.signature(APIRequest[RequestNode].__init__)
             for param in signature.parameters.values():
                 if param.name not in ParaExclude:
@@ -359,15 +359,13 @@ def generateAPI(API, GeneratePath):
                         paraDict["ParaValue"] = defaultParameterMapping[param.annotation.__name__]
                         paraDict["Required"] = 1
                     else:
-                        paraDict["ParaValue"] = param.default
+                        paraDict["ParaValue"] = str(param.default)
                         paraDict["Required"] = 0
-                    node["parameters"].append(paraDict)
+                    node["parameters"][paraDict["ParaName"]] = paraDict
             passNodeList.append(node)
-    writeFile = open(GeneratePath, mode="w", encoding="utf-8")
+    writeFile = open(GeneratePath, mode="w+", encoding="utf-8")
     json.dump(passNodeList, fp=writeFile, indent=2)
     writeFile.close()
-
-#generateAPI("PyTorch")
 
 # ------------------- json parse for model generation ------------------- #
 """
@@ -444,7 +442,6 @@ generalNodeMappingString = {
     "layer": layerNodeAPIString,
     "transform": transformNodeAPIString,
 }
-
 inputAPIString = {
     "PyTorch": inputAPITorchString
 }
@@ -473,6 +470,8 @@ generalAPIMappingString = {
     "monitor": monitorAPIString
 }
 
+
+
 # part 1 generate the requirements
 RequirementHeader = {
     "PyTorch": "import os\nimport torch\nfrom viz_api.viz_pytorch_api import input as input_Torch\n"
@@ -500,7 +499,10 @@ def generateMonitor(monitorList):
 
         parameterDict = dict()
         for param in monitor["parameters"]:
-            parameterDict[param["paraName"]] = ast.literal_eval(param["paraValue"])
+            if param["ParaClass"] == "str":
+                parameterDict[param["ParaName"]] = param["ParaValue"]
+            else:
+                parameterDict[param["ParaName"]] = ast.literal_eval(param["ParaValue"])
         generateName = nodeType + "_" + nodeName
         parameterDict["name"] = generateName + "_" + str(nodeManager.get_node_id(generateName))
 
@@ -508,7 +510,7 @@ def generateMonitor(monitorList):
             managerMonitor = parameterDict["name"]
 
         generateDictName = parameterDict["name"] + "_dict"
-        generateMonitorString = generateMonitorString + generateDictName + " = " + json.dumps(parameterDict) + "\n" + \
+        generateMonitorString = generateMonitorString + generateDictName + " = " + str(parameterDict) + "\n" + \
                          parameterDict["name"] + " = " + constructor + "(**" + generateDictName + ")\n\n"
 
         infoDict = {
@@ -534,7 +536,7 @@ def generateNodeAndLoad(nodeList, managerMonitor):
                          "\t\tglobalImportDict[name] = torch.load(os.path.join(loadPath, source))\n"\
                          "\telse:\n"\
                          "\t\tglobalImportDict[name] = None\n\n"
-    generateNodeString = "# -------------------- define model node structure -------------------- #"
+    generateNodeString = "# -------------------- define model node structure -------------------- #\n"
     generateModeString = "if not model_running_train:\n"
 
     for node in nodeList:
@@ -546,25 +548,29 @@ def generateNodeAndLoad(nodeList, managerMonitor):
 
         parameterDict = dict()
         for param in node["parameters"]:
-            if param["ParaClass"] == "tuple":
-                param["ParaValue"] = "tuple(" + param["ParaValue"] + ")"
-            parameterDict[param["ParaName"]] = ast.literal_eval(param["ParaValue"])
+            if param["ParaClass"] == "str":
+                parameterDict[param["ParaName"]] = param["ParaValue"]
+            else:
+                parameterDict[param["ParaName"]] = ast.literal_eval(param["ParaValue"])
         generateName = nodeType + "_" + nodeName
         parameterDict["name"] = generateName + "_" + str(nodeManager.get_node_id(generateName))
 
+        parameterDictString = str(parameterDict)
         if nodeType != "transform":
-            parameterDict["device"] = managerMonitor + ".device"
+            parameterDictString = parameterDictString.rstrip("}") + ", "
+            parameterDictString += ("'device': " + managerMonitor + ".device" + "}")
 
         if nodeType == "layer":
+            parameterDictString = parameterDictString.rstrip("}") + ", "
+            parameterDictString += ("'import_layer': globalImportDict[" + parameterDict["name"] + "]}")
             generateLoadString = generateLoadString + "loadLayerNode(" + parameterDict["name"] + "," + node["source"] + ")\n"
-            parameterDict["import_layer"] = "globalImportDict[" + parameterDict["name"] + "]"
 
         nodeConstructor = generalNodeMappingString[nodeType][api]
         if nodeType == "input" and nodeName == "MNIST":
             nodeConstructor = "VizNode_Torch.MnistNode_Torch"
 
         generateDictName = parameterDict["name"] + "_dict"
-        generateNodeString = generateNodeString + generateDictName + " = " + json.dumps(parameterDict) + "\n" + \
+        generateNodeString = generateNodeString + generateDictName + " = " + parameterDictString + "\n" + \
                          parameterDict["name"] + " = " + nodeConstructor + "(" + constructor + ", " + generateDictName + ")\n\n"
 
         if nodeType == "layer":
@@ -593,6 +599,7 @@ def generateTraining(linkList, optimizerList):
     generateRunString = "# -------------------- model running -------------------- #\n"
     generateOptimizerString = ""
     generateSaveString = "# -------------------- output save -------------------- #\n"
+
     for optimizer in optimizerList:
         # generate name mapping
         nodeType = optimizer["type"]
@@ -616,7 +623,6 @@ def generateTraining(linkList, optimizerList):
         endPort = link["portEnd"]
 
         # startPort (1 input, 2, sub input, 3 meta, 4 main output, 5 sub output
-        GraphDict[]
 
     if endNode["type"] == "optimizer":  # check optimizer (should have no outbound link)
         if endPort == 1:  # 1 for track object
@@ -638,7 +644,7 @@ def generateTraining(linkList, optimizerList):
 
         parameterDict = dict()
         for param in optimizer["parameters"]:
-            parameterDict[param["paraName"]] = ast.literal_eval(param["paraValue"])
+            parameterDict[param["ParaName"]] = ast.literal_eval(param["ParaValue"])
 
         infoDict = recordDict[optimizer["id"]]
         parameterDict["name"] = infoDict["name"]
@@ -665,3 +671,35 @@ def generateSystemModel(monitorList, nodeList, blockList, linkList, optimizerLis
 
     # generate model running code - optimizer link, save link
     modelRunString, modelOptimizeString, modelSaveString = generateTraining(linkList, optimizerList)
+
+def generateModel(model):
+    global nodeManager, recordDict
+    recordDict = dict()
+    nodeManager = GlobalManager()
+
+    nodeList = []
+    monitorList = []
+    optimizerList = []
+
+    for node in model["nodes"]:
+        if node["type"] == "monitor":
+            monitorList.append(node)
+        elif node["type"] == "optimizer":
+            optimizerList.append(node)
+        else:
+            nodeList.append(node)
+    #print(monitorList)
+    header = RequirementHeader["PyTorch"]
+    monitorString, managerMonitor = generateMonitor(monitorList)
+    print(managerMonitor)
+    loadString, nodeString = generateNodeAndLoad(nodeList, managerMonitor)  # for node declare and load model
+    print(loadString)
+    print(nodeString)
+
+
+    print(monitorString)
+
+model_file = open("../static/model/generateModel/generate.json", mode="r", encoding="utf-8")
+model_json = json.load(fp=model_file)
+generateModel(model_json)
+
