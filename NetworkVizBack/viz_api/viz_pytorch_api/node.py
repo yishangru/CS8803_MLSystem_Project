@@ -26,7 +26,10 @@ class LayerNode_Torch(node.LayerNode):
             self.outputMapping.append(Tensor_Torch(linked_tensor=None, name=self.name + "_output_" + str(i+1)))
 
     # return the output mapping for tensor output
-    def get_output_tensor(self):
+    def get_output_tensor_single(self, number: int):
+        return self.outputMapping[number]
+
+    def get_output_tensor_all(self):
         return self.outputMapping
 
     def forward(self, inputList: list):
@@ -72,7 +75,10 @@ class TransformNode_Torch(node.TransformNode):
             self.outputMapping.append(Tensor_Torch(linked_tensor=None, name=self.name + "_output_" + str(i+1)))
 
     # return the output mapping for tensor output
-    def get_output_tensor(self):
+    def get_output_tensor_single(self, number: int):
+        return self.outputMapping[number]
+
+    def get_output_tensor_all(self):
         return self.outputMapping
 
     def forward(self, inputList: list):
@@ -114,10 +120,13 @@ class InputNode_Torch(node.InputNode):
             self.outputMapping.append(Tensor_Torch(linked_tensor=None, name=self.name + "_output_" + str(i + 1)))
 
     # return the output mapping for tensor output
-    def get_output_tensor(self):
+    def get_output_tensor_single(self, number: int):
+        return self.outputMapping[number]
+
+    def get_output_tensor_all(self):
         return self.outputMapping
 
-    def forward(self, inputList: list):
+    def forward(self, inputList: list = None):
         # prepare the data for underlying forward
         output_tensor = self.linkedInput.get_loaded_tensor()
         self.outputMapping[0].set_linked_tensor(output_tensor)
@@ -161,7 +170,10 @@ class MnistNode_Torch(node.InputNode):
             self.labelMapping.append(Tensor_Torch(linked_tensor=None, name=self.name + "_label_" + str(i + 1)))
 
     # return the output mapping for tensor output
-    def get_output_tensor(self):
+    def get_output_tensor_single(self, number: int):
+        return self.outputMapping[number]
+
+    def get_output_tensor_all(self):
         return self.outputMapping
 
     def forward(self, inputList: list):
@@ -211,7 +223,10 @@ class ConstantNode_Torch(node.ConstantNode):
             self.outputMapping.append(Tensor_Torch(linked_tensor=None, name=self.name + "_output_" + str(i + 1)))
 
     # return the output mapping for tensor output
-    def get_output_tensor(self):
+    def get_output_tensor_single(self, number: int):
+        return self.outputMapping[number]
+
+    def get_output_tensor_all(self):
         return self.outputMapping
 
     def forward(self, inputList: list):

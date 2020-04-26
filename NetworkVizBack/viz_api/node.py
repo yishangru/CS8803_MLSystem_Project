@@ -17,7 +17,10 @@ class Node(object):
     def set_output_port(self, number: int):
         raise NotImplementedError
 
-    def get_output_tensor(self):
+    def get_output_tensor_single(self, number: int):
+        raise NotImplementedError
+
+    def get_output_tensor_all(self):
         raise NotImplementedError
 
     def forward(self, inputParaList: list):

@@ -802,12 +802,19 @@ function clickPort(e) {
                     if (linkedVizML.linkRecorder.get(d).datum()["target"]["port"] === targetPort)
                         linkedAlready = true;
                 });
-                if (linkedAlready) {
+
+                if (targetLinkedData["type"] === "transform" && targetLinkedData["node"] === "Adder"){
+                    if (targetPort === 1 && linkedAlready) {
+                        alert("Use the sub input to for multiple addition");
+                        return;
+                    }
+                } else if (linkedAlready) {
                     alert("Current input is already linked !");
                     return;
                 }
 
                 if (targetLinkedData["node"] === "Saver" && targetLinkedData["type"] === "monitor") {
+
                     /*
                         invariant 2: check end node for safe node, should be from input (not support for dataset, only meta),
                         constant (only meta), output link of (transform or layer, no other out links)
@@ -834,26 +841,35 @@ function clickPort(e) {
                             return;
                         }
                     } else if (sourceLinkedData["type"] === "transform" || sourceLinkedData["type"] === "layer") {
-                        let counter = 0;
-                        sourceLinkedData["links"].forEach(function (linkID) {
-                            let linkInfo = linkedVizML.linkRecorder.get(linkID).datum();
-                            if (linkInfo["source"]["port"] === sourcePort) {
-                                let linkNodeInfo = linkedVizML.nodeRecorder.get(linkInfo["target"]["nodeID"]).datum();
-                                if (linkNodeInfo["type"] === "layer" || linkNodeInfo["type"] === "transform")
-                                    counter++;
+                        if (sourcePort !== 3) {
+                            let counter = 0;
+                            sourceLinkedData["links"].forEach(function (linkID) {
+                                let linkInfo = linkedVizML.linkRecorder.get(linkID).datum();
+                                if (linkInfo["source"]["port"] === sourcePort) {
+                                    let linkNodeInfo = linkedVizML.nodeRecorder.get(linkInfo["target"]["nodeID"]).datum();
+                                    if (linkNodeInfo["type"] === "layer" || linkNodeInfo["type"] === "transform")
+                                        counter++;
+                                }
+                            });
+                            if (counter > 1) {
+                                alert("Ambiguous when saving a tensor with multiple outbound link copy (or duplicate save)");
+                                return;
+                            } else {
+                                whetherGenerateLink = true;
                             }
-                        });
-                        if (counter > 1) {
-                            alert("Ambiguous when saving a tensor with multiple outbound link copy (or duplicate save)");
-                            return;
                         } else {
-                            whetherGenerateLink = true;
+                            alert("No need to save layer with saver, auto save");
+                            return;
                         }
                     }
                     generatedLinkInfo["color"] = "#b3cde3";  // save tensor
                 } else {
-                    whetherGenerateLink = true;
-                    generatedLinkInfo["color"] = "#fb9a99" // forward
+                    if (sourcePort !== 3) {
+                        whetherGenerateLink = true;
+                        generatedLinkInfo["color"] = "#fb9a99" // forward
+                    } else {
+                        alert("Should not use meta info port for data forwarding");
+                    }
                 }
             }
         } else {

@@ -470,8 +470,6 @@ generalAPIMappingString = {
     "monitor": monitorAPIString
 }
 
-
-
 # part 1 generate the requirements
 RequirementHeader = {
     "PyTorch": "import os\nimport torch\nfrom viz_api.viz_pytorch_api import input as input_Torch\n"
@@ -596,9 +594,10 @@ def generateBlock(blockList):
 def generateTraining(linkList, optimizerList):
     global nodeManager, recordDict
 
-    generateRunString = "# -------------------- model running -------------------- #\n"
-    generateOptimizerString = ""
-    generateSaveString = "# -------------------- output save -------------------- #\n"
+    generateRunInitial = ["# -------------------- model forwarding initialize -------------------- #"]
+    generateRunString = ["# -------------------- model running -------------------- #"]
+    generateOptimizerString = ["# -------------------- model optimize -------------------- #"]
+    generateSaveString = ["# -------------------- output save -------------------- #"]
 
     for optimizer in optimizerList:
         # generate name mapping
@@ -615,25 +614,114 @@ def generateTraining(linkList, optimizerList):
         }
         recordDict[optimizer["id"]] = infoDict
 
-    GraphDict = collections.defaultdict(lambda: dict)
+    # node - port - node
+    GraphDict = dict()
+    VariableDict = dict()
+    SaveLinkList = list()
+    OptimizerLinkList = list()
     for link in linkList:
-        startNode = recordDict[link["start"]]
-        startPort = link["portStart"]
-        endNode = recordDict[link["end"]]
-        endPort = link["portEnd"]
+        sourceNode = link["source"]["nodeID"]
+        sourcePort = link["source"]["port"]
+        targetNode = link["target"]["nodeID"]
+        targetPort = link["target"]["port"]
+        if recordDict[targetNode]["type"] == "optimizer":
+            OptimizerLinkList.append(link)
+        elif recordDict[targetNode]["type"] == "monitor" and recordDict[targetNode]["node"] == "Saver":
+            SaveLinkList.append(link)
+        else:
+            if sourceNode not in GraphDict.keys():
+                GraphDict[sourceNode] = {"input": set(), "output": dict()}
+            if targetNode not in GraphDict.keys():
+                GraphDict[targetNode] = {"input": set(), "output": dict()}
 
-        # startPort (1 input, 2, sub input, 3 meta, 4 main output, 5 sub output
+            # set the variable link, since link is the unique
+            if sourcePort != 3: # the meta port, should not present here
+                linkedVariable = recordDict[sourceNode]["name"] + "_" + str(sourcePort) + "_" + recordDict[targetNode]["name"] + "_" + str(targetPort)
+                if sourcePort not in GraphDict[sourceNode]["output"].keys():
+                    GraphDict[sourceNode]["output"][sourcePort] = set()
+                GraphDict[sourceNode]["output"][sourcePort].add(linkedVariable)
+                GraphDict[targetNode]["input"].add(linkedVariable)
+                VariableDict[linkedVariable] = {"sourceNode": sourceNode, "sourcePort": sourcePort,
+                                                "targetNode": targetNode, "targetPort": targetPort}
+            else:
+                print("Meta Port in graph! Error! Should not be here !")
 
-    if endNode["type"] == "optimizer":  # check optimizer (should have no outbound link)
-        if endPort == 1:  # 1 for track object
-            pass
-        elif endPort == 2:  # 2 for loss
-            pass
-    elif endNode["type"] == "monitor" and endNode["node"] == "Saver":  # check monitor
-        if endPort == 1:  # only track port 1
-            if startPort == 4 or startPort == 5:
-                pass
+    # generate output copy number
+    for node in GraphDict.keys():
+        largestCopy = 1 # consider the possible saver and optimizer
+        for outputPort in GraphDict[node]["output"]:
+            largestCopy = max(len(GraphDict[node]["output"][outputPort]), largestCopy)
 
+        generateRunInitial.append(recordDict[node]["name"] + "set_output_port(" + str(largestCopy) + ")")
+        for outputPort in GraphDict[node]["output"]:
+            assignNumber = 0
+            for linkedVariable in GraphDict[node]["output"][outputPort]:
+                VariableDict[linkedVariable]["assignNumber"] = assignNumber
+                assignNumber += 1
+
+    # generate model running string - start from input
+    startNode = -1
+    nodeVisited = set()
+    nodeToVisit = list()
+    generatedOutput = set()
+    for node in GraphDict.keys():
+        if recordDict[node]["type"] == "input":
+            if startNode == -1:
+                startNode = node
+            else:
+                print("Multiple input - stop generation")
+                return
+        elif recordDict[node]["type"] == "constant":
+            nodeToVisit.append(node)
+    if startNode != -1:
+        # start from input node, add constant node and input node to the visitlist
+        nodeToVisit.insert(0, startNode)
+        generateRunString.append("for iteration in range(" + recordDict[startNode]["name"] + ".get_number_batch()):")
+        while len(nodeToVisit) > 0:
+            presentNode = nodeToVisit.pop(0)
+            if presentNode not in nodeVisited:
+                if recordDict[presentNode]["type"] == "input":
+                    generateRunString.append("\t" + recordDict[presentNode]["name"] + ".forward([iteration])\n")
+                else:
+                    mainInput = ""
+                    inputVariableString = ""
+                    for linkedVariable in GraphDict[presentNode]["input"]:
+                        if VariableDict[linkedVariable]["targetPort"] == 1:
+                            mainInput = linkedVariable
+                        else:
+                            inputVariableString += (", " + linkedVariable)
+                    inputVariableString = mainInput + inputVariableString
+                    generateRunString.append("\t" + recordDict[presentNode]["name"] + ".forward([" + inputVariableString + "])\n")
+
+                for outputPort in GraphDict[presentNode]["output"]:
+                    for linkedVariable in GraphDict[presentNode]["output"][outputPort]:
+                        # variable is generated
+                        generatedOutput.add(linkedVariable)
+                        generateRunString.append("\t" + linkedVariable + " = " + recordDict[presentNode]["name"] +
+                                                 ".get_output_tensor_single(" + str(VariableDict[linkedVariable]["assignNumber"]) + ")")
+                        # check if there is new node can be added to visit
+                        nodeCandidate = VariableDict[linkedVariable]["targetNode"]
+                        # check whether all input satisfy
+                        whetherAdd = True
+                        for linkedVariable in GraphDict[nodeCandidate]["input"]:
+                            if linkedVariable not in generatedOutput:
+                                whetherAdd = False
+                                break
+                        if whetherAdd:
+                            nodeToVisit.insert(0, nodeCandidate)
+                nodeVisited.add(presentNode)
+    else:
+        print("Can't find input node - stop generation")
+        return
+
+    
+
+
+
+    print(OptimizerLinkList)
+    print(GraphDict)
+
+    """
     for optimizer in optimizerList:
         # generate optimize link
         api = optimizer["api"]
@@ -655,23 +743,10 @@ def generateTraining(linkList, optimizerList):
         generateDictName = parameterDict["name"] + "_dict"
         generateOptimizerString = generateOptimizerString + generateDictName + " = " + json.dumps(parameterDict) + "\n" + \
                                 parameterDict["name"] + " = " + constructor + "(**" + generateDictName + ")\n\n"
-
+    """
     return generateRunString, generateOptimizerString, generateSaveString
 
-
-# id are all unique - monitor, node, block, optimizer
-def generateSystemModel(monitorList, nodeList, blockList, linkList, optimizerList):
-    global nodeManager, recordDict
-    recordDict = dict()
-    nodeManager = GlobalManager()
-    monitorString, managerMonitor = generateMonitor(monitorList)  # for the model iteration
-    loadString, nodeString = generateNodeAndLoad(nodeList, managerMonitor)  # for node declare and load model
-
-    # generate block
-
-    # generate model running code - optimizer link, save link
-    modelRunString, modelOptimizeString, modelSaveString = generateTraining(linkList, optimizerList)
-
+# block and node id are sharing, globally unique
 def generateModel(model):
     global nodeManager, recordDict
     recordDict = dict()
@@ -691,15 +766,15 @@ def generateModel(model):
     #print(monitorList)
     header = RequirementHeader["PyTorch"]
     monitorString, managerMonitor = generateMonitor(monitorList)
-    print(managerMonitor)
+    #print(managerMonitor)
     loadString, nodeString = generateNodeAndLoad(nodeList, managerMonitor)  # for node declare and load model
-    print(loadString)
-    print(nodeString)
+    modelRunString, modelOptimizeString, modelSaveString = generateTraining(model_json["links"], optimizerList)
+    #print(loadString)
+    #print(nodeString)
 
 
-    print(monitorString)
+    #print(monitorString)
 
 model_file = open("../static/model/generateModel/generate.json", mode="r", encoding="utf-8")
 model_json = json.load(fp=model_file)
 generateModel(model_json)
-

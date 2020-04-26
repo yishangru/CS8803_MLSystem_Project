@@ -167,7 +167,7 @@ transformPortTorch = {
     TransformType.NormalizeTransform: [1, 4],
     TransformType.DataClampTransform: [1, 4],
     TransformType.DetachTransform: [1, 4],
-    TransformType.AddTransform: [1, 4],
+    TransformType.AddTransform: [1, 2, 4],
     TransformType.GetGramMatrix: [1, 4]
 }
 
