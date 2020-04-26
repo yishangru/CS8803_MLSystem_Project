@@ -596,6 +596,7 @@ def generateTraining(linkList, optimizerList):
 
     generateRunInitial = ["# -------------------- model forwarding initialize -------------------- #"]
     generateRunString = ["# -------------------- model running -------------------- #"]
+    generateOptimizerInitial = ["# -------------------- optimize initial -------------------- #"]
     generateOptimizerString = ["# -------------------- model optimize -------------------- #"]
     generateSaveString = ["# -------------------- output save -------------------- #"]
 
@@ -617,6 +618,7 @@ def generateTraining(linkList, optimizerList):
     # node - port - node
     GraphDict = dict()
     VariableDict = dict()
+
     SaveLinkList = list()
     OptimizerLinkList = list()
     for link in linkList:
@@ -714,12 +716,15 @@ def generateTraining(linkList, optimizerList):
         print("Can't find input node - stop generation")
         return
 
-    
+    #SaveLinkList = list()
+    #OptimizerLinkList = list()
+    # generate optimizer string
+    for optimizeLink in OptimizerLinkList:
 
+        generateOptimizerString
 
 
     print(OptimizerLinkList)
-    print(GraphDict)
 
     """
     for optimizer in optimizerList:
