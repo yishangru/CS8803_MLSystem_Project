@@ -525,7 +525,7 @@ def generateNodeAndLoad(nodeList, managerMonitor):
     global nodeManager, recordDict
 
     generateLoadString = '# -------------------- load pretrained or system model -------------------- #\n' \
-                         'loadPath = "./static/model/system"\n' \
+                         'loadPath = "../system"\n' \
                          'globalImportDict = dict()\n\n'\
                          'def loadLayerNode(name, source):\n'\
                          "\tif os.path.exists(os.path.join(loadPath, name)):\n"\
@@ -560,8 +560,8 @@ def generateNodeAndLoad(nodeList, managerMonitor):
 
         if nodeType == "layer":
             parameterDictString = parameterDictString.rstrip("}") + ", "
-            parameterDictString += ("'import_layer': globalImportDict[" + parameterDict["name"] + "]}")
-            generateLoadString = generateLoadString + "loadLayerNode(" + parameterDict["name"] + "," + node["source"] + ")\n"
+            parameterDictString += ("'import_layer': globalImportDict['" + parameterDict["name"] + "']}")
+            generateLoadString = generateLoadString + "loadLayerNode('" + parameterDict["name"] + "', '" + node["source"] + "')\n"
 
         nodeConstructor = generalNodeMappingString[nodeType][api]
         if nodeType == "input" and nodeName == "MNIST":
@@ -597,7 +597,10 @@ def generateTraining(linkList, optimizerList):
     generateRunInitial = ["# -------------------- model forwarding initialize -------------------- #"]
     generateRunString = ["# -------------------- model running -------------------- #"]
     generateOptimizerInitial = ["# -------------------- optimize initial -------------------- #"]
-    generateOptimizerString = ["# -------------------- model optimize -------------------- #"]
+    generateOptimizerString = {"clear": ["# -------------------- model optimize -------------------- #",
+                                         "if model_running_train:"],
+                               "optimize": ["# -------------------- model optimize -------------------- #",
+                                            "if model_running_train:"]}
     generateSaveString = ["# -------------------- output save -------------------- #"]
 
     for optimizer in optimizerList:
@@ -611,7 +614,8 @@ def generateTraining(linkList, optimizerList):
             "name": nodeGeneratedName,
             "type": nodeType,
             "node": nodeName,
-            "tracking": list()
+            "tracking": list(),
+            "loss": None
         }
         recordDict[optimizer["id"]] = infoDict
 
@@ -654,12 +658,89 @@ def generateTraining(linkList, optimizerList):
         for outputPort in GraphDict[node]["output"]:
             largestCopy = max(len(GraphDict[node]["output"][outputPort]), largestCopy)
 
-        generateRunInitial.append(recordDict[node]["name"] + "set_output_port(" + str(largestCopy) + ")")
+        generateRunInitial.append(recordDict[node]["name"] + ".set_output_port(" + str(largestCopy) + ")")
         for outputPort in GraphDict[node]["output"]:
             assignNumber = 0
             for linkedVariable in GraphDict[node]["output"][outputPort]:
                 VariableDict[linkedVariable]["assignNumber"] = assignNumber
                 assignNumber += 1
+
+    # generate optimizer string
+    for optimizeLink in OptimizerLinkList: # just implement for port 3
+        sourceNode = optimizeLink["source"]["nodeID"]
+        sourcePort = optimizeLink["source"]["port"]
+        targetNode = optimizeLink["target"]["nodeID"]
+        targetPort = optimizeLink["target"]["port"]
+        if targetPort == 1:
+            if sourcePort == 3:
+                if recordDict[sourceNode]["type"] == "input" or recordDict[sourceNode]["type"] == "layer":
+                    recordDict[targetNode]["tracking"].append(sourceNode)
+                else:
+                    print("Not implement yet for non-input and layer - stop generation")
+                    return
+            else:
+                print("Get non meta optimize - stop generation")
+                return
+        elif targetPort == 2:
+            if sourcePort == 4:
+                linkedVariableName = recordDict[sourceNode]["name"] + "_" + str(sourcePort) + "_" + recordDict[targetNode]["name"] + "_" + str(targetPort)
+                # update clean
+                generateOptimizerString["clear"].append("\t" + recordDict[targetNode]["name"] + ".clear_gradient()")
+                # update optimize
+                generateOptimizerString["optimize"].append("\t" + linkedVariableName + " = " + recordDict[sourceNode]["name"] +
+                                                           ".get_output_tensor_single(0)")
+                generateOptimizerString["optimize"].append("\t" + recordDict[targetNode]["name"] + ".link_loss_tensor(" + linkedVariableName + ")")
+                generateOptimizerString["optimize"].append("\t" + recordDict[targetNode]["name"] + ".backward()")
+                generateOptimizerString["optimize"].append("\t" + recordDict[targetNode]["name"] + ".step()")
+            else:
+                print("Get unexpected loss input - stop generation")
+                return
+
+    print("\n".join(generateOptimizerString["clear"]))
+    print("\n".join(generateOptimizerString["optimize"]))
+
+    # initialize optimizer
+    for optimizer in optimizerList:
+        optimizerID = optimizer["id"]
+        trackListName = recordDict[optimizerID]["name"] + "_track_list"
+        if (len(recordDict[optimizerID]) > 0):
+            trackingList = ""
+            for trackNode in recordDict[optimizerID]["tracking"]:
+                if recordDict[trackNode]["type"] == "input":
+                    trackingList += ("{'object':" + recordDict[trackNode]["name"] + ".get_linked_layer()}, ")
+                elif recordDict[trackNode]["type"] == "layer":
+                    trackingList += ("{'object':" + recordDict[trackNode]["name"] + ".get_linked_layer()}, ")
+                else:
+                    print("Not implement yet for non-input and layer - stop generation")
+                    return
+            trackingList = trackListName + " = [" + trackingList + "]"
+            generateOptimizerInitial.append(trackingList)
+
+            api = optimizer["api"]
+            nodeType = optimizer["type"]
+            nodeName = optimizer["node"]
+            typeRequest = generalTypeMapping[nodeType][nodeName]
+            constructor = generalAPIMappingString[nodeType][api][typeRequest]
+
+            parameterDict = dict()
+            parameterDict["name"] = recordDict[optimizerID]["name"]
+            for param in optimizer["parameters"]:
+                if param["ParaClass"] == "str":
+                    parameterDict[param["ParaName"]] = param["ParaValue"]
+                else:
+                    parameterDict[param["ParaName"]] = ast.literal_eval(param["ParaValue"])
+
+            parameterDictString = str(parameterDict)
+            parameterDictString = parameterDictString.rstrip("}") + ", "
+            parameterDictString += ("'object_to_track_list': " + trackListName + "}")
+
+            generateDictName = parameterDict["name"] + "_dict"
+            generateOptimizerInitial.append(generateDictName + " = " + parameterDictString)
+            generateOptimizerInitial.append(parameterDict["name"] + " = " + constructor + "(**" + generateDictName + ")")
+        else:
+            print("Optimizer not tracking object - stop generation")
+            return
+    print("\n".join(generateOptimizerInitial))
 
     # generate model running string - start from input
     startNode = -1
@@ -678,12 +759,11 @@ def generateTraining(linkList, optimizerList):
     if startNode != -1:
         # start from input node, add constant node and input node to the visitlist
         nodeToVisit.insert(0, startNode)
-        generateRunString.append("for iteration in range(" + recordDict[startNode]["name"] + ".get_number_batch()):")
         while len(nodeToVisit) > 0:
             presentNode = nodeToVisit.pop(0)
             if presentNode not in nodeVisited:
                 if recordDict[presentNode]["type"] == "input":
-                    generateRunString.append("\t" + recordDict[presentNode]["name"] + ".forward([iteration])\n")
+                    generateRunString.append(recordDict[presentNode]["name"] + ".forward([iteration])\n")
                 else:
                     mainInput = ""
                     inputVariableString = ""
@@ -693,14 +773,18 @@ def generateTraining(linkList, optimizerList):
                         else:
                             inputVariableString += (", " + linkedVariable)
                     inputVariableString = mainInput + inputVariableString
-                    generateRunString.append("\t" + recordDict[presentNode]["name"] + ".forward([" + inputVariableString + "])\n")
+                    generateRunString.append(recordDict[presentNode]["name"] + ".forward([" + inputVariableString + "])\n")
 
                 for outputPort in GraphDict[presentNode]["output"]:
                     for linkedVariable in GraphDict[presentNode]["output"][outputPort]:
                         # variable is generated
                         generatedOutput.add(linkedVariable)
-                        generateRunString.append("\t" + linkedVariable + " = " + recordDict[presentNode]["name"] +
-                                                 ".get_output_tensor_single(" + str(VariableDict[linkedVariable]["assignNumber"]) + ")")
+                        if outputPort == 4:
+                            generateRunString.append(linkedVariable + " = " + recordDict[presentNode]["name"] +
+                                        ".get_output_tensor_single(" + str(VariableDict[linkedVariable]["assignNumber"]) + ")")
+                        elif outputPort == 5:
+                            generateRunString.append(linkedVariable + " = " + recordDict[presentNode]["name"] +
+                                        ".get_output_label_single(" + str(VariableDict[linkedVariable]["assignNumber"]) + ")")
                         # check if there is new node can be added to visit
                         nodeCandidate = VariableDict[linkedVariable]["targetNode"]
                         # check whether all input satisfy
@@ -716,40 +800,30 @@ def generateTraining(linkList, optimizerList):
         print("Can't find input node - stop generation")
         return
 
-    #SaveLinkList = list()
-    #OptimizerLinkList = list()
-    # generate optimizer string
-    for optimizeLink in OptimizerLinkList:
+    print("\n".join(generateRunInitial))
+    print("\n".join(generateRunString))
 
-        generateOptimizerString
+    # generate save string - not save overall model yet
+    for saveLink in SaveLinkList:
+        sourceNode = saveLink["source"]["nodeID"]
+        sourcePort = saveLink["source"]["port"]
+        targetNode = saveLink["target"]["nodeID"]
+        targetPort = saveLink["target"]["port"]
 
+        linkedVariableName = recordDict[sourceNode]["name"] + "_" + str(sourcePort) + "_" + recordDict[targetNode][
+            "name"] + "_" + str(targetPort)
+        if recordDict[sourceNode]["type"] == "input":
+            generateSaveString.append(linkedVariableName + " = " + recordDict[sourceNode]["name"] + ".get_linked_input()")
+        elif recordDict[sourceNode]["type"] == "constant":
+            generateSaveString.append(linkedVariableName + " = " + recordDict[sourceNode]["name"] + ".get_linked_constant()")
+        elif recordDict[sourceNode]["type"] == "transform" or recordDict[sourceNode]["layer"]:
+            # save the first output tensor
+            generateSaveString.append(linkedVariableName + " = " + recordDict[sourceNode]["name"] + ".get_output_tensor_single(0)")
+        generateSaveString.append(recordDict[targetNode]["name"] + ".save_output(" + linkedVariableName + ")")
 
-    print(OptimizerLinkList)
+    print("\n".join(generateSaveString))
 
-    """
-    for optimizer in optimizerList:
-        # generate optimize link
-        api = optimizer["api"]
-        nodeType = optimizer["type"]
-        nodeName = optimizer["node"]
-        typeRequest = generalTypeMapping[nodeType][nodeName]
-        constructor = generalAPIMappingString[nodeType][api][typeRequest]
-
-        parameterDict = dict()
-        for param in optimizer["parameters"]:
-            parameterDict[param["ParaName"]] = ast.literal_eval(param["ParaValue"])
-
-        infoDict = recordDict[optimizer["id"]]
-        parameterDict["name"] = infoDict["name"]
-
-        # register variables block support
-
-
-        generateDictName = parameterDict["name"] + "_dict"
-        generateOptimizerString = generateOptimizerString + generateDictName + " = " + json.dumps(parameterDict) + "\n" + \
-                                parameterDict["name"] + " = " + constructor + "(**" + generateDictName + ")\n\n"
-    """
-    return generateRunString, generateOptimizerString, generateSaveString
+    return generateRunInitial, generateRunString, generateOptimizerInitial, generateOptimizerString, generateSaveString, startNode
 
 # block and node id are sharing, globally unique
 def generateModel(model):
@@ -768,18 +842,30 @@ def generateModel(model):
             optimizerList.append(node)
         else:
             nodeList.append(node)
-    #print(monitorList)
+
     header = RequirementHeader["PyTorch"]
     monitorString, managerMonitor = generateMonitor(monitorList)
-    #print(managerMonitor)
     loadString, nodeString = generateNodeAndLoad(nodeList, managerMonitor)  # for node declare and load model
-    modelRunString, modelOptimizeString, modelSaveString = generateTraining(model_json["links"], optimizerList)
-    #print(loadString)
-    #print(nodeString)
+    generateRunInitial, generateRunString, generateOptimizerInitial, generateOptimizerString, generateSaveString, startNode = generateTraining(model_json["links"], optimizerList)
+
+    # generate the overall model
+    outputFile = open("generate_test.py", mode="w", encoding="utf-8")
+    outputFile.write(header)
+    outputFile.write(monitorString)
+    outputFile.write(loadString)
+    outputFile.write(nodeString)
+    outputFile.write("\n".join(generateRunInitial) + "\n\n")
+    outputFile.write("\n".join(generateOptimizerInitial) + "\n\n")
+    # add epoch for model running and optimizing
+    model_running_string = "for model_running_epoch in range(" + managerMonitor + ".epochs):\n" + \
+                           "\tfor iteration in range(" + recordDict[startNode]["name"] + ".get_linked_input().get_number_batch()):\n" + \
+                           "\n".join(["\t\t" + optimizing_line for optimizing_line in generateOptimizerString["clear"]]) + "\n\n" + \
+                           "\n".join(["\t\t" + running_line for running_line in generateRunString]) + "\n\n" + \
+                           "\n".join(["\t\t" + optimizing_line for optimizing_line in generateOptimizerString["optimize"]]) + "\n\n"
+    outputFile.write(model_running_string)
+    outputFile.close()
 
 
-    #print(monitorString)
-
-model_file = open("../static/model/generateModel/generate.json", mode="r", encoding="utf-8")
+model_file = open("./generate.json", mode="r", encoding="utf-8")
 model_json = json.load(fp=model_file)
 generateModel(model_json)

@@ -173,8 +173,14 @@ class MnistNode_Torch(node.InputNode):
     def get_output_tensor_single(self, number: int):
         return self.outputMapping[number]
 
+    def get_output_label_single(self, number: int):
+        return self.labelMapping[number]
+
     def get_output_tensor_all(self):
         return self.outputMapping
+
+    def get_output_label_all(self):
+        return self.labelMapping
 
     def forward(self, inputList: list):
         # prepare the data for underlying forward

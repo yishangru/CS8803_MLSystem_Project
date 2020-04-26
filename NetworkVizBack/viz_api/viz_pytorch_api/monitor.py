@@ -13,7 +13,7 @@ class MonitorFinal_Torch(monitor.MonitorFinal):
         self.model_save_path = model_save_path
         self.device = torch.device(device_name)
 
-    def save_model(self, *layers):
+    def save_model(self, *layers): # not implement yet
         for layer in list(layers):
             pass
 

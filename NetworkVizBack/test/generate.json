@@ -286,13 +286,13 @@
         {
           "ParaName": "learning_rate",
           "ParaClass": "float",
-          "ParaValue": "-1",
+          "ParaValue": "0.03",
           "Required": 1
         },
         {
           "ParaName": "momentum",
           "ParaClass": "float",
-          "ParaValue": "0",
+          "ParaValue": "0.9",
           "Required": 0
         }
       ]
