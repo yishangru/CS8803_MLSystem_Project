@@ -472,12 +472,14 @@ generalAPIMappingString = {
 
 # part 1 generate the requirements
 RequirementHeader = {
-    "PyTorch": "import os\nimport torch\nfrom viz_api.viz_pytorch_api import input as input_Torch\n"
+    "General": "import os\n"
+               "from viz_abstraction.block import Block\n",
+    "PyTorch": "import torch\nfrom viz_api.viz_pytorch_api import input as input_Torch\n"
                "from viz_api.viz_pytorch_api import layer as layer_Torch\n"
                "from viz_api.viz_pytorch_api import monitor as monitor_Torch\n"
                "from viz_api.viz_pytorch_api import transform as transform_Torch\n"
                "from viz_api.viz_pytorch_api import optimizer as optimizer_Torch\n"
-               "from viz_api.viz_pytorch_api import node as VizNode_Torch\n\n"
+               "from viz_api.viz_pytorch_api import node as VizNode_Torch\n"
 }
 
 # part 2 generate the requirements
@@ -588,7 +590,13 @@ def generateNodeAndLoad(nodeList, managerMonitor):
 
 # part 4 generate block recorder
 def generateBlock(blockList):
-    pass
+    global nodeManager, recordDict
+
+    generateBlockInitial = ["# -------------------- model block initialize -------------------- #"]
+    generateBlockProfile = ["# -------------------- block profile -------------------- #"]
+    for block in blockList:
+        node_list =
+
 
 # part 5 generate link for running logic and saving code
 def generateTraining(linkList, optimizerList):
@@ -843,7 +851,8 @@ def generateModel(model, path):
         else:
             nodeList.append(node)
 
-    header = RequirementHeader["PyTorch"]
+    header = RequirementHeader["General"]
+    platform = RequirementHeader["PyTorch"]
     monitorString, managerMonitor = generateMonitor(monitorList)
     loadString, nodeString = generateNodeAndLoad(nodeList, managerMonitor)  # for node declare and load model
     generateRunInitial, generateRunString, generateOptimizerInitial, generateOptimizerString, generateSaveString, startNode = generateTraining(model_json["links"], optimizerList)
@@ -851,11 +860,13 @@ def generateModel(model, path):
     # generate the overall model
     outputFile = open(path, mode="w", encoding="utf-8")
     outputFile.write(header)
+    outputFile.write(platform)
     outputFile.write(monitorString)
     outputFile.write(loadString)
     outputFile.write(nodeString)
     outputFile.write("\n".join(generateRunInitial) + "\n\n")
     outputFile.write("\n".join(generateOptimizerInitial) + "\n\n")
+
     # add epoch for model running and optimizing
     model_running_string = "for model_running_epoch in range(" + managerMonitor + ".epochs):\n" + \
                            "\tfor iteration in range(" + recordDict[startNode]["name"] + ".get_linked_input().get_number_batch()):\n" + \
