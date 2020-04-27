@@ -23,4 +23,4 @@ The source code of VizML is release in \url{https://github.com/yishangru/VizML}.
 
 
 ## Block Profiling - Handwritten Identification
-![Program Screenshot](/screenshot/style.PNG)
+![Program Screenshot](/screenshot/profile.PNG)
