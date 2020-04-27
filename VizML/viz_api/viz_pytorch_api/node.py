@@ -42,6 +42,8 @@ class LayerNode_Torch(node.LayerNode):
 
     # return KB in memory usage for the loaded tensor
     def get_tensor_memory_size(self):
+        if self.outputMapping[0].get_linked_tensor() is None:
+            return 0
         tensor_memory_usage = 0 if self.linkedLayer.inplace_forward else self.outputMapping[0].get_self_memory_size()
         for i in range(1, len(self.outputMapping)):
             tensor_memory_usage += self.outputMapping[i].get_self_memory_size()
@@ -49,6 +51,8 @@ class LayerNode_Torch(node.LayerNode):
 
     # return KB in memory usage for gradients of the loaded tensor
     def get_tensor_grad_memory_size(self):
+        if self.outputMapping[0].get_linked_tensor() is None:
+            return 0
         tensor_grad_usage = 0 if self.linkedLayer.inplace_forward else self.outputMapping[0].get_grad_memory_size()
         for i in range(1, len(self.outputMapping)):
             tensor_grad_usage += self.outputMapping[i].get_grad_memory_size()
@@ -91,6 +95,8 @@ class TransformNode_Torch(node.TransformNode):
 
     # return KB in memory usage for the loaded tensor
     def get_tensor_memory_size(self):
+        if self.outputMapping[0].get_linked_tensor() is None:
+            return 0
         tensor_memory_usage = 0 if self.linkedTransform.inplace_forward else self.outputMapping[0].get_self_memory_size()
         for i in range(1, len(self.outputMapping)):
             tensor_memory_usage += self.outputMapping[i].get_self_memory_size()
@@ -98,6 +104,8 @@ class TransformNode_Torch(node.TransformNode):
 
     # return KB in memory usage for gradients of the loaded tensor
     def get_tensor_grad_memory_size(self):
+        if self.outputMapping[0].get_linked_tensor() is None:
+            return 0
         tensor_grad_usage = 0 if self.linkedTransform.inplace_forward else self.outputMapping[0].get_grad_memory_size()
         for i in range(1, len(self.outputMapping)):
             tensor_grad_usage += self.outputMapping[i].get_grad_memory_size()
@@ -136,18 +144,20 @@ class InputNode_Torch(node.InputNode):
 
     # return KB in memory usage for the loaded tensor
     def get_tensor_memory_size(self):
-        tensor_memory_usage = 0
+        tensor_memory_usage = self.linkedInput.get_tensor_memory_size()
+        if self.outputMapping[0].get_linked_tensor() is None:
+            return tensor_memory_usage
         for i in range(1, len(self.outputMapping)):
             tensor_memory_usage += self.outputMapping[i].get_self_memory_size()
-        tensor_memory_usage += self.linkedInput.get_tensor_memory_size()
         return tensor_memory_usage
 
     # return KB in memory usage for gradients of the loaded tensor
     def get_tensor_grad_memory_size(self):
-        tensor_grad_usage = 0
+        tensor_grad_usage = self.linkedInput.get_tensor_grad_memory_size()
+        if self.outputMapping[0].get_linked_tensor() is None:
+            return tensor_grad_usage
         for i in range(1, len(self.outputMapping)):
             tensor_grad_usage += self.outputMapping[i].get_grad_memory_size()
-        tensor_grad_usage += self.linkedInput.get_tensor_grad_memory_size()
         return tensor_grad_usage
 
 
@@ -196,16 +206,19 @@ class MnistNode_Torch(node.InputNode):
 
     # return KB in memory usage for the loaded tensor
     def get_tensor_memory_size(self):
-        tensor_memory_usage = 0
+        tensor_memory_usage = self.linkedInput.get_tensor_memory_size()
+        if self.outputMapping[0].get_linked_tensor() is None:
+            return tensor_memory_usage
         for i in range(1, len(self.outputMapping)):
             tensor_memory_usage += self.outputMapping[i].get_self_memory_size()
             tensor_memory_usage += self.labelMapping[i].get_self_memory_size()
-        tensor_memory_usage += self.linkedInput.get_tensor_memory_size()
         return tensor_memory_usage
 
     # return KB in memory usage for gradients of the loaded tensor
     def get_tensor_grad_memory_size(self):
-        tensor_grad_usage = 0
+        tensor_grad_usage = self.linkedInput.get_tensor_grad_memory_size()
+        if self.outputMapping[0].get_linked_tensor() is None:
+            return tensor_grad_usage
         for i in range(1, len(self.outputMapping)):
             tensor_grad_usage += self.outputMapping[i].get_grad_memory_size()
             tensor_grad_usage += self.labelMapping[i].get_grad_memory_size()
@@ -245,18 +258,20 @@ class ConstantNode_Torch(node.ConstantNode):
 
     # return KB in memory usage for the loaded tensor
     def get_tensor_memory_size(self):
-        tensor_memory_usage = 0
+        tensor_memory_usage = self.linkedConstant.get_tensor_memory_size()
+        if self.outputMapping[0].get_linked_tensor() is None:
+            return tensor_memory_usage
         for i in range(1, len(self.outputMapping)):
             tensor_memory_usage += self.outputMapping[i].get_self_memory_size()
-        tensor_memory_usage += self.linkedConstant.get_tensor_memory_size()
         return tensor_memory_usage
 
     # return KB in memory usage for gradients of the loaded tensor
     def get_tensor_grad_memory_size(self):
-        tensor_grad_usage = 0
+        tensor_grad_usage = self.linkedConstant.get_tensor_grad_memory_size()
+        if self.outputMapping[0].get_linked_tensor() is None:
+            return tensor_grad_usage
         for i in range(1, len(self.outputMapping)):
             tensor_grad_usage += self.outputMapping[i].get_grad_memory_size()
-        tensor_grad_usage += self.linkedConstant.get_tensor_grad_memory_size()
         return tensor_grad_usage
 
 

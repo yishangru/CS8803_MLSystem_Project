@@ -1,4 +1,7 @@
 import os
+import collections
+from viz_abstraction.block import Block
+from model_profiling.profiler import BlockProfiler
 import torch
 from viz_api.viz_pytorch_api import input as input_Torch
 from viz_api.viz_pytorch_api import layer as layer_Torch
@@ -6,7 +9,6 @@ from viz_api.viz_pytorch_api import monitor as monitor_Torch
 from viz_api.viz_pytorch_api import transform as transform_Torch
 from viz_api.viz_pytorch_api import optimizer as optimizer_Torch
 from viz_api.viz_pytorch_api import node as VizNode_Torch
-
 # -------------------- define model monitor (mode, saving, device) -------------------- #
 model_running_train = True
 
@@ -89,11 +91,19 @@ optimizer_SGD_0_track_list = [{'object':layer_Linear_0.get_linked_layer()}, {'ob
 optimizer_SGD_0_dict = {'name': 'optimizer_SGD_0', 'learning_rate': 0.03, 'momentum': 0.9, 'object_to_track_list': optimizer_SGD_0_track_list}
 optimizer_SGD_0 = optimizer_Torch.SGD_Torch(**optimizer_SGD_0_dict)
 
+# -------------------- model block initialize -------------------- #
+block_profiling_dict = collections.defaultdict(lambda: list())
+Block2_nodes = [layer_Linear_0, layer_Linear_1, layer_Linear_2, ]
+Block2 = Block(Block2_nodes, 'Block2')
+
 for model_running_epoch in range(monitor_Manager_0.epochs):
 	for iteration in range(input_MNIST_0.get_linked_input().get_number_batch()):
 		# -------------------- model optimize -------------------- #
 		if model_running_train:
 			optimizer_SGD_0.clear_gradient()
+
+		# -------------------- block profile -------------------- #
+		Block2.update_record()
 
 		# -------------------- model running -------------------- #
 		input_MNIST_0.forward([iteration])
@@ -130,3 +140,16 @@ for model_running_epoch in range(monitor_Manager_0.epochs):
 			optimizer_SGD_0.link_loss_tensor(layer_NLLLoss_0_4_optimizer_SGD_0_2)
 			optimizer_SGD_0.backward()
 			optimizer_SGD_0.step()
+
+		# -------------------- block profile -------------------- #
+		Block2.update_record()
+
+	# -------------------- block epoch record -------------------- #
+	block_profiling_dict['Block2'].append(Block2.get_meta_record())
+	Block2.clear_meta_for_next_epoch()
+
+# -------------------- block epoch plot -------------------- #
+model_block_profiler = BlockProfiler('./')
+model_block_profiler.generateBlockImage(block_profiling_dict)
+
+# Finish Generation #

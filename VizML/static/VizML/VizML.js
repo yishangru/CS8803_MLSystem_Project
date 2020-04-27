@@ -589,6 +589,7 @@ VizML.prototype.removeBlock = function(BlockID) {
 
 
 VizML.prototype.generateCode = function (generatedInfo) {
+    console.log(JSON.stringify(generatedInfo));
     $.ajax({
 			url: '/ModelGeneration',
 			data: JSON.stringify(generatedInfo),
@@ -1078,16 +1079,16 @@ function clickGenerateCode() {
         let nodeInfo = {"id": null, "name": null};
         for (const info in nodeInfo)
             nodeInfo[info] = generatedBlockInfo[info];
-        nodeInfo["nodeIDs"] = new Array(generatedBlockInfo["nodeIDs"]);
+        nodeInfo["nodeIDs"] = Array.from(generatedBlockInfo["nodeIDs"]);
         generatedInfo["blocks"].push(nodeInfo);
     });
+    console.log(generatedInfo["blocks"]);
     /* links info */
     linkedVizML.linkRecorder.forEach(function (value, key, map) {
         let generatedLinkInfo = value.datum();
         let linkInfo = JSON.parse(JSON.stringify(generatedLinkInfo));
         generatedInfo["links"].push(linkInfo);
     });
-
     linkedVizML.generateCode(generatedInfo);
 }
 

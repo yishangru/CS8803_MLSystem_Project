@@ -473,7 +473,9 @@ generalAPIMappingString = {
 # part 1 generate the requirements
 RequirementHeader = {
     "General": "import os\n"
-               "from viz_abstraction.block import Block\n",
+               "import collections\n"
+               "from viz_abstraction.block import Block\n"
+               "from model_profiling.profiler import BlockProfiler\n",
     "PyTorch": "import torch\nfrom viz_api.viz_pytorch_api import input as input_Torch\n"
                "from viz_api.viz_pytorch_api import layer as layer_Torch\n"
                "from viz_api.viz_pytorch_api import monitor as monitor_Torch\n"
@@ -593,10 +595,32 @@ def generateBlock(blockList):
     global nodeManager, recordDict
 
     generateBlockInitial = ["# -------------------- model block initialize -------------------- #"]
-    generateBlockProfile = ["# -------------------- block profile -------------------- #"]
-    for block in blockList:
-        node_list =
+    generateBlockInitial.append("block_profiling_dict = collections.defaultdict(lambda: list())")
+    generateBlockProfile = {"update": ["# -------------------- block profile -------------------- #"],
+                            "record": ["# -------------------- block epoch record -------------------- #"],
+                            "plot": ["# -------------------- block epoch plot -------------------- #"]}
 
+    for block in blockList:
+        blockName = "Block" + str(block["id"])
+        blockNodeListName = blockName + "_nodes"
+        nodeListString = ""
+        for node in block["nodeIDs"]:
+            nodeListString += (recordDict[node]["name"] + ", ")
+        nodeListString = blockNodeListName + " = [" + nodeListString + "]"
+        blockString = blockName + " = Block(" + blockNodeListName + ", '" + blockName + "')"
+        generateBlockInitial.append(nodeListString)
+        generateBlockInitial.append(blockString)
+        generateBlockProfile["update"].append(blockName + ".update_record()")
+        generateBlockProfile["record"].append("block_profiling_dict['" + blockName + "'].append(" + blockName + ".get_meta_record())")
+        generateBlockProfile["record"].append(blockName + ".clear_meta_for_next_epoch()")
+
+    if len(blockList) > 0:
+        generateBlockProfile["plot"].append("model_block_profiler = BlockProfiler('./')")
+        generateBlockProfile["plot"].append("model_block_profiler.generateBlockImage(block_profiling_dict)")
+    else:
+        generateBlockProfile["plot"].append("# no block generated, no plots")
+
+    return generateBlockInitial, generateBlockProfile
 
 # part 5 generate link for running logic and saving code
 def generateTraining(linkList, optimizerList):
@@ -856,6 +880,7 @@ def generateModel(model, path):
     monitorString, managerMonitor = generateMonitor(monitorList)
     loadString, nodeString = generateNodeAndLoad(nodeList, managerMonitor)  # for node declare and load model
     generateRunInitial, generateRunString, generateOptimizerInitial, generateOptimizerString, generateSaveString, startNode = generateTraining(model_json["links"], optimizerList)
+    generateBlockInitial, generateBlockProfile = generateBlock(model_json["blocks"])
 
     # generate the overall model
     outputFile = open(path, mode="w", encoding="utf-8")
@@ -866,18 +891,24 @@ def generateModel(model, path):
     outputFile.write(nodeString)
     outputFile.write("\n".join(generateRunInitial) + "\n\n")
     outputFile.write("\n".join(generateOptimizerInitial) + "\n\n")
+    outputFile.write("\n".join(generateBlockInitial) + "\n\n")
 
     # add epoch for model running and optimizing
     model_running_string = "for model_running_epoch in range(" + managerMonitor + ".epochs):\n" + \
                            "\tfor iteration in range(" + recordDict[startNode]["name"] + ".get_linked_input().get_number_batch()):\n" + \
                            "\n".join(["\t\t" + optimizing_line for optimizing_line in generateOptimizerString["clear"]]) + "\n\n" + \
+                           "\n".join(["\t\t" + block_line for block_line in generateBlockProfile["update"]]) + "\n\n" + \
                            "\n".join(["\t\t" + running_line for running_line in generateRunString]) + "\n\n" + \
-                           "\n".join(["\t\t" + optimizing_line for optimizing_line in generateOptimizerString["optimize"]]) + "\n\n"
-    # add profiling code
+                           "\n".join(["\t\t" + optimizing_line for optimizing_line in generateOptimizerString["optimize"]]) + "\n\n" + \
+                           "\n".join(["\t\t" + block_line for block_line in generateBlockProfile["update"]]) + "\n\n" + \
+                           "\n".join(["\t" + block_line for block_line in generateBlockProfile["record"]]) + "\n\n"
+
     outputFile.write(model_running_string)
+    outputFile.write("\n".join(generateBlockProfile["plot"]) + "\n\n")
+    outputFile.write("# Finish Generation #\n")
     outputFile.close()
 
 
 model_file = open("./generate.json", mode="r", encoding="utf-8")
 model_json = json.load(fp=model_file)
-generateModel(model_json, )
+generateModel(model_json, "./generate_test.py")

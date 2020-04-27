@@ -300,24 +300,10 @@
   ],
   "blocks": [
     {
-      "id": 0,
-      "name": "Block0",
-      "nodeIDs": [
-        {}
-      ]
-    },
-    {
-      "id": 1,
-      "name": "Block1",
-      "nodeIDs": [
-        {}
-      ]
-    },
-    {
       "id": 2,
       "name": "Block2",
       "nodeIDs": [
-        {}
+        3, 5, 7
       ]
     }
   ],

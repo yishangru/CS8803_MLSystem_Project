@@ -56,13 +56,15 @@ class Block(object):
         for blockNode in self.nodeList:
             assert (isinstance(blockNode, node.Node))
             tensor_memory_size += blockNode.get_tensor_memory_size()
+        return tensor_memory_size
 
     # return KB in memory usage for gradients of the loaded tensor
     def get_tensor_grad_memory_size(self):
-        tensor_memory_size = 0
+        tensor_grad_size = 0
         for blockNode in self.nodeList:
             assert (isinstance(blockNode, node.Node))
-            tensor_memory_size += blockNode.get_tensor_grad_memory_size()
+            tensor_grad_size += blockNode.get_tensor_grad_memory_size()
+        return tensor_grad_size
 
     # return KB in memory usage for layer feature (weight, bias)
     def get_layer_feature_memory_size(self):
@@ -70,6 +72,7 @@ class Block(object):
         for blockNode in self.nodeList:
             if isinstance(blockNode, node.LayerNode):
                 layer_feature_size += blockNode.get_layer_feature_memory_size()
+        return layer_feature_size
 
     # return KB in memory usage for layer gradients
     def get_layer_grad_memory_size(self):
@@ -77,3 +80,4 @@ class Block(object):
         for blockNode in self.nodeList:
             if isinstance(blockNode, node.LayerNode):
                 layer_grad_size += blockNode.get_layer_grad_memory_size()
+        return layer_grad_size
