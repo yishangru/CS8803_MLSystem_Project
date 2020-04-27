@@ -1,6 +1,6 @@
 """
 Input:
-
+dict -> list ->
 {"tensor":
      {"mem":
           {"max": 0, "min": float("inf")},
@@ -13,7 +13,7 @@ Input:
       "grad":
           {"max": 0, "min": float("inf")}
       }
- }
+}
 
 """
 
@@ -22,3 +22,6 @@ class BlockProfiler(object):
         self.generationPath = generationPath
 
     def generateBlockImage(self, blockMemDict):
+        for block in blockMemDict:
+            # just for max and min
+            pass

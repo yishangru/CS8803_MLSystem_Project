@@ -799,7 +799,8 @@ function clickPort(e) {
                 /* check whether the target port is linked with other port */
                 let linkedAlready = false;
                 targetLinkedData["links"].forEach(function (d) {
-                    if (linkedVizML.linkRecorder.get(d).datum()["target"]["port"] === targetPort)
+                    let linkedData = linkedVizML.linkRecorder.get(d).datum();
+                    if (linkedData["target"]["nodeID"] === targetNode && linkedData["target"]["port"] === targetPort)
                         linkedAlready = true;
                 });
 
