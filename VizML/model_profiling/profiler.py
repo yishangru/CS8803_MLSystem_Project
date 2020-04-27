@@ -17,6 +17,9 @@ dict -> list ->
 
 """
 
+import numpy as np
+import matplotlib.pyplot as plt
+
 class BlockProfiler(object):
     def __init__(self, generationPath: str):
         self.generationPath = generationPath
