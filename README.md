@@ -16,5 +16,5 @@ With virtual environment activated, run **app.py**. The system frontend should b
 ## About VizML
 The source code of VizML is release in \url{https://github.com/yishangru/VizML}. We now just provide supports for normal model generation and implement very minimal validation check for the user inputs due to time constrains, which is far from enough. Some strange generation behaviors could make the system out of works. We will keep update this repository with more usability provided and add more invariant for ensuring the model logic correctness. More extensive node operations will be available in following months.
 
-![Program Screenshot](/screenshots/front.PNG)
-![Program Screenshot](/screenshots/style.PNG)
+![Program Screenshot](/screenshot/front.PNG)
+![Program Screenshot](/screenshot/style.PNG)
