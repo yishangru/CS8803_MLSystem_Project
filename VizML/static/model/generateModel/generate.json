@@ -1,0 +1,470 @@
+{
+  "nodes": [
+    {
+      "id": 0,
+      "node": "Linear",
+      "type": "layer",
+      "api": "PyTorch",
+      "source": "",
+      "parameters": [
+        {
+          "ParaName": "in_features",
+          "ParaClass": "int",
+          "ParaValue": "784",
+          "Required": 1
+        },
+        {
+          "ParaName": "out_features",
+          "ParaClass": "int",
+          "ParaValue": "128",
+          "Required": 1
+        },
+        {
+          "ParaName": "inplace_forward",
+          "ParaClass": "bool",
+          "ParaValue": "True",
+          "Required": 0
+        },
+        {
+          "ParaName": "evaluate",
+          "ParaClass": "bool",
+          "ParaValue": "False",
+          "Required": 0
+        },
+        {
+          "ParaName": "bias",
+          "ParaClass": "bool",
+          "ParaValue": "True",
+          "Required": 0
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "node": "ReLU",
+      "type": "layer",
+      "api": "PyTorch",
+      "source": "",
+      "parameters": [
+        {
+          "ParaName": "evaluate",
+          "ParaClass": "bool",
+          "ParaValue": "False",
+          "Required": 0
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "node": "Linear",
+      "type": "layer",
+      "api": "PyTorch",
+      "source": "",
+      "parameters": [
+        {
+          "ParaName": "in_features",
+          "ParaClass": "int",
+          "ParaValue": "128",
+          "Required": 1
+        },
+        {
+          "ParaName": "out_features",
+          "ParaClass": "int",
+          "ParaValue": "64",
+          "Required": 1
+        },
+        {
+          "ParaName": "inplace_forward",
+          "ParaClass": "bool",
+          "ParaValue": "True",
+          "Required": 0
+        },
+        {
+          "ParaName": "evaluate",
+          "ParaClass": "bool",
+          "ParaValue": "False",
+          "Required": 0
+        },
+        {
+          "ParaName": "bias",
+          "ParaClass": "bool",
+          "ParaValue": "True",
+          "Required": 0
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "node": "ReLU",
+      "type": "layer",
+      "api": "PyTorch",
+      "source": "",
+      "parameters": [
+        {
+          "ParaName": "evaluate",
+          "ParaClass": "bool",
+          "ParaValue": "False",
+          "Required": 0
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "node": "Linear",
+      "type": "layer",
+      "api": "PyTorch",
+      "source": "",
+      "parameters": [
+        {
+          "ParaName": "in_features",
+          "ParaClass": "int",
+          "ParaValue": "64",
+          "Required": 1
+        },
+        {
+          "ParaName": "out_features",
+          "ParaClass": "int",
+          "ParaValue": "10",
+          "Required": 1
+        },
+        {
+          "ParaName": "inplace_forward",
+          "ParaClass": "bool",
+          "ParaValue": "True",
+          "Required": 0
+        },
+        {
+          "ParaName": "evaluate",
+          "ParaClass": "bool",
+          "ParaValue": "False",
+          "Required": 0
+        },
+        {
+          "ParaName": "bias",
+          "ParaClass": "bool",
+          "ParaValue": "True",
+          "Required": 0
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "node": "LogSoftMax",
+      "type": "layer",
+      "api": "PyTorch",
+      "source": "",
+      "parameters": [
+        {
+          "ParaName": "dim",
+          "ParaClass": "int",
+          "ParaValue": "1",
+          "Required": 1
+        },
+        {
+          "ParaName": "inplace_forward",
+          "ParaClass": "bool",
+          "ParaValue": "True",
+          "Required": 0
+        },
+        {
+          "ParaName": "evaluate",
+          "ParaClass": "bool",
+          "ParaValue": "False",
+          "Required": 0
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "node": "NLLLoss",
+      "type": "layer",
+      "api": "PyTorch",
+      "source": "",
+      "parameters": [
+        {
+          "ParaName": "evaluate",
+          "ParaClass": "bool",
+          "ParaValue": "False",
+          "Required": 0
+        },
+        {
+          "ParaName": "reduction",
+          "ParaClass": "str",
+          "ParaValue": "mean",
+          "Required": 0
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "node": "MNIST",
+      "type": "input",
+      "api": "PyTorch",
+      "source": "",
+      "parameters": [
+        {
+          "ParaName": "root",
+          "ParaClass": "str",
+          "ParaValue": "../dataset",
+          "Required": 1
+        },
+        {
+          "ParaName": "max_batch_size",
+          "ParaClass": "int",
+          "ParaValue": "64",
+          "Required": 0
+        },
+        {
+          "ParaName": "shuffle",
+          "ParaClass": "bool",
+          "ParaValue": "True",
+          "Required": 0
+        },
+        {
+          "ParaName": "train",
+          "ParaClass": "bool",
+          "ParaValue": "True",
+          "Required": 0
+        },
+        {
+          "ParaName": "download",
+          "ParaClass": "bool",
+          "ParaValue": "True",
+          "Required": 0
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "node": "Flatten",
+      "type": "transform",
+      "api": "PyTorch",
+      "source": "",
+      "parameters": [
+        {
+          "ParaName": "inplace_forward",
+          "ParaClass": "bool",
+          "ParaValue": "False",
+          "Required": 0
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "node": "SGD",
+      "type": "optimizer",
+      "api": "PyTorch",
+      "source": "",
+      "parameters": [
+        {
+          "ParaName": "learning_rate",
+          "ParaClass": "float",
+          "ParaValue": "0.03",
+          "Required": 1
+        },
+        {
+          "ParaName": "momentum",
+          "ParaClass": "float",
+          "ParaValue": "0.9",
+          "Required": 0
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "node": "Manager",
+      "type": "monitor",
+      "api": "PyTorch",
+      "source": "",
+      "parameters": [
+        {
+          "ParaName": "epochs",
+          "ParaClass": "int",
+          "ParaValue": "15",
+          "Required": 1
+        },
+        {
+          "ParaName": "model_save_path",
+          "ParaClass": "str",
+          "ParaValue": "./",
+          "Required": 1
+        },
+        {
+          "ParaName": "device_name",
+          "ParaClass": "str",
+          "ParaValue": "cuda:0",
+          "Required": 1
+        }
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "id": 0,
+      "name": "Block0",
+      "nodeIDs": [
+        0,
+        2,
+        4
+      ]
+    }
+  ],
+  "links": [
+    {
+      "source": {
+        "nodeID": 0,
+        "port": 4
+      },
+      "target": {
+        "nodeID": 1,
+        "port": 1
+      },
+      "color": "#fb9a99",
+      "id": 0
+    },
+    {
+      "source": {
+        "nodeID": 1,
+        "port": 4
+      },
+      "target": {
+        "nodeID": 2,
+        "port": 1
+      },
+      "color": "#fb9a99",
+      "id": 1
+    },
+    {
+      "source": {
+        "nodeID": 2,
+        "port": 4
+      },
+      "target": {
+        "nodeID": 3,
+        "port": 1
+      },
+      "color": "#fb9a99",
+      "id": 2
+    },
+    {
+      "source": {
+        "nodeID": 3,
+        "port": 4
+      },
+      "target": {
+        "nodeID": 4,
+        "port": 1
+      },
+      "color": "#fb9a99",
+      "id": 3
+    },
+    {
+      "source": {
+        "nodeID": 4,
+        "port": 4
+      },
+      "target": {
+        "nodeID": 5,
+        "port": 1
+      },
+      "color": "#fb9a99",
+      "id": 4
+    },
+    {
+      "source": {
+        "nodeID": 5,
+        "port": 4
+      },
+      "target": {
+        "nodeID": 6,
+        "port": 1
+      },
+      "color": "#fb9a99",
+      "id": 5
+    },
+    {
+      "source": {
+        "nodeID": 8,
+        "port": 5
+      },
+      "target": {
+        "nodeID": 6,
+        "port": 2
+      },
+      "color": "#fb9a99",
+      "id": 6
+    },
+    {
+      "source": {
+        "nodeID": 8,
+        "port": 4
+      },
+      "target": {
+        "nodeID": 9,
+        "port": 1
+      },
+      "color": "#fb9a99",
+      "id": 7
+    },
+    {
+      "source": {
+        "nodeID": 9,
+        "port": 4
+      },
+      "target": {
+        "nodeID": 0,
+        "port": 1
+      },
+      "color": "#fb9a99",
+      "id": 8
+    },
+    {
+      "source": {
+        "nodeID": 4,
+        "port": 3
+      },
+      "target": {
+        "nodeID": 10,
+        "port": 1
+      },
+      "color": "#4daf4a",
+      "id": 9
+    },
+    {
+      "source": {
+        "nodeID": 2,
+        "port": 3
+      },
+      "target": {
+        "nodeID": 10,
+        "port": 1
+      },
+      "color": "#4daf4a",
+      "id": 10
+    },
+    {
+      "source": {
+        "nodeID": 0,
+        "port": 3
+      },
+      "target": {
+        "nodeID": 10,
+        "port": 1
+      },
+      "color": "#4daf4a",
+      "id": 11
+    },
+    {
+      "source": {
+        "nodeID": 6,
+        "port": 4
+      },
+      "target": {
+        "nodeID": 10,
+        "port": 2
+      },
+      "color": "#e41a1c",
+      "id": 12
+    }
+  ]
+}

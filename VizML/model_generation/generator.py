@@ -879,8 +879,8 @@ def generateModel(model, path):
     platform = RequirementHeader["PyTorch"]
     monitorString, managerMonitor = generateMonitor(monitorList)
     loadString, nodeString = generateNodeAndLoad(nodeList, managerMonitor)  # for node declare and load model
-    generateRunInitial, generateRunString, generateOptimizerInitial, generateOptimizerString, generateSaveString, startNode = generateTraining(model_json["links"], optimizerList)
-    generateBlockInitial, generateBlockProfile = generateBlock(model_json["blocks"])
+    generateRunInitial, generateRunString, generateOptimizerInitial, generateOptimizerString, generateSaveString, startNode = generateTraining(model["links"], optimizerList)
+    generateBlockInitial, generateBlockProfile = generateBlock(model["blocks"])
 
     # generate the overall model
     outputFile = open(path, mode="w", encoding="utf-8")
